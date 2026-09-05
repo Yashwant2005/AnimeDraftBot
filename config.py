@@ -6,7 +6,7 @@ API_HASH = "f20065cc26d4a31bf0efc0b44edaffa9"
 BOT_TOKEN = "8322954992:AAEBxrBl7q5s8l9YoBrpX804Callvc3KcCw"
 MONGO_URI = "mongodb+srv://yesvashisht2005_db_user:yash2005@cluster0.nd8dam5.mongodb.net/?appName=Cluster0"
 MONGO_DB_NAME = "anime_bot"
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyBqc-Ws0SHRblCsp_qNUUtgoNUIT1FNRok")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
 # --- DIRECTORY SETUP ---
