@@ -2,7 +2,9 @@ import logging
 import threading
 import sys
 import os
+import time
 from pyrogram import Client
+from pyrogram import idle
 from config import API_ID, API_HASH, BOT_TOKEN
 from database import init_mongo, load_admin_ids
 from data_loader import load_data, load_pokemon_data, load_achievements, load_marvel_data
@@ -58,15 +60,6 @@ def main():
     t_monitor = threading.Thread(target=game_engine.forfeit_monitor, args=(None,), daemon=True)
     t_monitor.start()
 
-    # 4. Start Bot
-    logging.info("Starting Pyrogram Client...")
-    app = Client(
-        "anime_bot",
-        api_id=API_ID,
-        api_hash=API_HASH,
-        bot_token=BOT_TOKEN,
-        plugins=dict(root="plugins") # Automatically loads files from the plugins folder
-    )
     try:
         import clone_manager
         clone_manager.clear_all_clone_runtime_state()
@@ -77,7 +70,34 @@ def main():
     # Export MongoDB daily at 7 PM and send the archive to the configured chat.
     start_daily_export_scheduler()
 
-    app.run()
+    restart_delay = max(5, int(os.environ.get("BOT_RESTART_DELAY", "15")))
+    while True:
+        app = Client(
+            "anime_bot",
+            api_id=API_ID,
+            api_hash=API_HASH,
+            bot_token=BOT_TOKEN,
+            plugins=dict(root="plugins")
+        )
+        try:
+            logging.info("Starting Pyrogram Client...")
+            app.start()
+            web_server.set_bot_status(True)
+            logging.info("Telegram bot is online and polling updates.")
+            idle()
+        except Exception as error:
+            web_server.set_bot_status(False, error)
+            logging.exception("Telegram client stopped unexpectedly; restarting in %ss", restart_delay)
+        finally:
+            web_server.set_bot_status(False)
+            try:
+                if app.is_connected:
+                    app.stop()
+            except Exception:
+                logging.exception("Error while stopping Telegram client")
+
+        logging.warning("Telegram client stopped; restarting in %ss", restart_delay)
+        time.sleep(restart_delay)
 
 if __name__ == "__main__":
     main()
