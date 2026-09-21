@@ -1,0 +1,58 @@
+start - Start the Anime Draft bot
+guide - Open the bot guide
+commands - View all command usage
+cmds - View all command usage
+list - List anime or comic series
+profile - View your profile and draft stats
+balance - Check your coins
+daily - Claim daily coins
+leaderboard - Open the leaderboard selector
+top - Open the leaderboard selector
+topglobal - Open the global leaderboard
+topgroup - Open the group leaderboard
+grouptop - Open the group leaderboard
+draft - Challenge a user to an anime draft
+draft_v2 - Start an anime draft v2
+pokemondraft - Challenge a user to a Pokemon draft
+pdraft - Challenge a user to a Pokemon draft
+cdraft - Challenge a user to a comics draft
+duel - Challenge a user to a character duel
+shambles - Start a Shambles guessing game
+whoswho - Start a Who's Who guessing game
+punk - Start a Punk Records guessing game
+answer - Submit an answer to a guessing game
+cancelgame - Cancel the active guessing game
+docq - Play the apple explosion game
+roulette - Start a Russian Roulette game
+rps - Play Rock Paper Scissors
+bounty - View your bounty profile
+fight - Fight another user for bounty
+plunder - Attack another user for bounty
+trade - Trade characters with another user
+gift - Gift coins or characters to another user
+harem - View your character collection
+collection - View your character collection
+guess - Claim the dropped character
+grab - Claim the dropped character
+collect - Claim the dropped character
+protecc - Claim the dropped character
+hunt - Claim the dropped character
+fav - Set a favourite character
+changetime - Set the group drop timing
+upload - Upload a new waifu character
+uploadchar - Upload a character from a replied image
+deletechar - Delete a waifu character (admin)
+exportdb - Export a database backup (admin)
+backupdb - Export a database backup (admin)
+status - View bot status (admin)
+acast - Broadcast a message (admin)
+add - Add an anime character (admin)
+add_comic - Add a comics character (admin)
+comicimg - Update a comics character image (admin)
+characters - Browse the character database (admin)
+addpoints - Add draft points to a user (admin)
+newyear - Toggle the New Year event (admin)
+sudo - Promote or demote a moderator (owner)
+mods - List moderators (admin)
+add_sudo - Promote a user to clone admin (admin)
+clone - Create and start a cloned bot
