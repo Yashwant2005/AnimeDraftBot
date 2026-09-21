@@ -55,25 +55,17 @@ _GUIDE_PAGES = [
     "• `/daily` - Claim daily free coins\n"
     "• `/trade` / `/gift` - Trade/gift users",
 
-    "📚 **Bot Guide - Page 3 (Waifu & RPG)**\n\n"
-    "**Character Collection**\n"
-    "• `/guess` - Claim dropped characters\n"
-    "• `/harem` - View your collection\n"
-    "• `/fav` - Set a favorite character\n\n"
-    "**RPG & Combat**\n"
+    "📚 **Bot Guide - Page 3 (RPG & Combat)**\n\n"
     "• `/bounty` - Check bounty stats\n"
     "• `/fight` / `/plunder` - Attack other users",
 
     "📚 **Bot Guide - Page 4 (Admins)**\n\n"
     "**Admin Management**\n"
-    "• `/upload` / `/uploadchar` - Upload characters\n"
-    "• `/deletechar` - Delete a character\n"
     "• `/add` / `/addpoints` - Give currency/points\n"
     "• `/characters` - Manage DB\n"
     "• `/acast` - Broadcast message\n"
     "• `/sudo` / `/mods` - Manage admins\n"
     "• `/exportdb` - Export database\n"
-    "• `/changetime` - Set waifu drop timing\n"
     "• `/status` - Check bot status"
 ]
 
@@ -133,8 +125,8 @@ _COMMANDS_PAGES = [
         "<b>/bounty</b>\n"
         "<code>/bounty</code> - Show your bounty profile with wanted poster when available.\n"
         "<code>/bounty</code> as a reply - Show that user's bounty profile/poster.\n\n"
-        "<b>/harem</b> / <b>/collection</b>\n"
-        "<code>/harem</code> - Show your waifu collection."
+        "<b>/status</b>\n"
+        "<code>/status</code> - Show active bot users and chats."
     ),
     (
         "Leaderboards",
@@ -147,12 +139,10 @@ _COMMANDS_PAGES = [
         "<code>/topglobal draft</code> - Draft points.\n"
         "<code>/topglobal draft wins</code> - Most draft wins.\n"
         "<code>/topglobal bounty</code> - Bounty ranking.\n"
-        "<code>/topglobal waifu</code> - Waifu catch ranking.\n\n"
         "<b>Direct group boards</b>\n"
         "<code>/topgroup draft</code> - Group draft points.\n"
         "<code>/topgroup draft wins</code> - Group draft wins.\n"
         "<code>/topgroup bounty</code> - Group bounty ranking.\n"
-        "<code>/topgroup waifu</code> - Group waifu catch ranking.\n\n"
         "Use the buttons under a leaderboard to switch Global/Group, board type, metric, and page."
     ),
     (
@@ -193,27 +183,6 @@ _COMMANDS_PAGES = [
         "Roulette is 1v1: players take turns clicking chambers; the middle button is locked, and the player who hits the bullet loses."
     ),
     (
-        "Waifu Drops",
-        "💫 <b>Commands Guide - Waifu Drops</b>\n\n"
-        "<b>Claiming</b>\n"
-        "<code>/guess Rem</code> - Guess the current dropped character.\n"
-        "<code>/grab Rem</code>, <code>/collect Rem</code>, <code>/protecc Rem</code>, <code>/hunt Rem</code> - Same as /guess.\n\n"
-        "<b>Collection</b>\n"
-        "<code>/harem</code> - Open your collection.\n"
-        "<code>/collection</code> - Same as /harem.\n"
-        "<code>/fav 0042</code> - Set a collected character as favourite by character ID.\n\n"
-        "<b>Drop timing - group admins</b>\n"
-        "<code>/changetime status</code> - Show this group's drop setting.\n"
-        "<code>/changetime messages 100</code> - Drop after every 100 messages.\n"
-        "<code>/changetime time 10m</code> - Drop every 10 minutes.\n"
-        "<code>/changetime 50</code> - Shortcut for message mode.\n"
-        "<code>/changetime 2h</code> - Shortcut for time mode.\n\n"
-        "<b>Character upload</b>\n"
-        "<code>/upload IMG_URL character-name anime-name rarity_number</code> - Submit/add a character. Non-admin uploads go to approval.\n"
-        "<code>/uploadchar</code> as a reply to an image - Caption must include Name: and Anime:. Non-admin uploads go to approval.\n"
-        "<code>/deletechar 0042</code> - Delete a waifu character by ID. Admin only."
-    ),
-    (
         "Admin",
         "🛠 <b>Commands Guide - Admin</b>\n\n"
         "<b>Broadcast + status</b>\n"
@@ -250,7 +219,7 @@ def _commands_markup(page):
 
     shortcut_rows = [
         [("Info", 0), ("Top", 1), ("Draft", 2)],
-        [("Games", 3), ("Waifu", 4), ("Admin", 5)],
+        [("Games", 3), ("Admin", 4)],
     ]
     for shortcut_row in shortcut_rows:
         rows.append([
@@ -525,7 +494,6 @@ _LB_PAGE_SIZE = 10
 _LB_BOARDS = {
     "draft": "Draft",
     "bounty": "Bounty",
-    "waifu": "Waifu Catch",
 }
 
 def _lb_is_group_chat(chat) -> bool:
@@ -541,8 +509,6 @@ def _lb_user_link(user_id, name) -> str:
 def _lb_default_metric(board):
     if board == "draft":
         return "points"
-    if board == "waifu":
-        return "catches"
     return "value"
 
 def _lb_scope_from_command(command_parts):
@@ -559,8 +525,6 @@ def _lb_board_from_command(command_parts):
             return "draft"
         if arg in ("bounty", "coin", "coins", "belly"):
             return "bounty"
-        if arg in ("waifu", "catch", "catches", "collector", "collectors", "harem"):
-            return "waifu"
     return None
 
 def _lb_metric_from_command(board, command_parts):
@@ -579,7 +543,6 @@ def _lb_selector_markup(scope):
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("Draft", callback_data=f"lb:draft:{scope}:points:1")],
         [InlineKeyboardButton("Bounty", callback_data=f"lb:bounty:{scope}:value:1")],
-        [InlineKeyboardButton("Waifu Catch", callback_data=f"lb:waifu:{scope}:catches:1")],
         [
             InlineKeyboardButton("Global", callback_data="lbsel:global"),
             InlineKeyboardButton("Group", callback_data="lbsel:group"),
@@ -642,52 +605,6 @@ def _lb_draft_entries(scope, chat_id, metric, page):
         ], len(rows)
 
     return [], 0
-
-def _lb_waifu_entries(scope, chat_id, page):
-    if not database.USE_MONGO or database.COL_WAIFU_USERS is None:
-        return None, 0
-    start = (page - 1) * _LB_PAGE_SIZE
-
-    if scope == "group":
-        if database.COL_WAIFU_GROUP_USERS is None:
-            return [], 0
-        query = {"group_id": chat_id, "count": {"$gt": 0}}
-        docs = list(
-            database.COL_WAIFU_GROUP_USERS.find(query)
-            .sort("count", -1)
-            .skip(start)
-            .limit(_LB_PAGE_SIZE)
-        )
-        total = database.COL_WAIFU_GROUP_USERS.count_documents(query)
-        return [
-            {
-                "id": d.get("user_id"),
-                "name": d.get("first_name") or d.get("username") or d.get("user_id"),
-                "score": d.get("count", 0),
-            }
-            for d in docs
-        ], total
-
-    score_expr = {"$ifNull": ["$total_guesses", {"$size": {"$ifNull": ["$characters", []]}}]}
-    base = [
-        {"$addFields": {"score": score_expr}},
-        {"$match": {"score": {"$gt": 0}}},
-    ]
-    docs = list(database.COL_WAIFU_USERS.aggregate(base + [
-        {"$sort": {"score": -1, "coins": -1}},
-        {"$skip": start},
-        {"$limit": _LB_PAGE_SIZE},
-    ]))
-    total_doc = list(database.COL_WAIFU_USERS.aggregate(base + [{"$count": "total"}]))
-    total = total_doc[0]["total"] if total_doc else 0
-    return [
-        {
-            "id": d.get("id"),
-            "name": d.get("first_name") or d.get("username") or d.get("id"),
-            "score": d.get("score", 0),
-        }
-        for d in docs
-    ], total
 
 def _lb_bounty_entries(scope, chat_id, page):
     if not database.USE_MONGO or database.COL_WAIFU_USERS is None:
@@ -753,13 +670,12 @@ def _lb_entries(board, scope, chat_id, metric, page):
         return _lb_draft_entries(scope, chat_id, metric, page)
     if board == "bounty":
         return _lb_bounty_entries(scope, chat_id, page)
-    return _lb_waifu_entries(scope, chat_id, page)
+    return [], 0
 
 def _lb_markup(board, scope, metric, page, total_pages):
     rows = [[
         InlineKeyboardButton("Draft", callback_data=f"lb:draft:{scope}:points:1"),
         InlineKeyboardButton("Bounty", callback_data=f"lb:bounty:{scope}:value:1"),
-        InlineKeyboardButton("Waifu", callback_data=f"lb:waifu:{scope}:catches:1"),
     ]]
     rows.append([
         InlineKeyboardButton("Global", callback_data=f"lb:{board}:global:{metric}:1"),
@@ -820,7 +736,7 @@ def _lb_text_and_markup(chat, board, scope, metric, page):
                 lines.append(f"{rank}. {name} - <b>{score:,}</b> bounty")
             else:
                 score = int(entry.get("score") or 0)
-                lines.append(f"{rank}. {name} - <b>{score:,}</b> catches")
+                lines.append(f"{rank}. {name} - <b>{score:,}</b>")
 
     return "\n".join(lines), _lb_markup(board, scope, metric, page, total_pages)
 
@@ -845,7 +761,7 @@ async def leaderboard_selector_callback(client, callback_query):
         reply_markup=_lb_selector_markup(scope),
     )
 
-@Client.on_callback_query(filters.regex(r"^lb:(draft|bounty|waifu):(global|group):(points|wins|value|catches):(\d+)$"))
+@Client.on_callback_query(filters.regex(r"^lb:(draft|bounty):(global|group):(points|wins|value):(\d+)$"))
 async def leaderboard_switch_callback(client, callback_query):
     board = callback_query.matches[0].group(1)
     scope = callback_query.matches[0].group(2)
@@ -887,123 +803,6 @@ def _parse_top_page(command_parts):
         if str(arg).isdigit():
             return max(1, int(arg))
     return 1
-
-def _collection_top_entries(mode, chat_id, page):
-    if not database.USE_MONGO or database.COL_WAIFU_USERS is None:
-        return None, 0
-
-    start = (page - 1) * _TOP_PAGE_SIZE
-    if mode == "group":
-        if database.COL_WAIFU_GROUP_USERS is None:
-            return None, 0
-        query = {"group_id": chat_id, "count": {"$gt": 0}}
-        docs = list(
-            database.COL_WAIFU_GROUP_USERS.find(query)
-            .sort("count", -1)
-            .skip(start)
-            .limit(_TOP_PAGE_SIZE)
-        )
-        total = database.COL_WAIFU_GROUP_USERS.count_documents(query)
-        entries = [
-            {
-                "id": d.get("user_id"),
-                "name": d.get("first_name") or d.get("username") or d.get("user_id"),
-                "score": d.get("count", 0),
-            }
-            for d in docs
-        ]
-        return entries, total
-
-    score_expr = {"$ifNull": ["$total_guesses", {"$size": {"$ifNull": ["$characters", []]}}]}
-    docs = list(database.COL_WAIFU_USERS.aggregate([
-        {"$addFields": {"score": score_expr}},
-        {"$match": {"score": {"$gt": 0}}},
-        {"$sort": {"score": -1, "coins": -1}},
-        {"$skip": start},
-        {"$limit": _TOP_PAGE_SIZE},
-    ]))
-    total_doc = list(database.COL_WAIFU_USERS.aggregate([
-        {"$addFields": {"score": score_expr}},
-        {"$match": {"score": {"$gt": 0}}},
-        {"$count": "total"},
-    ]))
-    total = total_doc[0]["total"] if total_doc else 0
-    entries = [
-        {
-            "id": d.get("id"),
-            "name": d.get("first_name") or d.get("username") or d.get("id"),
-            "score": d.get("score", 0),
-        }
-        for d in docs
-    ]
-    return entries, total
-
-def _collection_top_markup(mode, page, total_pages):
-    rows = [[
-        InlineKeyboardButton("Global", callback_data="wtop:global:1"),
-        InlineKeyboardButton("Group", callback_data="wtop:group:1"),
-    ]]
-    nav = []
-    if page > 1:
-        nav.append(InlineKeyboardButton("Prev", callback_data=f"wtop:{mode}:{page - 1}"))
-    if page < total_pages:
-        nav.append(InlineKeyboardButton("Next", callback_data=f"wtop:{mode}:{page + 1}"))
-    if nav:
-        rows.append(nav)
-    return InlineKeyboardMarkup(rows)
-
-def _build_collection_top(chat, mode, page):
-    if mode == "group" and not _is_group_chat(chat):
-        return "Group leaderboard only works inside a group chat.", _collection_top_markup("global", 1, 1)
-
-    page = max(1, page)
-    entries, total = _collection_top_entries(mode, chat.id, page)
-    if entries is None:
-        return "Database not ready.", None
-
-    total_pages = max(1, (total + _TOP_PAGE_SIZE - 1) // _TOP_PAGE_SIZE)
-    if page > total_pages:
-        page = total_pages
-        entries, total = _collection_top_entries(mode, chat.id, page)
-
-    title = "Top Global Collectors" if mode == "global" else f"Top Collectors in {html.escape(getattr(chat, 'title', None) or 'This Group')}"
-    lines = [f"<b>{title}</b> - Page {page}/{total_pages}\n"]
-    if not entries:
-        lines.append("No catches yet.")
-    else:
-        start_rank = (page - 1) * _TOP_PAGE_SIZE + 1
-        for offset, entry in enumerate(entries):
-            uid = entry.get("id")
-            name = html.escape(str(entry.get("name") or uid or "Unknown"))
-            score = int(entry.get("score") or 0)
-            if uid:
-                name = f"<a href='tg://user?id={uid}'>{name}</a>"
-            lines.append(f"{start_rank + offset}. {name} - <b>{score:,}</b> catches")
-
-    return "\n".join(lines), _collection_top_markup(mode, page, total_pages)
-
-async def _send_collection_top(message, mode, page):
-    text, markup = _build_collection_top(message.chat, mode, page)
-    await message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
-
-@Client.on_callback_query(filters.regex(r"^wtop:(global|group):(\d+)$"))
-async def collection_top_callback(client, callback_query):
-    mode = callback_query.matches[0].group(1)
-    page = int(callback_query.matches[0].group(2))
-    text, markup = _build_collection_top(callback_query.message.chat, mode, page)
-    await callback_query.answer()
-    await callback_query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
-
-@Client.on_message(filters.command("__oldleaderboard_disabled"))
-async def leaderboard_cmd(c, m):
-    """Show leaderboard (paged). Usage: /leaderboard [page]"""
-    database.set_current_client(c)
-    user_id = m.from_user.id
-    is_clone = getattr(c, 'is_clone', False)
-    logging.info(f"[LEADERBOARD] User {user_id} requesting leaderboard{'(clone)' if is_clone else '(main)'}")
-    command_parts = m.command or []
-    await _send_collection_top(m, _parse_top_mode(command_parts), _parse_top_page(command_parts))
-    return
 
     # page param (optional)
     args = m.text.split()

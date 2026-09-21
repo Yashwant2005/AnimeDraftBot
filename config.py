@@ -93,17 +93,7 @@ TYPE_CHART = {
 }
 
 # --- MERGED BOTS CONFIGURATION ---
-CHARA_CHANNEL_ID = -1002245132909
-DROP_INTERVAL_MIN = 1
-DEFAULT_MSG_FREQUENCY = 100
 DAILY_COINS = 500
 DUEL_WIN_COINS = 200
 DUEL_LOSE_COINS = 50
-RARITY_MAP = {
-    1: "⚪ Common",
-    2: "🟢 Medium",
-    3: "🟣 Rare",
-    4: "🟡 Legendary",
-    5: "💮 Special Edition"
-}
 

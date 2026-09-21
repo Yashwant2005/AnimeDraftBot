@@ -3,8 +3,5 @@ tgcrypto
 pymongo
 flask
 dnspython
-apscheduler
 pillow
-cachetools
 one-piece-wanted-poster
-croniter
