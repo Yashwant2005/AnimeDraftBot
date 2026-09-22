@@ -5515,3 +5515,646 @@ pyrogram.errors.exceptions.bad_request_400.QueryIdInvalid: Telegram says: [400 Q
 2026-09-05 13:25:17,097 - apscheduler.executors.default - INFO - Job "_timed_drop_job (trigger: interval[0:01:00], next run at: 2026-09-05 13:26:17 IST)" executed successfully
 2026-09-05 13:26:17,049 - apscheduler.executors.default - INFO - Running job "_timed_drop_job (trigger: interval[0:01:00], next run at: 2026-09-05 13:27:17 IST)" (scheduled at 2026-09-05 13:26:17.035019+05:30)
 2026-09-05 13:26:17,085 - apscheduler.executors.default - INFO - Job "_timed_drop_job (trigger: interval[0:01:00], next run at: 2026-09-05 13:27:17 IST)" executed successfully
+2026-09-22 14:22:32,140 - root - INFO - Initializing Database and Data...
+2026-09-22 14:22:33,862 - root - INFO - ✅ Connected to MongoDB.
+2026-09-22 14:22:34,387 - root - INFO - ✅ Loaded 5140 characters.
+2026-09-22 14:22:34,419 - root - INFO - ✅ Loaded 727 Pokémon.
+2026-09-22 14:22:34,765 - root - INFO - ✅ Loaded 505 Marvel characters with 11 series.
+2026-09-22 14:22:34,767 - root - INFO - Starting Web Server...
+2026-09-22 14:22:34,771 - root - INFO - Starting Background Threads...
+2026-09-22 14:22:34,892 - root - INFO - [CLONE] Cleared runtime stats for saved clone 8578706920
+2026-09-22 14:22:34,930 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.29.224:8000
+2026-09-22 14:22:34,931 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-09-22 14:22:34,964 - root - INFO - [CLONE] Cleared runtime stats for saved clone 7074080974
+2026-09-22 14:22:35,035 - root - INFO - [CLONE] Cleared runtime stats for saved clone 6969086416
+2026-09-22 14:22:35,105 - root - INFO - [CLONE] Cleared runtime stats for saved clone 6265981509
+2026-09-22 14:22:35,179 - root - INFO - [CLONE] Cleared runtime stats for saved clone 5902471214
+2026-09-22 14:22:35,180 - root - INFO - [CLONE] Startup cleared runtime stats for 5/5 saved clones; auto-start skipped.
+2026-09-22 14:22:35,180 - root - INFO - [CLONE] Startup auto-initialization disabled; saved clones will not be restored on restart.
+2026-09-22 14:22:35,181 - root - INFO - Starting Pyrogram Client...
+2026-09-22 14:22:36,852 - werkzeug - INFO - 127.0.0.1 - - [22/Sep/2026 14:22:36] "[35m[1mGET / HTTP/1.1[0m" 503 -
+2026-09-22 14:22:36,854 - root - WARNING - Keepalive request failed: HTTP Error 503: SERVICE UNAVAILABLE
+2026-09-22 14:22:37,206 - pyrogram.connection.connection - INFO - Connecting...
+2026-09-22 14:22:37,294 - pyrogram.connection.connection - INFO - Connected! Production DC5 - IPv4
+2026-09-22 14:22:37,295 - pyrogram.session.session - INFO - NetworkTask started
+2026-09-22 14:22:37,738 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-09-22 14:22:37,739 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-09-22 14:22:37,740 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-09-22 14:22:37,740 - pyrogram.session.session - INFO - Session started
+2026-09-22 14:22:37,760 - pyrogram.session.session - INFO - PingTask started
+2026-09-22 14:22:38,024 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("draft_add_approval_cb") in group 0 from "plugins.admin"
+2026-09-22 14:22:38,025 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("acast_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:22:38,025 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_char_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:22:38,026 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("addpoints_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:22:38,026 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("newyear_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:22:38,027 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comicimg_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:22:38,028 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_comic_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:22:38,029 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("characters_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:22:38,029 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sudo_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:22:38,030 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("mods_list_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:22:41,541 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bounty_command") in group 0 from "plugins.bounty"
+2026-09-22 14:22:41,541 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("poster_callback") in group 0 from "plugins.bounty"
+2026-09-22 14:22:41,542 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("fight_command") in group 0 from "plugins.bounty"
+2026-09-22 14:22:41,543 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("plunder_command") in group 0 from "plugins.bounty"
+2026-09-22 14:22:41,561 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("callbacks") in group 0 from "plugins.callbacks"
+2026-09-22 14:22:41,619 - root - ERROR - Telegram client stopped unexpectedly; restarting in 15s
+Traceback (most recent call last):
+  File "C:\Users\2005y\OneDrive\Desktop\ANIME DRAFT\DRAFTBOT\multianime\main.py", line 80, in main
+    app.start()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\sync.py", line 66, in async_to_sync_wrap
+    return loop.run_until_complete(coroutine)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\utilities\start.py", line 74, in start
+    await self.initialize()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\auth\initialize.py", line 46, in initialize
+    self.load_plugins()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\client.py", line 689, in load_plugins
+    module = import_module(module_path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\importlib\__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 936, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1074, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1004, in source_to_code
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "C:\Users\2005y\OneDrive\Desktop\ANIME DRAFT\DRAFTBOT\multianime\plugins\commands.py", line 856
+    return await m.reply_text("❌ Failed to load leaderboard.")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: 'await' outside async function
+2026-09-22 14:22:41,626 - root - ERROR - Error while stopping Telegram client
+Traceback (most recent call last):
+  File "C:\Users\2005y\OneDrive\Desktop\ANIME DRAFT\DRAFTBOT\multianime\main.py", line 91, in main
+    app.stop()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\sync.py", line 66, in async_to_sync_wrap
+    return loop.run_until_complete(coroutine)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\utilities\stop.py", line 65, in stop
+    await do_it()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\utilities\stop.py", line 61, in do_it
+    await self.terminate()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\auth\terminate.py", line 40, in terminate
+    raise ConnectionError("Client is already terminated")
+ConnectionError: Client is already terminated
+2026-09-22 14:22:41,678 - root - WARNING - Telegram client stopped; restarting in 15s
+2026-09-22 14:22:56,680 - root - INFO - Starting Pyrogram Client...
+2026-09-22 14:22:57,868 - root - ERROR - Telegram client stopped unexpectedly; restarting in 15s
+Traceback (most recent call last):
+  File "C:\Users\2005y\OneDrive\Desktop\ANIME DRAFT\DRAFTBOT\multianime\main.py", line 80, in main
+    app.start()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\sync.py", line 66, in async_to_sync_wrap
+    return loop.run_until_complete(coroutine)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\utilities\start.py", line 58, in start
+    is_authorized = await self.connect()
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\auth\connect.py", line 40, in connect
+    await self.load_session()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\client.py", line 616, in load_session
+    await self.storage.open()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\storage\file_storage.py", line 63, in open
+    self.update()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\storage\file_storage.py", line 52, in update
+    self.version(version)
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\storage\sqlite_storage.py", line 219, in version
+    self.conn.execute(
+sqlite3.OperationalError: database is locked
+2026-09-22 14:22:57,871 - root - WARNING - Telegram client stopped; restarting in 15s
+2026-09-22 14:29:40,821 - root - INFO - Initializing Database and Data...
+2026-09-22 14:29:42,365 - root - INFO - ✅ Connected to MongoDB.
+2026-09-22 14:29:42,698 - root - INFO - ✅ Loaded 5140 characters.
+2026-09-22 14:29:42,706 - root - INFO - ✅ Loaded 727 Pokémon.
+2026-09-22 14:29:43,164 - root - INFO - ✅ Loaded 505 Marvel characters with 11 series.
+2026-09-22 14:29:43,165 - root - INFO - Starting Web Server...
+2026-09-22 14:29:43,169 - root - INFO - Starting Background Threads...
+2026-09-22 14:29:43,219 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.29.224:8000
+2026-09-22 14:29:43,219 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-09-22 14:29:43,287 - root - INFO - [CLONE] Cleared runtime stats for saved clone 8578706920
+2026-09-22 14:29:43,363 - root - INFO - [CLONE] Cleared runtime stats for saved clone 7074080974
+2026-09-22 14:29:43,452 - root - INFO - [CLONE] Cleared runtime stats for saved clone 6969086416
+2026-09-22 14:29:43,526 - root - INFO - [CLONE] Cleared runtime stats for saved clone 6265981509
+2026-09-22 14:29:43,871 - root - INFO - [CLONE] Cleared runtime stats for saved clone 5902471214
+2026-09-22 14:29:43,872 - root - INFO - [CLONE] Startup cleared runtime stats for 5/5 saved clones; auto-start skipped.
+2026-09-22 14:29:43,873 - root - INFO - [CLONE] Startup auto-initialization disabled; saved clones will not be restored on restart.
+2026-09-22 14:29:43,873 - root - INFO - Starting Pyrogram Client...
+2026-09-22 14:29:45,217 - werkzeug - INFO - 127.0.0.1 - - [22/Sep/2026 14:29:45] "[35m[1mGET / HTTP/1.1[0m" 503 -
+2026-09-22 14:29:45,219 - root - WARNING - Keepalive request failed: HTTP Error 503: SERVICE UNAVAILABLE
+2026-09-22 14:29:46,085 - pyrogram.session.auth - INFO - Start creating a new auth key on DC2
+2026-09-22 14:29:46,085 - pyrogram.connection.connection - INFO - Connecting...
+2026-09-22 14:29:46,247 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2026-09-22 14:29:48,301 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2026-09-22 14:29:48,303 - pyrogram.connection.connection - INFO - Disconnected
+2026-09-22 14:29:48,366 - pyrogram.connection.connection - INFO - Connecting...
+2026-09-22 14:29:48,540 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2026-09-22 14:29:48,543 - pyrogram.session.session - INFO - NetworkTask started
+2026-09-22 14:29:49,265 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-09-22 14:29:49,265 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-09-22 14:29:49,265 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-09-22 14:29:49,266 - pyrogram.session.session - INFO - Session started
+2026-09-22 14:29:49,273 - pyrogram.session.session - INFO - PingTask started
+2026-09-22 14:29:49,453 - pyrogram.session.session - INFO - PingTask stopped
+2026-09-22 14:29:49,453 - pyrogram.connection.connection - INFO - Disconnected
+2026-09-22 14:29:49,454 - pyrogram.session.session - INFO - NetworkTask stopped
+2026-09-22 14:29:49,454 - pyrogram.session.session - INFO - Session stopped
+2026-09-22 14:29:49,494 - pyrogram.session.auth - INFO - Start creating a new auth key on DC5
+2026-09-22 14:29:49,495 - pyrogram.connection.connection - INFO - Connecting...
+2026-09-22 14:29:49,582 - pyrogram.connection.connection - INFO - Connected! Production DC5 - IPv4
+2026-09-22 14:29:51,265 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2026-09-22 14:29:51,266 - pyrogram.connection.connection - INFO - Disconnected
+2026-09-22 14:29:51,315 - pyrogram.connection.connection - INFO - Connecting...
+2026-09-22 14:29:51,407 - pyrogram.connection.connection - INFO - Connected! Production DC5 - IPv4
+2026-09-22 14:29:51,407 - pyrogram.session.session - INFO - NetworkTask started
+2026-09-22 14:29:51,822 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-09-22 14:29:51,822 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-09-22 14:29:51,823 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-09-22 14:29:51,824 - pyrogram.session.session - INFO - Session started
+2026-09-22 14:29:51,824 - pyrogram.session.session - INFO - PingTask started
+2026-09-22 14:29:52,222 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("draft_add_approval_cb") in group 0 from "plugins.admin"
+2026-09-22 14:29:52,222 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("acast_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:29:52,223 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_char_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:29:52,223 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("addpoints_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:29:52,223 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("newyear_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:29:52,223 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comicimg_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:29:52,225 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_comic_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:29:52,225 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("characters_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:29:52,225 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sudo_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:29:52,225 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("mods_list_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:29:52,598 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bounty_command") in group 0 from "plugins.bounty"
+2026-09-22 14:29:52,599 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("poster_callback") in group 0 from "plugins.bounty"
+2026-09-22 14:29:52,599 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("fight_command") in group 0 from "plugins.bounty"
+2026-09-22 14:29:52,600 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("plunder_command") in group 0 from "plugins.bounty"
+2026-09-22 14:29:52,618 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("callbacks") in group 0 from "plugins.callbacks"
+2026-09-22 14:29:52,638 - root - ERROR - Telegram client stopped unexpectedly; restarting in 15s
+Traceback (most recent call last):
+  File "C:\Users\2005y\OneDrive\Desktop\ANIME DRAFT\DRAFTBOT\multianime\main.py", line 80, in main
+    app.start()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\sync.py", line 66, in async_to_sync_wrap
+    return loop.run_until_complete(coroutine)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\utilities\start.py", line 74, in start
+    await self.initialize()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\auth\initialize.py", line 46, in initialize
+    self.load_plugins()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\client.py", line 689, in load_plugins
+    module = import_module(module_path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\importlib\__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 936, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1074, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1004, in source_to_code
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "C:\Users\2005y\OneDrive\Desktop\ANIME DRAFT\DRAFTBOT\multianime\plugins\commands.py", line 856
+    return await m.reply_text("❌ Failed to load leaderboard.")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: 'await' outside async function
+2026-09-22 14:29:52,645 - root - ERROR - Error while stopping Telegram client
+Traceback (most recent call last):
+  File "C:\Users\2005y\OneDrive\Desktop\ANIME DRAFT\DRAFTBOT\multianime\main.py", line 91, in main
+    app.stop()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\sync.py", line 66, in async_to_sync_wrap
+    return loop.run_until_complete(coroutine)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\utilities\stop.py", line 65, in stop
+    await do_it()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\utilities\stop.py", line 61, in do_it
+    await self.terminate()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\auth\terminate.py", line 40, in terminate
+    raise ConnectionError("Client is already terminated")
+ConnectionError: Client is already terminated
+2026-09-22 14:29:52,648 - root - WARNING - Telegram client stopped; restarting in 15s
+2026-09-22 14:31:02,220 - root - INFO - Initializing Database and Data...
+2026-09-22 14:31:04,265 - root - INFO - ✅ Connected to MongoDB.
+2026-09-22 14:31:04,414 - root - INFO - ✅ Loaded 5041 characters.
+2026-09-22 14:31:04,431 - root - INFO - ✅ Loaded 727 Pokémon.
+2026-09-22 14:31:04,481 - root - INFO - ✅ Loaded 505 Marvel characters with 11 series.
+2026-09-22 14:31:04,482 - root - INFO - Starting Web Server...
+2026-09-22 14:31:04,488 - root - INFO - Starting Background Threads...
+2026-09-22 14:31:04,539 - root - INFO - [CLONE] Startup cleared runtime stats for 0/0 saved clones; auto-start skipped.
+2026-09-22 14:31:04,540 - root - INFO - [CLONE] Startup auto-initialization disabled; saved clones will not be restored on restart.
+2026-09-22 14:31:04,543 - root - INFO - Starting Pyrogram Client...
+2026-09-22 14:31:04,552 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.29.224:8000
+2026-09-22 14:31:04,554 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-09-22 14:31:06,563 - werkzeug - INFO - 127.0.0.1 - - [22/Sep/2026 14:31:06] "[35m[1mGET / HTTP/1.1[0m" 503 -
+2026-09-22 14:31:06,568 - root - WARNING - Keepalive request failed: HTTP Error 503: SERVICE UNAVAILABLE
+2026-09-22 14:31:11,815 - pyrogram.session.auth - INFO - Start creating a new auth key on DC2
+2026-09-22 14:31:11,817 - pyrogram.connection.connection - INFO - Connecting...
+2026-09-22 14:31:11,987 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2026-09-22 14:31:14,444 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2026-09-22 14:31:14,447 - pyrogram.connection.connection - INFO - Disconnected
+2026-09-22 14:31:14,623 - pyrogram.connection.connection - INFO - Connecting...
+2026-09-22 14:31:14,784 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2026-09-22 14:31:14,788 - pyrogram.session.session - INFO - NetworkTask started
+2026-09-22 14:31:15,514 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-09-22 14:31:15,516 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-09-22 14:31:15,517 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-09-22 14:31:15,519 - pyrogram.session.session - INFO - Session started
+2026-09-22 14:31:15,554 - pyrogram.session.session - INFO - PingTask started
+2026-09-22 14:31:15,726 - pyrogram.session.session - INFO - PingTask stopped
+2026-09-22 14:31:15,727 - pyrogram.connection.connection - INFO - Disconnected
+2026-09-22 14:31:15,728 - pyrogram.session.session - INFO - NetworkTask stopped
+2026-09-22 14:31:15,730 - pyrogram.session.session - INFO - Session stopped
+2026-09-22 14:31:15,842 - pyrogram.session.auth - INFO - Start creating a new auth key on DC5
+2026-09-22 14:31:15,845 - pyrogram.connection.connection - INFO - Connecting...
+2026-09-22 14:31:15,936 - pyrogram.connection.connection - INFO - Connected! Production DC5 - IPv4
+2026-09-22 14:31:17,564 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2026-09-22 14:31:17,566 - pyrogram.connection.connection - INFO - Disconnected
+2026-09-22 14:31:17,708 - pyrogram.connection.connection - INFO - Connecting...
+2026-09-22 14:31:17,798 - pyrogram.connection.connection - INFO - Connected! Production DC5 - IPv4
+2026-09-22 14:31:17,800 - pyrogram.session.session - INFO - NetworkTask started
+2026-09-22 14:31:18,241 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-09-22 14:31:18,242 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-09-22 14:31:18,243 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-09-22 14:31:18,244 - pyrogram.session.session - INFO - Session started
+2026-09-22 14:31:18,244 - pyrogram.session.session - INFO - PingTask started
+2026-09-22 14:31:18,715 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("draft_add_approval_cb") in group 0 from "plugins.admin"
+2026-09-22 14:31:18,716 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("acast_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:31:18,717 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_char_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:31:18,718 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("addpoints_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:31:18,719 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("newyear_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:31:18,721 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comicimg_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:31:18,722 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_comic_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:31:18,723 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("characters_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:31:18,724 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sudo_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:31:18,726 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("mods_list_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:31:19,664 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bounty_command") in group 0 from "plugins.bounty"
+2026-09-22 14:31:19,666 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("poster_callback") in group 0 from "plugins.bounty"
+2026-09-22 14:31:19,669 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("fight_command") in group 0 from "plugins.bounty"
+2026-09-22 14:31:19,672 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("plunder_command") in group 0 from "plugins.bounty"
+2026-09-22 14:31:19,717 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("callbacks") in group 0 from "plugins.callbacks"
+2026-09-22 14:31:19,764 - root - ERROR - Telegram client stopped unexpectedly; restarting in 15s
+Traceback (most recent call last):
+  File "C:\Users\2005y\OneDrive\Desktop\ANIME DRAFT\DRAFTBOT\multianime\main.py", line 80, in main
+    app.start()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\sync.py", line 66, in async_to_sync_wrap
+    return loop.run_until_complete(coroutine)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\utilities\start.py", line 74, in start
+    await self.initialize()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\auth\initialize.py", line 46, in initialize
+    self.load_plugins()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\client.py", line 689, in load_plugins
+    module = import_module(module_path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\importlib\__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 936, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1074, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1004, in source_to_code
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "C:\Users\2005y\OneDrive\Desktop\ANIME DRAFT\DRAFTBOT\multianime\plugins\commands.py", line 856
+    return await m.reply_text("❌ Failed to load leaderboard.")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: 'await' outside async function
+2026-09-22 14:31:19,777 - root - ERROR - Error while stopping Telegram client
+Traceback (most recent call last):
+  File "C:\Users\2005y\OneDrive\Desktop\ANIME DRAFT\DRAFTBOT\multianime\main.py", line 91, in main
+    app.stop()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\sync.py", line 66, in async_to_sync_wrap
+    return loop.run_until_complete(coroutine)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\utilities\stop.py", line 65, in stop
+    await do_it()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\utilities\stop.py", line 61, in do_it
+    await self.terminate()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\auth\terminate.py", line 40, in terminate
+    raise ConnectionError("Client is already terminated")
+ConnectionError: Client is already terminated
+2026-09-22 14:31:19,784 - root - WARNING - Telegram client stopped; restarting in 15s
+2026-09-22 14:31:34,789 - root - INFO - Starting Pyrogram Client...
+2026-09-22 14:31:35,968 - root - ERROR - Telegram client stopped unexpectedly; restarting in 15s
+Traceback (most recent call last):
+  File "C:\Users\2005y\OneDrive\Desktop\ANIME DRAFT\DRAFTBOT\multianime\main.py", line 80, in main
+    app.start()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\sync.py", line 66, in async_to_sync_wrap
+    return loop.run_until_complete(coroutine)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\utilities\start.py", line 58, in start
+    is_authorized = await self.connect()
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\auth\connect.py", line 40, in connect
+    await self.load_session()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\client.py", line 616, in load_session
+    await self.storage.open()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\storage\file_storage.py", line 63, in open
+    self.update()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\storage\file_storage.py", line 52, in update
+    self.version(version)
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\storage\sqlite_storage.py", line 219, in version
+    self.conn.execute(
+sqlite3.OperationalError: database is locked
+2026-09-22 14:31:35,978 - root - WARNING - Telegram client stopped; restarting in 15s
+2026-09-22 14:31:50,979 - root - INFO - Starting Pyrogram Client...
+2026-09-22 14:31:52,169 - root - ERROR - Telegram client stopped unexpectedly; restarting in 15s
+Traceback (most recent call last):
+  File "C:\Users\2005y\OneDrive\Desktop\ANIME DRAFT\DRAFTBOT\multianime\main.py", line 80, in main
+    app.start()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\sync.py", line 66, in async_to_sync_wrap
+    return loop.run_until_complete(coroutine)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\utilities\start.py", line 58, in start
+    is_authorized = await self.connect()
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\auth\connect.py", line 40, in connect
+    await self.load_session()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\client.py", line 616, in load_session
+    await self.storage.open()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\storage\file_storage.py", line 63, in open
+    self.update()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\storage\file_storage.py", line 52, in update
+    self.version(version)
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\storage\sqlite_storage.py", line 219, in version
+    self.conn.execute(
+sqlite3.OperationalError: database is locked
+2026-09-22 14:31:52,175 - root - WARNING - Telegram client stopped; restarting in 15s
+2026-09-22 14:32:07,178 - root - INFO - Starting Pyrogram Client...
+2026-09-22 14:32:07,179 - pyrogram.session.session - INFO - NetworkTask stopped
+2026-09-22 14:32:08,358 - root - ERROR - Telegram client stopped unexpectedly; restarting in 15s
+Traceback (most recent call last):
+  File "C:\Users\2005y\OneDrive\Desktop\ANIME DRAFT\DRAFTBOT\multianime\main.py", line 80, in main
+    app.start()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\sync.py", line 66, in async_to_sync_wrap
+    return loop.run_until_complete(coroutine)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\utilities\start.py", line 58, in start
+    is_authorized = await self.connect()
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\methods\auth\connect.py", line 40, in connect
+    await self.load_session()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\client.py", line 616, in load_session
+    await self.storage.open()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\storage\file_storage.py", line 63, in open
+    self.update()
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\storage\file_storage.py", line 52, in update
+    self.version(version)
+  File "C:\Users\2005y\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrogram\storage\sqlite_storage.py", line 219, in version
+    self.conn.execute(
+sqlite3.OperationalError: database is locked
+2026-09-22 14:32:08,361 - root - WARNING - Telegram client stopped; restarting in 15s
+2026-09-22 14:37:09,025 - root - INFO - Initializing Database and Data...
+2026-09-22 14:37:10,602 - root - INFO - ✅ Connected to MongoDB.
+2026-09-22 14:37:10,759 - root - INFO - ✅ Loaded 5041 characters.
+2026-09-22 14:37:10,777 - root - INFO - ✅ Loaded 727 Pokémon.
+2026-09-22 14:37:10,838 - root - INFO - ✅ Loaded 505 Marvel characters with 11 series.
+2026-09-22 14:37:10,839 - root - INFO - Starting Web Server...
+2026-09-22 14:37:10,846 - root - INFO - Starting Background Threads...
+2026-09-22 14:37:10,904 - root - INFO - [CLONE] Startup cleared runtime stats for 0/0 saved clones; auto-start skipped.
+2026-09-22 14:37:10,906 - root - INFO - [CLONE] Startup auto-initialization disabled; saved clones will not be restored on restart.
+2026-09-22 14:37:10,912 - root - INFO - Starting Pyrogram Client...
+2026-09-22 14:37:10,947 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.29.224:8000
+2026-09-22 14:37:10,948 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-09-22 14:37:12,897 - werkzeug - INFO - 127.0.0.1 - - [22/Sep/2026 14:37:12] "[35m[1mGET / HTTP/1.1[0m" 503 -
+2026-09-22 14:37:12,900 - root - WARNING - Keepalive request failed: HTTP Error 503: SERVICE UNAVAILABLE
+2026-09-22 14:37:14,455 - pyrogram.connection.connection - INFO - Connecting...
+2026-09-22 14:37:14,545 - pyrogram.connection.connection - INFO - Connected! Production DC5 - IPv4
+2026-09-22 14:37:14,546 - pyrogram.session.session - INFO - NetworkTask started
+2026-09-22 14:37:14,968 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-09-22 14:37:14,968 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-09-22 14:37:14,968 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-09-22 14:37:14,969 - pyrogram.session.session - INFO - Session started
+2026-09-22 14:37:14,983 - pyrogram.session.session - INFO - PingTask started
+2026-09-22 14:37:15,229 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("draft_add_approval_cb") in group 0 from "plugins.admin"
+2026-09-22 14:37:15,230 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("acast_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:37:15,231 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_char_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:37:15,232 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("addpoints_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:37:15,233 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("newyear_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:37:15,233 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comicimg_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:37:15,234 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_comic_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:37:15,234 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("characters_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:37:15,235 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sudo_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:37:15,235 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("mods_list_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:37:15,610 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bounty_command") in group 0 from "plugins.bounty"
+2026-09-22 14:37:15,611 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("poster_callback") in group 0 from "plugins.bounty"
+2026-09-22 14:37:15,612 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("fight_command") in group 0 from "plugins.bounty"
+2026-09-22 14:37:15,612 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("plunder_command") in group 0 from "plugins.bounty"
+2026-09-22 14:37:15,635 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("callbacks") in group 0 from "plugins.callbacks"
+2026-09-22 14:37:15,664 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("start_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:37:15,665 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("guide_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:37:15,665 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("guide_cb") in group 0 from "plugins.commands"
+2026-09-22 14:37:15,666 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("commands_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:37:15,666 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("commands_cb") in group 0 from "plugins.commands"
+2026-09-22 14:37:15,667 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("list_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:37:15,667 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("profile_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:37:15,668 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("clone_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:37:15,668 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_sudo_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:37:15,668 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("status_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:37:15,669 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("leaderboard_selector_callback") in group 0 from "plugins.commands"
+2026-09-22 14:37:15,670 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("leaderboard_switch_callback") in group 0 from "plugins.commands"
+2026-09-22 14:37:15,670 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("leaderboard_entry_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:37:15,680 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("createcrew_command") in group 0 from "plugins.crew"
+2026-09-22 14:37:15,680 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("joincrew_command") in group 0 from "plugins.crew"
+2026-09-22 14:37:15,681 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("disbandcrew_command") in group 0 from "plugins.crew"
+2026-09-22 14:37:15,681 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("crew_command") in group 0 from "plugins.crew"
+2026-09-22 14:37:15,705 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("draft_cmd") in group 0 from "plugins.draft"
+2026-09-22 14:37:15,705 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("pokemon_draft_cmd") in group 0 from "plugins.draft"
+2026-09-22 14:37:15,706 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comic_draft_cmd") in group 0 from "plugins.draft"
+2026-09-22 14:37:15,715 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("duel_command") in group 0 from "plugins.duel"
+2026-09-22 14:37:15,716 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("duel_pick_a_callback") in group 0 from "plugins.duel"
+2026-09-22 14:37:15,716 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("duel_pick_b_callback") in group 0 from "plugins.duel"
+2026-09-22 14:37:15,728 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("balance_command") in group 0 from "plugins.economy"
+2026-09-22 14:37:15,728 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("daily_command") in group 0 from "plugins.economy"
+2026-09-22 14:37:15,729 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sell_command") in group 0 from "plugins.economy"
+2026-09-22 14:37:15,730 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("market_command") in group 0 from "plugins.economy"
+2026-09-22 14:37:15,730 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("market_page_callback") in group 0 from "plugins.economy"
+2026-09-22 14:37:15,730 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("buy_command") in group 0 from "plugins.economy"
+2026-09-22 14:37:15,730 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delist_command") in group 0 from "plugins.economy"
+2026-09-22 14:37:15,767 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("export_db_cmd") in group 0 from "plugins.export_db"
+2026-09-22 14:37:15,797 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("cb_guess_lobby") in group 0 from "plugins.games"
+2026-09-22 14:37:15,797 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_cancel_guess_game") in group 0 from "plugins.games"
+2026-09-22 14:37:15,798 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_shambles") in group 0 from "plugins.games"
+2026-09-22 14:37:15,799 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_whoswho") in group 0 from "plugins.games"
+2026-09-22 14:37:15,799 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_gol") in group 0 from "plugins.games"
+2026-09-22 14:37:15,800 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("cb_gol") in group 0 from "plugins.games"
+2026-09-22 14:37:15,800 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_punk") in group 0 from "plugins.games"
+2026-09-22 14:37:15,801 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_answer") in group 0 from "plugins.games"
+2026-09-22 14:37:15,814 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("docq_command") in group 0 from "plugins.minigames"
+2026-09-22 14:37:15,815 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("docq_callback") in group 0 from "plugins.minigames"
+2026-09-22 14:37:15,815 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("roulette_command") in group 0 from "plugins.minigames"
+2026-09-22 14:37:15,816 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("roulette_callback") in group 0 from "plugins.minigames"
+2026-09-22 14:37:15,816 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("rps_command") in group 0 from "plugins.minigames"
+2026-09-22 14:37:15,816 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("rps_callback") in group 0 from "plugins.minigames"
+2026-09-22 14:37:15,828 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("prediction_command") in group 0 from "plugins.prediction"
+2026-09-22 14:37:15,829 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bet_command") in group 0 from "plugins.prediction"
+2026-09-22 14:37:15,829 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("pred_bet_callback") in group 0 from "plugins.prediction"
+2026-09-22 14:37:15,830 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("resolveprediction_command") in group 0 from "plugins.prediction"
+2026-09-22 14:37:15,831 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cancelprediction_command") in group 0 from "plugins.prediction"
+2026-09-22 14:37:15,841 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("trade_command") in group 0 from "plugins.trade"
+2026-09-22 14:37:15,841 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("trade_callback") in group 0 from "plugins.trade"
+2026-09-22 14:37:15,842 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("gift_command") in group 0 from "plugins.trade"
+2026-09-22 14:37:15,842 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("gift_callback") in group 0 from "plugins.trade"
+2026-09-22 14:37:15,843 - pyrogram.client - INFO - [anime_bot] Successfully loaded 69 plugins from "plugins"
+2026-09-22 14:37:15,844 - pyrogram.dispatcher - INFO - Started 24 HandlerTasks
+2026-09-22 14:37:15,846 - root - INFO - Telegram bot is online and polling updates.
+2026-09-22 14:37:30,903 - root - INFO - [STATUS] User 6265981509 (admin) requesting status (main)
+2026-09-22 14:37:30,904 - root - INFO - [DB] (main) using collection active_chats
+2026-09-22 14:37:30,945 - root - INFO - [DB] (main) using collection active_users
+2026-09-22 14:37:30,987 - root - INFO - [STATUS] Sending stats: 0 users, 0 chats (from user 6265981509)
+2026-09-22 14:37:33,102 - root - INFO - [ADMIN] /add invoked by 6265981509
+2026-09-22 14:40:50,261 - root - INFO - [STATUS] User 6265981509 (admin) requesting status (main)
+2026-09-22 14:40:50,262 - root - INFO - [DB] (main) using collection active_chats
+2026-09-22 14:40:50,300 - root - INFO - [DB] (main) using collection active_users
+2026-09-22 14:40:50,342 - root - INFO - [STATUS] Sending stats: 0 users, 0 chats (from user 6265981509)
+2026-09-22 14:41:41,471 - root - INFO - Initializing Database and Data...
+2026-09-22 14:41:43,655 - root - INFO - ✅ Connected to MongoDB.
+2026-09-22 14:41:43,755 - root - INFO - ✅ Loaded 5041 characters.
+2026-09-22 14:41:43,763 - root - INFO - ✅ Loaded 727 Pokémon.
+2026-09-22 14:41:43,815 - root - INFO - ✅ Loaded 505 Marvel characters with 11 series.
+2026-09-22 14:41:43,815 - root - INFO - Starting Web Server...
+2026-09-22 14:41:43,820 - root - INFO - Starting Background Threads...
+2026-09-22 14:41:43,855 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.29.224:8000
+2026-09-22 14:41:43,856 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-09-22 14:41:43,878 - root - INFO - [CLONE] Startup cleared runtime stats for 0/0 saved clones; auto-start skipped.
+2026-09-22 14:41:43,879 - root - INFO - [CLONE] Startup auto-initialization disabled; saved clones will not be restored on restart.
+2026-09-22 14:41:43,880 - root - INFO - Starting Pyrogram Client...
+2026-09-22 14:41:45,842 - pyrogram.connection.connection - INFO - Connecting...
+2026-09-22 14:41:45,883 - werkzeug - INFO - 127.0.0.1 - - [22/Sep/2026 14:41:45] "[35m[1mGET / HTTP/1.1[0m" 503 -
+2026-09-22 14:41:45,885 - root - WARNING - Keepalive request failed: HTTP Error 503: SERVICE UNAVAILABLE
+2026-09-22 14:41:45,935 - pyrogram.connection.connection - INFO - Connected! Production DC5 - IPv4
+2026-09-22 14:41:45,937 - pyrogram.session.session - INFO - NetworkTask started
+2026-09-22 14:41:46,350 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-09-22 14:41:46,351 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-09-22 14:41:46,352 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-09-22 14:41:46,352 - pyrogram.session.session - INFO - Session started
+2026-09-22 14:41:46,366 - pyrogram.session.session - INFO - PingTask started
+2026-09-22 14:41:46,593 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("draft_add_approval_cb") in group 0 from "plugins.admin"
+2026-09-22 14:41:46,593 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("acast_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:41:46,594 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_char_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:41:46,595 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("addpoints_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:41:46,595 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("newyear_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:41:46,596 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comicimg_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:41:46,596 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_comic_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:41:46,597 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("characters_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:41:46,598 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sudo_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:41:46,598 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("mods_list_cmd") in group 0 from "plugins.admin"
+2026-09-22 14:41:46,939 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bounty_command") in group 0 from "plugins.bounty"
+2026-09-22 14:41:46,940 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("poster_callback") in group 0 from "plugins.bounty"
+2026-09-22 14:41:46,940 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("fight_command") in group 0 from "plugins.bounty"
+2026-09-22 14:41:46,941 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("plunder_command") in group 0 from "plugins.bounty"
+2026-09-22 14:41:46,943 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("callbacks") in group 0 from "plugins.callbacks"
+2026-09-22 14:41:46,966 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("start_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:41:46,966 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("guide_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:41:46,966 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("guide_cb") in group 0 from "plugins.commands"
+2026-09-22 14:41:46,967 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("commands_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:41:46,967 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("commands_cb") in group 0 from "plugins.commands"
+2026-09-22 14:41:46,967 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("list_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:41:46,967 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("profile_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:41:46,967 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("clone_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:41:46,967 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_sudo_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:41:46,967 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("status_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:41:46,968 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("leaderboard_selector_callback") in group 0 from "plugins.commands"
+2026-09-22 14:41:46,969 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("leaderboard_switch_callback") in group 0 from "plugins.commands"
+2026-09-22 14:41:46,969 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("leaderboard_entry_cmd") in group 0 from "plugins.commands"
+2026-09-22 14:41:46,971 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("createcrew_command") in group 0 from "plugins.crew"
+2026-09-22 14:41:46,972 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("joincrew_command") in group 0 from "plugins.crew"
+2026-09-22 14:41:46,972 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("disbandcrew_command") in group 0 from "plugins.crew"
+2026-09-22 14:41:46,972 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("crew_command") in group 0 from "plugins.crew"
+2026-09-22 14:41:46,975 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("draft_cmd") in group 0 from "plugins.draft"
+2026-09-22 14:41:46,975 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("pokemon_draft_cmd") in group 0 from "plugins.draft"
+2026-09-22 14:41:46,975 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comic_draft_cmd") in group 0 from "plugins.draft"
+2026-09-22 14:41:46,978 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("duel_command") in group 0 from "plugins.duel"
+2026-09-22 14:41:46,978 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("duel_pick_a_callback") in group 0 from "plugins.duel"
+2026-09-22 14:41:46,978 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("duel_pick_b_callback") in group 0 from "plugins.duel"
+2026-09-22 14:41:46,981 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("balance_command") in group 0 from "plugins.economy"
+2026-09-22 14:41:46,982 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("daily_command") in group 0 from "plugins.economy"
+2026-09-22 14:41:46,982 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sell_command") in group 0 from "plugins.economy"
+2026-09-22 14:41:46,982 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("market_command") in group 0 from "plugins.economy"
+2026-09-22 14:41:46,983 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("market_page_callback") in group 0 from "plugins.economy"
+2026-09-22 14:41:46,983 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("buy_command") in group 0 from "plugins.economy"
+2026-09-22 14:41:46,983 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delist_command") in group 0 from "plugins.economy"
+2026-09-22 14:41:46,996 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("export_db_cmd") in group 0 from "plugins.export_db"
+2026-09-22 14:41:46,999 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("cb_guess_lobby") in group 0 from "plugins.games"
+2026-09-22 14:41:47,000 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_cancel_guess_game") in group 0 from "plugins.games"
+2026-09-22 14:41:47,000 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_shambles") in group 0 from "plugins.games"
+2026-09-22 14:41:47,001 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_whoswho") in group 0 from "plugins.games"
+2026-09-22 14:41:47,001 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_gol") in group 0 from "plugins.games"
+2026-09-22 14:41:47,001 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("cb_gol") in group 0 from "plugins.games"
+2026-09-22 14:41:47,002 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_punk") in group 0 from "plugins.games"
+2026-09-22 14:41:47,002 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_answer") in group 0 from "plugins.games"
+2026-09-22 14:41:47,004 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("docq_command") in group 0 from "plugins.minigames"
+2026-09-22 14:41:47,004 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("docq_callback") in group 0 from "plugins.minigames"
+2026-09-22 14:41:47,005 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("roulette_command") in group 0 from "plugins.minigames"
+2026-09-22 14:41:47,005 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("roulette_callback") in group 0 from "plugins.minigames"
+2026-09-22 14:41:47,006 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("rps_command") in group 0 from "plugins.minigames"
+2026-09-22 14:41:47,006 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("rps_callback") in group 0 from "plugins.minigames"
+2026-09-22 14:41:47,008 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("prediction_command") in group 0 from "plugins.prediction"
+2026-09-22 14:41:47,009 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bet_command") in group 0 from "plugins.prediction"
+2026-09-22 14:41:47,009 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("pred_bet_callback") in group 0 from "plugins.prediction"
+2026-09-22 14:41:47,010 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("resolveprediction_command") in group 0 from "plugins.prediction"
+2026-09-22 14:41:47,010 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cancelprediction_command") in group 0 from "plugins.prediction"
+2026-09-22 14:41:47,013 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("trade_command") in group 0 from "plugins.trade"
+2026-09-22 14:41:47,013 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("trade_callback") in group 0 from "plugins.trade"
+2026-09-22 14:41:47,014 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("gift_command") in group 0 from "plugins.trade"
+2026-09-22 14:41:47,014 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("gift_callback") in group 0 from "plugins.trade"
+2026-09-22 14:41:47,014 - pyrogram.client - INFO - [anime_bot] Successfully loaded 69 plugins from "plugins"
+2026-09-22 14:41:47,015 - pyrogram.dispatcher - INFO - Started 24 HandlerTasks
+2026-09-22 14:41:47,017 - root - INFO - Telegram bot is online and polling updates.
+2026-09-22 14:42:10,415 - root - INFO - [STATUS] User 6265981509 (admin) requesting status (main)
+2026-09-22 14:42:10,416 - root - INFO - [DB] (main) using collection active_chats
+2026-09-22 14:42:10,461 - root - INFO - [DB] (main) using collection active_users
+2026-09-22 14:42:10,499 - root - INFO - [STATUS] Sending stats: 0 users, 0 chats (from user 6265981509)
+2026-09-22 14:43:09,828 - root - INFO - [CMD] /list invoked by 6265981509 with text: /list
+2026-09-22 14:43:17,448 - root - INFO - [HANDLER] callbacks called
+2026-09-22 14:43:17,571 - root - INFO - [HANDLER] callbacks completed in 0.12s
+2026-09-22 14:43:25,174 - root - INFO - [HANDLER] callbacks called
+2026-09-22 14:43:25,291 - root - INFO - [HANDLER] callbacks completed in 0.12s
+2026-09-22 14:43:35,791 - root - INFO - [HANDLER] callbacks called
+2026-09-22 14:43:35,906 - root - INFO - [HANDLER] callbacks completed in 0.11s

@@ -11,7 +11,6 @@ from data_loader import load_data, load_pokemon_data, load_achievements, load_ma
 import web_server
 import game_engine
 import global_state
-from scheduled_export import start_daily_export_scheduler
 
 # --- FIX FOR WINDOWS CONSOLE CRASHES ---
 # This line prevents the "UnicodeEncodeError: 'charmap' codec" error
@@ -67,9 +66,6 @@ def main():
         logging.warning(f"[CLONE] Could not clear saved clone runtime stats on restart: {e}")
     logging.info("[CLONE] Startup auto-initialization disabled; saved clones will not be restored on restart.")
 
-    # Export MongoDB daily at 7 PM and send the archive to the configured chat.
-    start_daily_export_scheduler()
-
     restart_delay = max(5, int(os.environ.get("BOT_RESTART_DELAY", "15")))
     while True:
         app = Client(
@@ -94,7 +90,7 @@ def main():
                 if app.is_connected:
                     app.stop()
             except Exception:
-                logging.exception("Error while stopping Telegram client")
+                logging.warning("Telegram client cleanup skipped: already terminated")
 
         logging.warning("Telegram client stopped; restarting in %ss", restart_delay)
         time.sleep(restart_delay)

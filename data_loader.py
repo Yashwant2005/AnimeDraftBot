@@ -6,23 +6,39 @@ import database
 import global_state
 from config import CHARACTERS_FILE, POKEMON_FILE, ACHIEVEMENTS_FILE, DATA_DIR
 
+def _load_character_sources(local_file):
+    data = []
+    if os.path.exists(local_file):
+        with open(local_file, "r", encoding="utf-8") as f:
+            data.extend(json.load(f))
+
+    if database.USE_MONGO and database.COL_CHARACTERS is not None:
+        try:
+            data.extend(database.COL_CHARACTERS.find({}))
+        except Exception as exc:
+            logging.warning("Could not load saved characters from MongoDB: %s", exc)
+
+    merged = {}
+    for char in data:
+        name = char.get("name")
+        series = char.get("series", "Unknown")
+        if name:
+            merged[(name, series)] = char
+    return list(merged.values())
+
+def _is_comic_character(char):
+    if char.get("kind") == "comic":
+        return True
+    if char.get("kind") == "anime":
+        return False
+    return "paragon" in (char.get("stats") or {})
+
 def load_data():
     try:
-        data = []
-        
-        # Prefer local JSON for anime characters so edits to data/character.json
-        # are reflected immediately after restart even when Mongo is enabled.
-        if os.path.exists(CHARACTERS_FILE):
-            with open(CHARACTERS_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-        
-        # Fallback to Mongo only if the JSON file is missing/empty.
-        if not data and database.USE_MONGO and database.COL_CHARACTERS is not None:
-            try:
-                data = list(database.COL_CHARACTERS.find({}))
-            except Exception:
-                data = []
-
+        data = [
+            char for char in _load_character_sources(CHARACTERS_FILE)
+            if not _is_comic_character(char)
+        ]
         if not data:
             logging.error(f"❌ No characters found! Checked MongoDB and {CHARACTERS_FILE}")
             return
@@ -32,14 +48,12 @@ def load_data():
             stats = char.get("stats")
             series = char.get("series", "Unknown")
             img = char.get("img")
-
             if name and stats:
                 unique_char_id = f"{name} | {series}"
                 global_state.CHAR_STATS[unique_char_id] = stats
                 if img:
                     global_state.CHAR_IMAGES[unique_char_id] = img
-
-                norm_series = re.sub(r'[^a-z0-9]', '', series.lower())
+                norm_series = re.sub(r"[^a-z0-9]", "", series.lower())
                 global_state.SERIES_MAP.setdefault(norm_series, []).append(unique_char_id)
                 global_state.SERIES_DISPLAY[norm_series] = series
 
@@ -53,20 +67,18 @@ def load_pokemon_data():
         if os.path.exists(POKEMON_FILE):
             with open(POKEMON_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            for p in data:
-                if all(k in p for k in ["name", "stats", "types", "region", "is_legendary"]):
-                    poke_name = p["name"]
-                    global_state.POKEMON_DATA[poke_name] = {
-                        "stats": p["stats"],
-                        "types": p["types"],
-                        "region": p["region"],
-                        "is_legendary": p["is_legendary"]
+            for pokemon in data:
+                if all(k in pokemon for k in ["name", "stats", "types", "region", "is_legendary"]):
+                    pokemon_name = pokemon["name"]
+                    global_state.POKEMON_DATA[pokemon_name] = {
+                        "stats": pokemon["stats"],
+                        "types": pokemon["types"],
+                        "region": pokemon["region"],
+                        "is_legendary": pokemon["is_legendary"],
                     }
-                    global_state.POKEMON_LIST.append(poke_name)
-                    # Load Pokemon images if available
-                    if "img" in p:
-                        unique_poke_id = f"{poke_name} | Pokemon"
-                        global_state.CHAR_IMAGES[unique_poke_id] = p["img"]
+                    global_state.POKEMON_LIST.append(pokemon_name)
+                    if "img" in pokemon:
+                        global_state.CHAR_IMAGES[f"{pokemon_name} | Pokemon"] = pokemon["img"]
             logging.info(f"✅ Loaded {len(global_state.POKEMON_LIST)} Pokémon.")
         else:
             logging.error(f"❌ {POKEMON_FILE} not found!")
@@ -76,9 +88,8 @@ def load_pokemon_data():
 def load_marvel_data():
     try:
         marvel_file = os.path.join(DATA_DIR, "marvel.json")
-        if os.path.exists(marvel_file):
-            with open(marvel_file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
+        data = [char for char in _load_character_sources(marvel_file) if _is_comic_character(char)]
+        if data:
             for char in data:
                 name = char.get("name")
                 stats = char.get("stats")
@@ -99,7 +110,7 @@ def load_marvel_data():
                     global_state.MARVEL_SERIES_DISPLAY[norm_series] = series
                     
             logging.info(f"✅ Loaded {len(global_state.MARVEL_CHARACTERS)} Marvel characters with {len(global_state.MARVEL_SERIES_DISPLAY)} series.")
-        else:
+        elif not os.path.exists(marvel_file):
             logging.warning(f"⚠️ {marvel_file} not found!")
     except Exception as e:
         logging.error(f"❌ Failed to load Marvel data: {e}")

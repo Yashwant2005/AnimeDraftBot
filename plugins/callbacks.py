@@ -494,7 +494,15 @@ async def callbacks(c, q: CallbackQuery):
             img_url = CHAR_IMAGES.get(f"{pokemon} | Pokemon")
             txt = f"{ui.pokemon_get_team_display(game)}\n✨ <b>{p_name}</b> Pulled: <b>{pokemon}</b>"
             if img_url:
-                txt = f"{img_url}\n{txt}"
+                try:
+                    await c.send_photo(
+                        q.message.chat.id,
+                        photo=img_url,
+                        caption=f"✨ <b>{p_name}</b> pulled <b>{pokemon}</b>",
+                        parse_mode=ParseMode.HTML,
+                    )
+                except Exception as exc:
+                    logging.warning("[PDRAFT] Could not send Pokemon image for %s: %s", pokemon, exc)
             await ui.ensure_display_message(c, q.message.chat.id, game, txt, kb, preview=True)
 
         elif action == "pset":

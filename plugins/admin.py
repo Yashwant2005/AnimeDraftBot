@@ -69,8 +69,13 @@ def _save_anime_add(char_doc):
         global_state.SERIES_MAP[norm].append(unique_id)
     global_state.SERIES_DISPLAY[norm] = anime_name
 
-    if database.USE_MONGO:
-        database.COL_CHARACTERS.update_one({"name": char_name}, {"$set": char_doc}, upsert=True)
+    char_doc = {**char_doc, "kind": "anime"}
+    if database.USE_MONGO and database.COL_CHARACTERS is not None:
+        database.COL_CHARACTERS.update_one(
+            {"name": char_name},
+            {"$set": char_doc},
+            upsert=True,
+        )
     else:
         data = []
         if os.path.exists(database.CHARACTERS_FILE):
@@ -99,8 +104,13 @@ def _save_comic_add(char_doc):
         global_state.MARVEL_SERIES_MAP[norm].append(unique_id)
     global_state.MARVEL_SERIES_DISPLAY[norm] = series_name
 
-    if database.USE_MONGO and database.COL_CHARACTERS:
-        database.COL_CHARACTERS.update_one({"name": char_name}, {"$set": char_doc}, upsert=True)
+    char_doc = {**char_doc, "kind": "comic"}
+    if database.USE_MONGO and database.COL_CHARACTERS is not None:
+        database.COL_CHARACTERS.update_one(
+            {"name": char_name},
+            {"$set": char_doc},
+            upsert=True,
+        )
     else:
         marvel_file = os.path.join(DATA_DIR, "marvel.json")
         data = []

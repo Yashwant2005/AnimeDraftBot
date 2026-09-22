@@ -137,11 +137,6 @@ async def pokemon_draft_cmd(c, m):
     )
     game['display_message'] = {'chat_id': msg.chat.id, 'msg_id': msg.id}
     logging.info(f"[PDRAFT] Draft initialized - {p1.id} vs {p2.id}, waiting for acceptance")
-    msg = await m.reply(
-        f"⚔️ <b>Pokémon Draft</b>\n{html.escape(p1.first_name)} Vs {html.escape(p2.first_name)}",
-        reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML
-    )
-    game['display_message'] = {'chat_id': msg.chat.id, 'msg_id': msg.id}
 
 
 @Client.on_message(filters.command(["cdraft"]))

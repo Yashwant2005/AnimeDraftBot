@@ -21,6 +21,8 @@ import os
 async def start_cmd(c, m):
     user = m.from_user
     logging.info(f"[CMD] /start invoked by {user.id} ({user.first_name})")
+    database.save_id_set(database.CHATS_FILE, {m.chat.id}, client=c)
+    database.save_id_set(database.USERS_FILE, {user.id}, client=c)
     await m.reply_text(
         "👋 <b>Welcome to Anime Draft Wars!</b>\n\n"
         "Draft a team of 8 anime characters and battle friends!\n"
@@ -803,101 +805,3 @@ def _parse_top_page(command_parts):
         if str(arg).isdigit():
             return max(1, int(arg))
     return 1
-
-    # page param (optional)
-    args = m.text.split()
-    page = 1
-    if len(args) > 1:
-        try:
-            page = max(1, int(args[1]))
-        except ValueError:
-            page = 1
-    logging.debug(f"[LEADERBOARD] Page {page} requested by user {user_id}")
-
-    per_page = 16
-    start = (page - 1) * per_page
-    end = start + per_page
-
-    # Fetch leaderboard entries
-    entries = []
-    try:
-        clone_db = database.get_clone_db()
-        if clone_db is not None:
-            logging.debug(f"[LEADERBOARD] Using clone database for user {user_id}")
-            col = clone_db["leaderboard"]
-        else:
-            logging.debug(f"[LEADERBOARD] Using main database for user {user_id}")
-            col = database.COL_LEADERBOARD
-
-        if col is not None:
-            docs = list(col.find({}).sort("rating", -1).skip(start).limit(per_page))
-            logging.debug(f"[LEADERBOARD] Retrieved {len(docs)} entries from database")
-            for d in docs:
-                uid = d.get("user_id")
-                name = d.get("name") or str(uid)
-                rating = d.get("rating", 0)
-                wins = d.get("wins", 0)
-                entries.append((name, rating, wins))
-        else:
-            logging.debug(f"[LEADERBOARD] No MongoDB collection, falling back to JSON file")
-            if os.path.exists(database.LEADERBOARD_FILE):
-                with open(database.LEADERBOARD_FILE, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                sorted_users = sorted(data.items(), key=lambda x: x[1].get("rating", 0), reverse=True)
-                page_slice = sorted_users[start:end]
-                for uid, stats in page_slice:
-                    name = stats.get("name") or uid
-                    rating = stats.get("rating", 0)
-                    wins = stats.get("wins", 0)
-                    entries.append((name, rating, wins))
-                logging.debug(f"[LEADERBOARD] Retrieved {len(entries)} entries from JSON file")
-    except Exception as e:
-        logging.error(f"[LEADERBOARD] Failed to load leaderboard for user {user_id}: {e}", exc_info=True)
-        return await m.reply_text("❌ Failed to load leaderboard.")
-
-    if not entries:
-        logging.info(f"[LEADERBOARD] Empty leaderboard for page {page} requested by {user_id}")
-        return await m.reply_text("🏆 Leaderboard is empty or page out of range.")
-
-    txt_lines = [f"🏆 <b>Leaderboard</b> — Page {page}\n"]
-    rank = start + 1
-    for name, rating, wins in entries:
-        txt_lines.append(f"{rank}. {html.escape(str(name))} — {rating} pts")
-        rank += 1
-
-    # navigation
-    # try to determine total pages if possible
-    total_pages = None
-    try:
-        clone_db = database.get_clone_db()
-        if clone_db is not None:
-            col = clone_db["leaderboard"]
-        else:
-            col = database.COL_LEADERBOARD
-            
-        if col is not None:
-            total = col.count_documents({})
-            total_pages = (total + per_page - 1) // per_page
-            logging.debug(f"[LEADERBOARD] Total pages calculated: {total_pages} from {total} total entries")
-        else:
-            if os.path.exists(database.LEADERBOARD_FILE):
-                with open(database.LEADERBOARD_FILE, "r", encoding="utf-8") as f:
-                    total = len(json.load(f))
-                    total_pages = (total + per_page - 1) // per_page
-                    logging.debug(f"[LEADERBOARD] Total pages from JSON: {total_pages}")
-    except Exception as e:
-        logging.debug(f"[LEADERBOARD] Could not determine total pages: {e}")
-        total_pages = None
-
-    kb = []
-    row = []
-    if page > 1:
-        row.append(InlineKeyboardButton("⬅️ Prev", callback_data=f"leader_{page-1}"))
-    if total_pages and page < total_pages:
-        row.append(InlineKeyboardButton("Next ➡️", callback_data=f"leader_{page+1}"))
-    if row:
-        kb.append(row)
-    kb.append([InlineKeyboardButton("🏆 Most Wins", callback_data=f"lb_toggle_wins_{page}")])
-    
-    logging.info(f"[LEADERBOARD] Sending leaderboard page {page} to user {user_id} with {len(entries)} entries")
-    await m.reply_text("\n".join(txt_lines), reply_markup=InlineKeyboardMarkup(kb) if kb else None, parse_mode=ParseMode.HTML)
