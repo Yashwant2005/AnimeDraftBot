@@ -88,7 +88,15 @@ def init_mongo():
     global MONGO_CLIENT, MONGO_DB, COL_ACTIVE_CHATS, COL_ACTIVE_USERS, COL_LEADERBOARD, COL_GROUP_LEADERBOARD, COL_CHARACTERS, COL_MODS, USE_MONGO
     global COL_WAIFUS, COL_WAIFU_USERS, COL_WAIFU_TOTALS, COL_WAIFU_GROUP_USERS, COL_WAIFU_TOP_GROUPS, COL_WAIFU_MARKET, COL_WAIFU_CREWS
     try:
-        MONGO_CLIENT = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+        MONGO_CLIENT = MongoClient(
+            MONGO_URI,
+            serverSelectionTimeoutMS=5000,
+            maxPoolSize=50,
+            minPoolSize=5,
+            maxIdleTimeMS=30000,
+            socketTimeoutMS=20000,
+            retryWrites=True
+        )
         MONGO_CLIENT.admin.command('ping')
         MONGO_DB = MONGO_CLIENT[MONGO_DB_NAME]
         COL_ACTIVE_CHATS = MONGO_DB['active_chats']

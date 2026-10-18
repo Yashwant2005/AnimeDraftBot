@@ -6,6 +6,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQ
 from pyrogram.enums import ParseMode
 
 import database
+import rich_ui
 
 _rps_games = {}
 _docq_states = {}
@@ -37,12 +38,12 @@ async def docq_command(client, message):
         ]
     ])
 
-    await message.reply_text(
-        f"🍎 <b>Doc Q</b> appears and offers you two apples!\n"
-        f"One of them is explosive, the other is normal. Choose wisely!",
-        reply_markup=kb,
-        parse_mode=ParseMode.HTML
+    card = rich_ui.build_rich_card(
+        title="🍎 Doc Q's Explosive Apples",
+        badges=["Minigame", "Risk vs Reward"],
+        description="Doc Q offers you two apples. One is delicious, the other is explosive! Choose wisely:"
     )
+    await rich_ui.send_rich_message(client, message.chat.id, card, reply_markup=kb)
 
 @Client.on_callback_query(filters.regex(r"^docq:"))
 async def docq_callback(client, callback_query: CallbackQuery):
@@ -66,25 +67,26 @@ async def docq_callback(client, callback_query: CallbackQuery):
     if is_win:
         reward = 150
         database.COL_WAIFU_USERS.update_one({"id": uid}, {"$inc": {"coins": reward, "bounty": reward}})
-        await callback_query.edit_message_text(
-            f"🍎 <b>Doc Q:</b> \"Fwahaha! You chose... wisely.\"\n\n"
-            f"😋 The apple was delicious! You feel energized.\n"
-            f"💰 You won: <b>+{reward} coins</b> 🪙",
-            parse_mode=ParseMode.HTML
+        card = rich_ui.build_rich_card(
+            title="🍎 Doc Q: You Chose Wisely!",
+            badges=["Victory", "+150 Coins"],
+            table_data=[("Reward", f"+{reward} 🪙")],
+            expandable_quote="Doc Q: Fwahaha! The apple was delicious! You feel energized."
         )
+        await rich_ui.edit_rich_message(client, callback_query.message.chat.id, callback_query.message.id, card)
     else:
         penalty = 75
-        # Deduct but prevent going below zero
         doc = database.COL_WAIFU_USERS.find_one({"id": uid})
         current = doc.get("coins", 0) if doc else 0
         actual_penalty = min(penalty, current)
         database.COL_WAIFU_USERS.update_one({"id": uid}, {"$inc": {"coins": -actual_penalty, "bounty": -actual_penalty}})
-        await callback_query.edit_message_text(
-            f"💥 <b>BOOM!</b>\n\n"
-            f"🤮 The apple was filled with explosives and blew up in your face!\n"
-            f"💸 You lost: <b>-{actual_penalty} coins</b> 🪙",
-            parse_mode=ParseMode.HTML
+        card = rich_ui.build_rich_card(
+            title="💥 BOOM! Explosive Apple!",
+            badges=["Defeat", f"-{actual_penalty} Coins"],
+            table_data=[("Loss", f"-{actual_penalty} 🪙")],
+            expandable_quote="The apple was filled with explosives and blew up in your face!"
         )
+        await rich_ui.edit_rich_message(client, callback_query.message.chat.id, callback_query.message.id, card)
 
 @Client.on_message(filters.command("roulette") & filters.group)
 async def roulette_command(client, message):
@@ -304,14 +306,13 @@ async def rps_command(client, message):
         ]
     ])
 
-    await message.reply_text(
-        f"✊✋✌️ <b>Rock Paper Scissors Challenge!</b>\n\n"
-        f"<a href='tg://user?id={a.id}'>{html.escape(a.first_name)}</a> challenges "
-        f"<a href='tg://user?id={b.id}'>{html.escape(b.first_name)}</a>.\n"
-        f"Both players, choose your move below!",
-        reply_markup=kb,
-        parse_mode=ParseMode.HTML
+    card = rich_ui.build_rich_card(
+        title="✊✋✌️ Rock Paper Scissors",
+        subtitle=f"{a.first_name} VS {b.first_name}",
+        badges=["Minigame", "50 Coin Stake"],
+        description="Both players, choose your move below:"
     )
+    await rich_ui.send_rich_message(client, message.chat.id, card, reply_markup=kb)
 
 @Client.on_callback_query(filters.regex(r"^rps:"))
 async def rps_callback(client, callback_query: CallbackQuery):
@@ -368,10 +369,13 @@ async def rps_callback(client, callback_query: CallbackQuery):
             "scissors": "✌️ Scissors"
         }
 
-        await callback_query.edit_message_text(
-            f"✊✋✌️ <b>RPS Battle Results!</b>\n\n"
-            f"• {html.escape(state['a_name'])} chose: <b>{moves_display[move_a]}</b>\n"
-            f"• {html.escape(state['b_name'])} chose: <b>{moves_display[move_b]}</b>\n\n"
-            f"{result_txt}",
-            parse_mode=ParseMode.HTML
+        card = rich_ui.build_rich_card(
+            title="✊✋✌️ RPS Battle Results!",
+            badges=["Battle Concluded"],
+            table_data=[
+                (state['a_name'], moves_display[move_a]),
+                (state['b_name'], moves_display[move_b])
+            ],
+            expandable_quote=result_txt
         )
+        await rich_ui.edit_rich_message(client, callback_query.message.chat.id, callback_query.message.id, card)

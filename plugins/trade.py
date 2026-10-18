@@ -73,15 +73,19 @@ async def trade_command(client, message):
         InlineKeyboardButton("❌ Reject", callback_data=f"trade_no:{tid}"),
     ]])
 
-    await message.reply_text(
-        f"🔄 <b>Trade Proposal</b>\n\n"
-        f"<a href='tg://user?id={a.id}'>{html.escape(a.first_name)}</a> offers "
-        f"<b>{html.escape(a_char['name'])}</b>\n"
-        f"for <b>{html.escape(b_char['name'])}</b> from "
-        f"<a href='tg://user?id={b.id}'>{html.escape(b.first_name)}</a>\n\n"
-        f"<i>{html.escape(b.first_name)}, accept?</i>",
-        parse_mode=ParseMode.HTML,
-        reply_markup=kb,
+    import rich_ui
+    card = rich_ui.build_rich_card(
+        title="🔄 Trade Proposal",
+        badges=["Trade", f"Target: {b.first_name}"],
+        description=f"{a.first_name} offers {a_char['name']} for {b_char['name']} from {b.first_name}.",
+        table_data=[
+            ("Offered", a_char["name"]),
+            ("Requested", b_char["name"])
+        ],
+        footer=f"{b.first_name}, do you accept?"
+    )
+    await rich_ui.send_rich_message(
+        client, message.chat.id, card, reply_markup=kb
     )
 
 @Client.on_callback_query(filters.regex(r"^trade_(yes|no):"))
@@ -159,11 +163,18 @@ async def gift_command(client, message):
         InlineKeyboardButton("❌ Cancel", callback_data=f"gift_no:{gid}"),
     ]])
 
-    await message.reply_text(
-        f"🎁 Gift <b>{html.escape(char['name'])}</b> to "
-        f"<a href='tg://user?id={b.id}'>{html.escape(b.first_name)}</a>?",
-        parse_mode=ParseMode.HTML,
-        reply_markup=kb,
+    import rich_ui
+    card = rich_ui.build_rich_card(
+        title="🎁 Character Gift",
+        badges=["Gift", f"To: {b.first_name}"],
+        description=f"Gift {char['name']} to {b.first_name}?",
+        table_data=[
+            ("Character", char["name"]),
+            ("Recipient", b.first_name)
+        ]
+    )
+    await rich_ui.send_rich_message(
+        client, message.chat.id, card, reply_markup=kb
     )
 
 @Client.on_callback_query(filters.regex(r"^gift_(yes|no):"))

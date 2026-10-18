@@ -164,19 +164,22 @@ async def crew_command(client, message):
         await message.reply_text("❌ Crew not found or you are not in a crew. Usage: /crew [crew name]")
         return
 
-    # Fetch member profiles and calculate average bounty
+    import rich_ui
     members = list(database.COL_WAIFU_USERS.find({"id": {"$in": crew["members"]}}))
     bounties = [m.get("coins", 0) for m in members]
     avg_bounty = int(sum(bounties) / len(bounties)) if bounties else 0
 
-    members_txt = "\n".join(f"• <a href='tg://user?id={m['id']}'>{html.escape(m['first_name'])}</a> — {m.get('coins', 0):,} 🪙" for m in members)
+    members_txt = "\n".join(f"• {m['first_name']} — {m.get('coins', 0):,} 🪙" for m in members)
 
-    txt = (
-        f"🏴‍☠️ <b>Crew: {html.escape(crew['name'])}</b>\n"
-        f"👑 <b>Captain:</b> {html.escape(crew['captain_name'])}\n"
-        f"💰 <b>Average Bounty:</b> {avg_bounty:,} 🪙\n"
-        f"👥 <b>Total Members:</b> {len(members)}\n\n"
-        f"<b>Members:</b>\n{members_txt}"
+    card = rich_ui.build_rich_card(
+        title=f"🏴‍☠️ Crew: {crew['name']}",
+        badges=["Crew", f"Captain: {crew['captain_name']}"],
+        table_data=[
+            ("Captain", crew["captain_name"]),
+            ("Avg Bounty", f"{avg_bounty:,}"),
+            ("Members", str(len(members)))
+        ],
+        expandable_quote=f"Members:\n{members_txt}"
     )
 
-    await message.reply_text(txt, parse_mode=ParseMode.HTML)
+    await rich_ui.send_rich_message(client, message.chat.id, card)

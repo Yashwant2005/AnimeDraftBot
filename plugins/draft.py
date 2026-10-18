@@ -7,6 +7,7 @@ import re
 import logging
 import global_state
 import database
+import rich_ui
 import html
 import os
 import json
@@ -65,12 +66,16 @@ async def draft_cmd(c, m):
 
     s_name = SERIES_DISPLAY.get(series_filter, "All Anime")
     kb = [[InlineKeyboardButton("✅ Accept Battle", callback_data=f"accept_{game_id}")]]
-    msg = await m.reply(
-        f"⚔️ <b>{mode.upper().replace('_', ' ')}</b>\n🎭 <b>Series:</b> {s_name}\n\n"
-        f"{html.escape(p1.first_name)} Vs {html.escape(p2.first_name)}",
-        reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML
+
+    card = rich_ui.build_rich_card(
+        title=f"⚔️ {mode.upper().replace('_', ' ')} Challenge",
+        badges=[f"Series: {s_name}", "Draft Match"],
+        description=f"<b>{p1.first_name}</b> challenges <b>{p2.first_name}</b> to an Anime Draft Battle!",
+        expandable_quote="Rules:\n• Turn-based character draft\n• 8 unique roles to fill\n• Strategy & stat synergy determine victory"
     )
-    game['display_message'] = {'chat_id': msg.chat.id, 'msg_id': msg.id}
+    msg_id = await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=kb)
+    if msg_id:
+        game['display_message'] = {'chat_id': m.chat.id, 'msg_id': msg_id}
     logging.info(f"[DRAFT] Draft initialized - {p1.id} vs {p2.id}, waiting for acceptance")
 
 @Client.on_message(filters.command(["pokemondraft", "pdraft"]))
@@ -131,11 +136,14 @@ async def pokemon_draft_cmd(c, m):
         global_state.GAMES.setdefault(m.chat.id, {})[game_id] = game
 
     kb = [[InlineKeyboardButton("✅ Accept Challenge", callback_data=f"paccept_{game_id}")]]
-    msg = await m.reply(
-        f"⚔️ <b>Pokémon Draft</b>\n{html.escape(p1.first_name)} Vs {html.escape(p2.first_name)}",
-        reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML
+    card = rich_ui.build_rich_card(
+        title="⚔️ Pokémon Draft Challenge",
+        badges=["Pokémon Draft", "Stat Battle"],
+        description=f"<b>{p1.first_name}</b> challenges <b>{p2.first_name}</b> to a Pokémon Draft!"
     )
-    game['display_message'] = {'chat_id': msg.chat.id, 'msg_id': msg.id}
+    msg_id = await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=kb)
+    if msg_id:
+        game['display_message'] = {'chat_id': m.chat.id, 'msg_id': msg_id}
     logging.info(f"[PDRAFT] Draft initialized - {p1.id} vs {p2.id}, waiting for acceptance")
 
 
@@ -243,10 +251,12 @@ async def comic_draft_cmd(c, m):
         global_state.GAMES.setdefault(m.chat.id, {})[game_id] = game
 
     kb = [[InlineKeyboardButton("✅ Accept Battle", callback_data=f"accept_{game_id}")]]
-    msg = await m.reply(
-        f"⚔️ <b>COMICS DRAFT</b>\n🎭 <b>Series:</b> {series_name}\n\n"
-        f"{html.escape(p1.first_name)} Vs {html.escape(p2.first_name)}",
-        reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML
+    card = rich_ui.build_rich_card(
+        title="⚔️ Comics Draft Challenge",
+        badges=[f"Series: {series_name}", "Comics Battle"],
+        description=f"<b>{p1.first_name}</b> challenges <b>{p2.first_name}</b> to a Marvel/Comics Draft!"
     )
-    game['display_message'] = {'chat_id': msg.chat.id, 'msg_id': msg.id}
+    msg_id = await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=kb)
+    if msg_id:
+        game['display_message'] = {'chat_id': m.chat.id, 'msg_id': msg_id}
     logging.info(f"[CDRAFT] Draft initialized - {p1.id} vs {p2.id}, waiting for acceptance")

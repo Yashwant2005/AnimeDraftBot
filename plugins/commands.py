@@ -6,6 +6,7 @@ import json
 import database
 import global_state
 import ui
+import rich_ui
 import logging
 import os
 import clone_manager
@@ -23,12 +24,17 @@ async def start_cmd(c, m):
     logging.info(f"[CMD] /start invoked by {user.id} ({user.first_name})")
     database.save_id_set(database.CHATS_FILE, {m.chat.id}, client=c)
     database.save_id_set(database.USERS_FILE, {user.id}, client=c)
-    await m.reply_text(
-        "👋 <b>Welcome to Anime Draft Wars!</b>\n\n"
-        "Draft a team of 8 anime characters and battle friends!\n"
-        "Use /draft to play.\n"
-        "Use /guide for the short guide or /commands for command usage.",
-        parse_mode=ParseMode.HTML
+
+    card = rich_ui.build_rich_card(
+        title="👋 Welcome to Anime Draft Wars!",
+        subtitle="Bot API 10.3 Powered Anime Battle System",
+        badges=["Anime", "Draft Wars", "v10.3"],
+        description="Draft a team of 8 anime characters and battle friends!\nUse /draft to play.",
+        expandable_quote="Quick Start:\n• Reply with /draft to challenge an opponent\n• Use /guide for a short guide\n• Use /commands for full command list"
+    )
+    await rich_ui.send_rich_message(
+        c, m.chat.id, card,
+        reply_markup=[[("🎮 Play Draft", "start_draft_hint"), ("📚 View Guide", "guide_0")]]
     )
 
 _GUIDE_PAGES = [
@@ -75,12 +81,13 @@ _GUIDE_PAGES = [
 async def guide_cmd(c, m):
     logging.info(f"[CMD] /guide invoked by {m.from_user.id}")
 
-    kb = InlineKeyboardMarkup([[InlineKeyboardButton("Next ➡️", callback_data="guide_1")]])
-    await m.reply_text(
-        _GUIDE_PAGES[0],
-        reply_markup=kb,
-        parse_mode=ParseMode.MARKDOWN
+    kb = [[InlineKeyboardButton("Next ➡️", callback_data="guide_1")]]
+    card = rich_ui.build_rich_card(
+        title="📚 Bot Guide - Page 1",
+        badges=["Guide", "Page 1/4"],
+        expandable_quote=_GUIDE_PAGES[0]
     )
+    await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=kb)
 
 @Client.on_callback_query(filters.regex(r"^guide_(\d+)$"))
 async def guide_cb(client, callback_query):
@@ -98,10 +105,14 @@ async def guide_cb(client, callback_query):
     if row:
         kb.append(row)
 
-    await callback_query.edit_message_text(
-        _GUIDE_PAGES[page],
-        reply_markup=InlineKeyboardMarkup(kb) if kb else None,
-        parse_mode=ParseMode.MARKDOWN
+    card = rich_ui.build_rich_card(
+        title=f"📚 Bot Guide - Page {page + 1}",
+        badges=["Guide", f"Page {page + 1}/4"],
+        expandable_quote=_GUIDE_PAGES[page]
+    )
+    await rich_ui.edit_rich_message(
+        client, callback_query.message.chat.id, callback_query.message.id,
+        card, reply_markup=InlineKeyboardMarkup(kb) if kb else None
     )
 
 _COMMANDS_PAGES = [
@@ -245,11 +256,14 @@ def _commands_page_from_message(message):
 async def commands_cmd(c, m):
     logging.info(f"[CMD] /commands invoked by {m.from_user.id}")
     page = _commands_page_from_message(m)
-    await m.reply_text(
-        _commands_text(page),
-        parse_mode=ParseMode.HTML,
-        reply_markup=_commands_markup(page),
-        disable_web_page_preview=True,
+    title, body = _COMMANDS_PAGES[page]
+    card = rich_ui.build_rich_card(
+        title=f"📘 Commands Guide - {title}",
+        badges=["Commands", f"Page {page + 1}/{len(_COMMANDS_PAGES)}"],
+        expandable_quote=body
+    )
+    await rich_ui.send_rich_message(
+        c, m.chat.id, card, reply_markup=_commands_markup(page)
     )
 
 @Client.on_callback_query(filters.regex(r"^cmds:(noop|\d+)$"))
@@ -260,30 +274,31 @@ async def commands_cb(client, callback_query):
 
     page = max(0, min(len(_COMMANDS_PAGES) - 1, int(page_raw)))
     await callback_query.answer()
-    await callback_query.edit_message_text(
-        _commands_text(page),
-        parse_mode=ParseMode.HTML,
-        reply_markup=_commands_markup(page),
-        disable_web_page_preview=True,
+    title, body = _COMMANDS_PAGES[page]
+    card = rich_ui.build_rich_card(
+        title=f"📘 Commands Guide - {title}",
+        badges=["Commands", f"Page {page + 1}/{len(_COMMANDS_PAGES)}"],
+        expandable_quote=body
+    )
+    await rich_ui.edit_rich_message(
+        client, callback_query.message.chat.id, callback_query.message.id,
+        card, reply_markup=_commands_markup(page)
     )
 
 @Client.on_message(filters.command("list"))
 async def list_cmd(c, m):
     logging.info(f"[CMD] /list invoked by {m.from_user.id} with text: {m.text}")
     mode = "anime"
-    # Check if user specified comics mode
     if len(m.text.split()) > 1 and m.text.split()[1].lower() == "comics":
         mode = "comics"
     
     if mode == "anime":
         if not global_state.SERIES_DISPLAY:
             return await m.reply_text("📚 No anime series found.")
-        
         series = sorted(set(global_state.SERIES_DISPLAY.values()))
-    else:  # comics
+    else:
         if not global_state.MARVEL_SERIES_DISPLAY:
             return await m.reply_text("🎬 No comics found.")
-        
         series = sorted(set(global_state.MARVEL_SERIES_DISPLAY.values()))
     
     page = 1
@@ -301,10 +316,12 @@ async def list_cmd(c, m):
     end_idx = start_idx + per_page
     page_series = series[start_idx:end_idx]
     
-    if mode == "anime":
-        txt = f"📚 <b>Available Anime Series</b> (Page {page}/{total_pages})\n\n" + "\n".join(f"• {html.escape(s)}" for s in page_series)
-    else:
-        txt = f"🎬 <b>Available Comics</b> (Page {page}/{total_pages})\n\n" + "\n".join(f"• {html.escape(s)}" for s in page_series)
+    series_list_str = "\n".join(f"• {s}" for s in page_series)
+    card = rich_ui.build_rich_card(
+        title=f"📚 Available {mode.capitalize()} Series",
+        badges=[mode.capitalize(), f"Page {page}/{total_pages}"],
+        expandable_quote=series_list_str
+    )
     
     kb = []
     row = []
@@ -315,11 +332,10 @@ async def list_cmd(c, m):
     if row:
         kb.append(row)
     
-    # Add toggle button for Anime/Comics
     toggle_btn = InlineKeyboardButton("🎬 Comics", callback_data="list_comics_1") if mode == "anime" else InlineKeyboardButton("🎭 Anime", callback_data="list_anime_1")
     kb.append([toggle_btn])
     
-    await m.reply_text(txt, reply_markup=InlineKeyboardMarkup(kb) if kb else None, parse_mode=ParseMode.HTML)
+    await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=InlineKeyboardMarkup(kb) if kb else None)
 
 @Client.on_message(filters.command("profile"))
 async def profile_cmd(c, m):
@@ -332,7 +348,6 @@ async def profile_cmd(c, m):
     rating = stats.get("rating", 1200)
     wr = round((wins / matches * 100), 1) if matches > 0 else 0
 
-    # Get top 3 users
     top_3 = get_top_3_users()
     is_top_3 = user.id in top_3
 
@@ -344,20 +359,21 @@ async def profile_cmd(c, m):
     elif is_top_3: rank = "👑 Anime King"
     else: rank = "⭐ Legendary"
 
-    # Achievements
     user_achis = global_state.USER_ACHIEVEMENTS.get(str(user.id), [])
-    achievements_txt = "\n".join([f"  {global_state.AVAILABLE_ACHIEVEMENTS.get(k, k)}" for k in user_achis]) if user_achis else "  No achievements yet"
+    achievements_txt = "\n".join([f"• {global_state.AVAILABLE_ACHIEVEMENTS.get(k, k)}" for k in user_achis]) if user_achis else "No achievements unlocked yet."
 
-    txt = (
-        f"👤 <b>Profile: {html.escape(user.first_name)}</b>\n\n"
-        f"🏅 <b>Rank:</b> {rank}\n"
-        f"💠 <b>Points:</b> {rating}\n"
-        f"⚔️ <b>Matches:</b> {matches}\n"
-        f"🏆 <b>Wins:</b> {wins}\n"
-        f"📈 <b>Win Rate:</b> {wr}%\n\n"
-        f"🎖 <b>Achievements:</b>\n{achievements_txt}"
+    card = rich_ui.build_rich_card(
+        title=f"👤 Profile: {user.first_name}",
+        badges=[f"Rank: {rank}", f"Rating: {rating}"],
+        table_data=[
+            ("Points", f"{rating:,}"),
+            ("Matches", f"{matches:,}"),
+            ("Wins", f"{wins:,}"),
+            ("Win Rate", f"{wr}%")
+        ],
+        expandable_quote=f"🎖 Achievements:\n{achievements_txt}"
     )
-    await m.reply(txt, parse_mode=ParseMode.HTML)
+    await rich_ui.send_rich_message(c, m.chat.id, card)
 
 
 @Client.on_message(filters.command("clone"))
@@ -489,7 +505,16 @@ async def status_cmd(c, m):
     c_count = len(database.load_id_set(database.CHATS_FILE, client=c))
     u_count = len(database.load_id_set(database.USERS_FILE, client=c))
     logging.info(f"[STATUS] Sending stats: {u_count} users, {c_count} chats (from user {user_id})")
-    await m.reply(f"📊 **Bot Statistics**\n👥 Active Users: **{u_count}**\n💬 Active Chats: **{c_count}**")
+
+    card = rich_ui.build_rich_card(
+        title="📊 Bot Runtime Statistics",
+        badges=["Admin Only", "Status"],
+        table_data=[
+            ("Active Users", f"{u_count:,}"),
+            ("Active Chats", f"{c_count:,}")
+        ]
+    )
+    await rich_ui.send_rich_message(c, m.chat.id, card)
 
 
 _LB_PAGE_SIZE = 10
