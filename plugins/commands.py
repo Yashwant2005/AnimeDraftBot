@@ -38,43 +38,43 @@ async def start_cmd(c, m):
     )
 
 _GUIDE_PAGES = [
-    "📚 **Bot Guide - Page 1 (General & Minigames)**\n\n"
-    "**General**\n"
-    "• `/start` - Start the bot\n"
-    "• `/profile` - View your profile and stats\n"
-    "• `/leaderboard` - Choose a leaderboard\n"
-    "• `/topglobal` - Choose a global leaderboard\n"
-    "• `/topgroup` - Choose this group's leaderboard\n"
-    "• `/commands` - Full usage guide for every active command\n"
-    "• `/list` - List available series\n"
-    "• `/clone` - Clone the bot\n\n"
-    "**Minigames**\n"
-    "• `/shambles` - Word search game\n"
-    "• `/whoswho` - Blurred character guess\n"
-    "• `/punk` - Detail guessing game\n"
-    "• `/answer <name>` - Submit answer for solo games\n"
-    "• `/docq` - Apple explosion minigame\n"
-    "• `/roulette` - Russian roulette\n"
-    "• `/rps` - Rock paper scissors",
+    "📚 <b>Bot Guide - Page 1 (General & Minigames)</b>\n\n"
+    "<b>General</b>\n"
+    "• <code>/start</code> - Start the bot\n"
+    "• <code>/profile</code> - View your profile and stats\n"
+    "• <code>/leaderboard</code> - Choose a leaderboard\n"
+    "• <code>/topglobal</code> - Choose a global leaderboard\n"
+    "• <code>/topgroup</code> - Choose this group's leaderboard\n"
+    "• <code>/commands</code> - Full usage guide for every active command\n"
+    "• <code>/list</code> - List available series\n"
+    "• <code>/clone</code> - Clone the bot\n\n"
+    "<b>Minigames</b>\n"
+    "• <code>/shambles</code> - Word search game\n"
+    "• <code>/whoswho</code> - Blurred character guess\n"
+    "• <code>/punk</code> - Detail guessing game\n"
+    "• <code>/answer &lt;name&gt;</code> - Submit answer for solo games\n"
+    "• <code>/docq</code> - Apple explosion minigame\n"
+    "• <code>/roulette</code> - Russian roulette\n"
+    "• <code>/rps</code> - Rock paper scissors",
 
-    "📚 **Bot Guide - Page 2 (Economy & Trading)**\n\n"
-    "**Economy & Trading**\n"
-    "• `/balance` - Check your coins\n"
-    "• `/daily` - Claim daily free coins\n"
-    "• `/trade` / `/gift` - Trade/gift users",
+    "📚 <b>Bot Guide - Page 2 (Economy & Trading)</b>\n\n"
+    "<b>Economy & Trading</b>\n"
+    "• <code>/balance</code> - Check your coins\n"
+    "• <code>/daily</code> - Claim daily free coins\n"
+    "• <code>/trade</code> / <code>/gift</code> - Trade/gift users",
 
-    "📚 **Bot Guide - Page 3 (RPG & Combat)**\n\n"
-    "• `/bounty` - Check bounty stats\n"
-    "• `/fight` / `/plunder` - Attack other users",
+    "📚 <b>Bot Guide - Page 3 (RPG & Combat)</b>\n\n"
+    "• <code>/bounty</code> - Check bounty stats\n"
+    "• <code>/fight</code> / <code>/plunder</code> - Attack other users",
 
-    "📚 **Bot Guide - Page 4 (Admins)**\n\n"
-    "**Admin Management**\n"
-    "• `/add` / `/addpoints` - Give currency/points\n"
-    "• `/characters` - Manage DB\n"
-    "• `/acast` - Broadcast message\n"
-    "• `/sudo` / `/mods` - Manage admins\n"
-    "• `/exportdb` - Export database\n"
-    "• `/status` - Check bot status"
+    "📚 <b>Bot Guide - Page 4 (Admins)</b>\n\n"
+    "<b>Admin Management</b>\n"
+    "• <code>/add</code> / <code>/addpoints</code> - Give currency/points\n"
+    "• <code>/characters</code> - Manage DB\n"
+    "• <code>/acast</code> - Broadcast message\n"
+    "• <code>/sudo</code> / <code>/mods</code> - Manage admins\n"
+    "• <code>/exportdb</code> - Export database\n"
+    "• <code>/status</code> - Check bot status"
 ]
 
 @Client.on_message(filters.command("guide"))
