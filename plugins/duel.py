@@ -8,6 +8,7 @@ from pyrogram.enums import ParseMode
 
 import database
 import config
+import rich_ui
 
 _pending = {}
 _EXPIRY = 120
@@ -89,11 +90,15 @@ async def duel_command(client, message):
         for i, c in enumerate(unique_a)
     ])
 
-    await message.reply_text(
-        f"⚔️ <b>{html.escape(a.first_name)}</b> challenged <b>{html.escape(b.first_name)}</b>!\n\n"
-        f"{html.escape(a.first_name)}, pick your fighter:",
-        parse_mode=ParseMode.HTML,
-        reply_markup=kb,
+    card = rich_ui.build_rich_card(
+        title=f"⚔️ Character Duel Challenge",
+        subtitle=f"{a.first_name} VS {b.first_name}",
+        badges=["1v1 Duel", "Anime Battle"],
+        description=f"{a.first_name}, pick your fighter to start the duel:"
+    )
+    await rich_ui.send_rich_message(
+        client, message.chat.id, card,
+        reply_markup=kb
     )
 
 @Client.on_callback_query(filters.regex(r"^duel_pick_a:"))
@@ -121,12 +126,15 @@ async def duel_pick_a_callback(client, callback_query: CallbackQuery):
         for i, c in enumerate(state["b_chars"])
     ])
 
-    await callback_query.edit_message_text(
-        f"⚔️ <b>{html.escape(state['challenger_name'])}</b> picked "
-        f"<b>{html.escape(state['a_pick']['name'])}</b>!\n\n"
-        f"<b>{html.escape(state['opponent_name'])}</b>, choose your fighter:",
-        parse_mode=ParseMode.HTML,
-        reply_markup=kb,
+    card = rich_ui.build_rich_card(
+        title=f"⚔️ Character Duel Challenge",
+        subtitle=f"{state['challenger_name']} picked {state['a_pick']['name']}",
+        badges=["1v1 Duel", "Turn 2"],
+        description=f"{state['opponent_name']}, choose your fighter to respond:"
+    )
+    await rich_ui.edit_rich_message(
+        client, callback_query.message.chat.id, callback_query.message.id,
+        card, reply_markup=kb
     )
 
 @Client.on_callback_query(filters.regex(r"^duel_pick_b:"))
@@ -181,13 +189,18 @@ async def duel_pick_b_callback(client, callback_query: CallbackQuery):
         {"$inc": {"coins": config.DUEL_LOSE_COINS, "xp": 25}}
     )
 
-    await callback_query.edit_message_text(
-        f"⚔️ <b>Duel Result!</b>\n\n"
-        f"🏆 <b>{html.escape(winner_name)}</b> won with <b>{html.escape(win_char)}</b>!\n"
-        f"   Power: <b>{max(a_power, b_power)}</b>\n\n"
-        f"💀 <b>{html.escape(loser_name)}</b> lost with <b>{html.escape(lose_char)}</b>.\n"
-        f"   Power: <b>{min(a_power, b_power)}</b>\n\n"
-        f"🏅 Winner earns <b>{config.DUEL_WIN_COINS} 🪙</b> + 100 XP\n"
-        f"🎖️ Loser earns <b>{config.DUEL_LOSE_COINS} 🪙</b> + 25 XP",
-        parse_mode=ParseMode.HTML,
+    card = rich_ui.build_rich_card(
+        title="⚔️ Duel Victory Result!",
+        badges=[f"Winner: {winner_name}", f"Loser: {loser_name}"],
+        table_data=[
+            ("Winner Fighter", win_char),
+            ("Winner Power", f"{max(a_power, b_power)}"),
+            ("Loser Fighter", lose_char),
+            ("Loser Power", f"{min(a_power, b_power)}")
+        ],
+        expandable_quote=f"Rewards:\n• Winner: +{config.DUEL_WIN_COINS} coins 🪙 & 100 XP\n• Loser: +{config.DUEL_LOSE_COINS} coins 🪙 & 25 XP"
+    )
+    await rich_ui.edit_rich_message(
+        client, callback_query.message.chat.id, callback_query.message.id,
+        card
     )

@@ -430,18 +430,23 @@ def _guess_game_keyboard(game):
     return InlineKeyboardMarkup([[InlineKeyboardButton("Cancel Game", callback_data=f"mg:{token}:cancel")]])
 
 def _lobby_text(game):
+    import rich_ui
     title = GUESS_GAME_TITLES[game["type"]]
     total = game["pot"]
     prize = int(total * 0.9)
-    return (
-        f"<b>{title} Lobby</b>\n\n"
-        f"Host: {_player_link(game['host_id'], game['host_name'])}\n"
-        f"Entry fee: <b>{game['entry_fee']}</b> coins\n"
-        f"{_filter_line(game)}"
-        f"Players: <b>{len(game['players'])}</b>\n"
-        f"Prize now: <b>{prize}</b> coins (90% of pot)\n\n"
-        f"{_format_lobby_players(game)}\n\n"
-        f"Host can press Start when ready."
+    players_str = "\n".join(
+        f"{idx}. {pdata['name']}{' (host)' if uid == game['host_id'] else ''}"
+        for idx, (uid, pdata) in enumerate(game["players"].items(), 1)
+    )
+    return rich_ui.build_rich_card(
+        title=f"🎮 {title} Lobby",
+        badges=[game["type"].upper(), f"Players: {len(game['players'])}"],
+        table_data=[
+            ("Host", game["host_name"]),
+            ("Entry Fee", f"{game['entry_fee']:,}"),
+            ("Prize Pool", f"{prize:,}")
+        ],
+        expandable_quote=f"Players Joined:\n{players_str}\n\nHost can press Start when ready."
     )
 
 async def _is_group_admin(client, chat_id, user_id):

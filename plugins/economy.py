@@ -8,6 +8,7 @@ from pyrogram.enums import ParseMode
 
 import database
 import config
+import rich_ui
 
 _DAILY_COOLDOWN = 86400
 _PAGE_SIZE = 8
@@ -41,13 +42,15 @@ async def balance_command(client, message):
         return
 
     doc = _ensure_user(user.id, user)
-    # Align coins and bounty
     coins = doc.get("coins", 0)
-    await message.reply_text(
-        f"💰 <b>{html.escape(user.first_name)}'s Balance</b>\n\n"
-        f"Coins/Belly: <b>{coins:,}</b> 🪙",
-        parse_mode=ParseMode.HTML,
+
+    card = rich_ui.build_rich_card(
+        title=f"💰 Wallet Balance: {user.first_name}",
+        badges=[f"Coins: {coins:,} 🪙"],
+        table_data=[("Balance", f"{coins:,} coins")],
+        footer="Use /daily to claim free coins daily!"
     )
+    await rich_ui.send_rich_message(client, message.chat.id, card)
 
 @Client.on_message(filters.command("daily"))
 async def daily_command(client, message):
@@ -76,12 +79,16 @@ async def daily_command(client, message):
         {"id": user.id},
         {"$inc": {"coins": reward}, "$set": {"last_daily": now, "bounty": new_coins}},
     )
-    await message.reply_text(
-        f"🎁 <b>Daily reward!</b>\n\n"
-        f"You received <b>{reward:,} coins</b> 🪙\n"
-        f"Current balance: <b>{new_coins:,}</b>",
-        parse_mode=ParseMode.HTML,
+    card = rich_ui.build_rich_card(
+        title="🎁 Daily Reward Claimed!",
+        badges=[f"+{reward:,} Coins", "Daily Streak"],
+        table_data=[
+            ("Claimed", f"{reward:,} 🪙"),
+            ("New Balance", f"{new_coins:,} 🪙")
+        ],
+        footer="Come back in 24 hours for your next reward!"
     )
+    await rich_ui.send_rich_message(client, message.chat.id, card)
 
 @Client.on_message(_DISABLED_FILTER & filters.command("sell"))
 async def sell_command(client, message):

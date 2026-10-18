@@ -88,11 +88,16 @@ async def bounty_command(client, message):
     matches = stats.get("matches", 0)
     rating = stats.get("rating", 1200)
 
-    txt = (
-        f"🏴‍☠️ <b>Bounty Profile: {html.escape(target.first_name)}</b>\n\n"
-        f"💰 <b>Bounty:</b> {bounty:,} 🪙\n"
-        f"💠 <b>Rank Points:</b> {rating} pts\n"
-        f"⚔️ <b>Draft Matches:</b> {matches} (Wins: {wins})\n"
+    import rich_ui
+    card = rich_ui.build_rich_card(
+        title=f"🏴‍☠️ Bounty Profile: {target.first_name}",
+        badges=["Bounty", f"Rating: {rating}"],
+        table_data=[
+            ("Bounty", f"{bounty:,}"),
+            ("Rank Pts", f"{rating:,}"),
+            ("Matches", f"{matches:,}"),
+            ("Wins", f"{wins:,}")
+        ]
     )
 
     poster_path, cleanup_paths = await _create_wanted_poster(client, target.id, target.first_name or "Pirate", bounty)
@@ -100,11 +105,11 @@ async def bounty_command(client, message):
         if poster_path:
             await message.reply_photo(
                 photo=poster_path,
-                caption=txt,
+                caption=card,
                 parse_mode=ParseMode.HTML
             )
         else:
-            await message.reply_text(txt, parse_mode=ParseMode.HTML)
+            await rich_ui.send_rich_message(client, message.chat.id, card)
     finally:
         _cleanup_files(cleanup_paths)
 
@@ -181,20 +186,33 @@ async def fight_command(client, message):
     winner_is_a = random.random() < win_chance
     wager = int(min(a_bounty, b_bounty) * 0.10)
 
+    import rich_ui
     if winner_is_a:
         database.COL_WAIFU_USERS.update_one({"id": a.id}, {"$inc": {"coins": wager, "bounty": wager}})
         database.COL_WAIFU_USERS.update_one({"id": b.id}, {"$inc": {"coins": -wager, "bounty": -wager}})
-        await message.reply_text(
-            f"⚔️ <b>{html.escape(a.first_name)}</b> defeated <b>{html.escape(b.first_name)}</b> in combat!\n"
-            f"🏆 Winner takes 10% of the bounty: <b>+{wager:,} coins</b> 🪙"
+        card = rich_ui.build_rich_card(
+            title="⚔️ Fight Victory!",
+            badges=["Combat", "Winner"],
+            description=f"{a.first_name} defeated {b.first_name} in combat!",
+            table_data=[
+                ("Winner", a.first_name),
+                ("Prize", f"+{wager:,} coins")
+            ]
         )
+        await rich_ui.send_rich_message(client, message.chat.id, card)
     else:
         database.COL_WAIFU_USERS.update_one({"id": a.id}, {"$inc": {"coins": -wager, "bounty": -wager}})
         database.COL_WAIFU_USERS.update_one({"id": b.id}, {"$inc": {"coins": wager, "bounty": wager}})
-        await message.reply_text(
-            f"⚔️ <b>{html.escape(b.first_name)}</b> defeated <b>{html.escape(a.first_name)}</b> in combat!\n"
-            f"🏆 Winner takes 10% of the bounty: <b>+{wager:,} coins</b> 🪙"
+        card = rich_ui.build_rich_card(
+            title="⚔️ Fight Victory!",
+            badges=["Combat", "Winner"],
+            description=f"{b.first_name} defeated {a.first_name} in combat!",
+            table_data=[
+                ("Winner", b.first_name),
+                ("Prize", f"+{wager:,} coins")
+            ]
         )
+        await rich_ui.send_rich_message(client, message.chat.id, card)
 
 @Client.on_message(filters.command("plunder") & filters.group)
 async def plunder_command(client, message):
@@ -231,19 +249,32 @@ async def plunder_command(client, message):
     # Plunder has high risk: 40% success rate, but steals 20% on success, loses 15% on fail
     success = random.random() < 0.40
 
+    import rich_ui
     if success:
         stolen = int(b_bounty * 0.20)
         database.COL_WAIFU_USERS.update_one({"id": a.id}, {"$inc": {"coins": stolen, "bounty": stolen}})
         database.COL_WAIFU_USERS.update_one({"id": b.id}, {"$inc": {"coins": -stolen, "bounty": -stolen}})
-        await message.reply_text(
-            f"🏴‍☠️ <b>{html.escape(a.first_name)}</b> successfully plundered <b>{html.escape(b.first_name)}</b>!\n"
-            f"💰 Stole 20% of their bounty: <b>+{stolen:,} coins</b> 🪙"
+        card = rich_ui.build_rich_card(
+            title="🏴‍☠️ Plunder Success!",
+            badges=["Plunder", "Success"],
+            description=f"{a.first_name} successfully plundered {b.first_name}!",
+            table_data=[
+                ("Stolen", f"+{stolen:,} coins"),
+                ("Rate", "20% Bounty")
+            ]
         )
+        await rich_ui.send_rich_message(client, message.chat.id, card)
     else:
         penalty = int(a_bounty * 0.15)
         database.COL_WAIFU_USERS.update_one({"id": a.id}, {"$inc": {"coins": -penalty, "bounty": -penalty}})
         database.COL_WAIFU_USERS.update_one({"id": b.id}, {"$inc": {"coins": penalty, "bounty": penalty}})
-        await message.reply_text(
-            f"🛡️ <b>{html.escape(a.first_name)}</b>'s plunder failed! <b>{html.escape(b.first_name)}</b> defended successfully.\n"
-            f"💸 Plunderer pays 15% penalty: <b>-{penalty:,} coins</b> 🪙"
+        card = rich_ui.build_rich_card(
+            title="🛡️ Plunder Failed!",
+            badges=["Plunder", "Failed"],
+            description=f"{a.first_name}'s plunder failed! {b.first_name} defended successfully.",
+            table_data=[
+                ("Penalty", f"-{penalty:,} coins"),
+                ("Rate", "15% Penalty")
+            ]
         )
+        await rich_ui.send_rich_message(client, message.chat.id, card)
