@@ -36,18 +36,13 @@ def build_rich_card(title, subtitle=None, badges=None, description=None, table_d
         else:
             items = list(table_data)
 
-        k_width = max(12, min(22, max((len(str(k)) for k, _ in items), default=12)))
-        v_width = max(10, min(20, max((len(str(v)) for _, v in items), default=10)))
-        total_dash = k_width + v_width + 3
-
-        card_lines.append(f"<code>┌{'─' * total_dash}┐</code>")
+        # Mobile-friendly compact key-value display to avoid monospaced box overflow on small screens
+        table_lines = []
         for k, v in items:
-            key_raw = str(k)[:k_width]
-            val_raw = str(v)[:v_width]
-            key_str = html.escape(key_raw).ljust(k_width)
-            val_str = html.escape(val_raw).rjust(v_width)
-            card_lines.append(f"<code>│ {key_str} {val_str} │</code>")
-        card_lines.append(f"<code>└{'─' * total_dash}┘</code>\n")
+            key_str = html.escape(str(k))
+            val_str = html.escape(str(v))
+            table_lines.append(f"• <b>{key_str}:</b> <code>{val_str}</code>")
+        card_lines.append("\n".join(table_lines) + "\n")
 
     if expandable_quote:
         card_lines.append(f"<blockquote expandable>{str(expandable_quote)}</blockquote>\n")
