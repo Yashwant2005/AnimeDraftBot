@@ -67,10 +67,13 @@ async def draft_cmd(c, m):
     s_name = SERIES_DISPLAY.get(series_filter, "All Anime")
     kb = [[InlineKeyboardButton("✅ Accept Battle", callback_data=f"accept_{game_id}")]]
 
+    p1_link = f"<a href='tg://user?id={p1.id}'>{html.escape(p1.first_name)}</a>"
+    p2_link = f"<a href='tg://user?id={p2.id}'>{html.escape(p2.first_name)}</a>"
+
     card = rich_ui.build_rich_card(
         title=f"⚔️ {mode.upper().replace('_', ' ')} Challenge",
         badges=[f"Series: {s_name}", "Draft Match"],
-        description=f"<b>{p1.first_name}</b> challenges <b>{p2.first_name}</b> to an Anime Draft Battle!",
+        description=f"<b>{p1_link}</b> challenges <b>{p2_link}</b> to an Anime Draft Battle!",
         expandable_quote="Rules:\n• Turn-based character draft\n• 8 unique roles to fill\n• Strategy & stat synergy determine victory"
     )
     msg_id = await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=kb)
@@ -136,10 +139,13 @@ async def pokemon_draft_cmd(c, m):
         global_state.GAMES.setdefault(m.chat.id, {})[game_id] = game
 
     kb = [[InlineKeyboardButton("✅ Accept Challenge", callback_data=f"paccept_{game_id}")]]
+    p1_link = f"<a href='tg://user?id={p1.id}'>{html.escape(p1.first_name)}</a>"
+    p2_link = f"<a href='tg://user?id={p2.id}'>{html.escape(p2.first_name)}</a>"
+
     card = rich_ui.build_rich_card(
         title="⚔️ Pokémon Draft Challenge",
         badges=["Pokémon Draft", "Stat Battle"],
-        description=f"<b>{p1.first_name}</b> challenges <b>{p2.first_name}</b> to a Pokémon Draft!"
+        description=f"<b>{p1_link}</b> challenges <b>{p2_link}</b> to a Pokémon Draft!"
     )
     msg_id = await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=kb)
     if msg_id:
@@ -251,10 +257,13 @@ async def comic_draft_cmd(c, m):
         global_state.GAMES.setdefault(m.chat.id, {})[game_id] = game
 
     kb = [[InlineKeyboardButton("✅ Accept Battle", callback_data=f"accept_{game_id}")]]
+    p1_link = f"<a href='tg://user?id={p1.id}'>{html.escape(p1.first_name)}</a>"
+    p2_link = f"<a href='tg://user?id={p2.id}'>{html.escape(p2.first_name)}</a>"
+
     card = rich_ui.build_rich_card(
         title="⚔️ Comics Draft Challenge",
         badges=[f"Series: {series_name}", "Comics Battle"],
-        description=f"<b>{p1.first_name}</b> challenges <b>{p2.first_name}</b> to a Marvel/Comics Draft!"
+        description=f"<b>{p1_link}</b> challenges <b>{p2_link}</b> to a Marvel/Comics Draft!"
     )
     msg_id = await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=kb)
     if msg_id:
