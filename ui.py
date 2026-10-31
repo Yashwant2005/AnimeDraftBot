@@ -28,73 +28,49 @@ async def ensure_display_message(client, chat_id, game, text, reply_markup=None,
 
 def get_team_display(game, show_pending=False):
     p1, p2 = game['p1'], game['p2']
-    roles_iter = game.get('roles', ROLES)
     
-    table_p1 = []
-    for r in roles_iter:
-        unique_char_id = p1['team'].get(r)
+    def fmt_role(r, team_dict):
+        unique_char_id = team_dict.get(r)
         if not unique_char_id and show_pending:
             r_index = game.get('current_role_index', 0)
             if r_index < len(game.get('roles_order', [])) and game['roles_order'][r_index] == r:
-                char_display = "❓ Picking..."
-            else:
-                char_display = "..."
-        else:
-            char_display = unique_char_id.split(' | ')[0] if unique_char_id else "..."
-        table_p1.append((r, char_display))
+                return f"• {r}: <code>❓ Picking...</code>"
 
-    table_p2 = []
-    for r in roles_iter:
-        unique_char_id = p2['team'].get(r)
-        if not unique_char_id and show_pending:
-            r_index = game.get('current_role_index', 0)
-            if r_index < len(game.get('roles_order', [])) and game['roles_order'][r_index] == r:
-                char_display = "❓ Picking..."
-            else:
-                char_display = "..."
-        else:
-            char_display = unique_char_id.split(' | ')[0] if unique_char_id else "..."
-        table_p2.append((r, char_display))
+        char_display = unique_char_id.split(' | ')[0] if unique_char_id else ". . ."
+        # Truncate character name if line would exceed 35 chars
+        prefix = f"• {r}: "
+        allowed_len = max(8, 35 - len(prefix))
+        if len(char_display) > allowed_len:
+            char_display = char_display[:allowed_len - 1] + "…"
+        return f"• {r}: <code>{html.escape(char_display)}</code>"
 
-    p1_card = rich_ui.build_rich_card(
-        title=f"🔵 {p1['name']}'s Team",
-        table_data=table_p1
-    )
-    p2_card = rich_ui.build_rich_card(
-        title=f"🔴 {p2['name']}'s Team",
-        table_data=table_p2
-    )
-
-    return f"{p1_card}\n\n{p2_card}"
+    roles_iter = game.get('roles', ROLES)
+    p1_name = p1['name'][:20]
+    p2_name = p2['name'][:20]
+    txt = f"🔵 <b>{html.escape(p1_name)}'s Team</b>:\n"
+    for role in roles_iter:
+        txt += fmt_role(role, p1['team']) + "\n"
+    txt += f"\n🔴 <b>{html.escape(p2_name)}'s Team</b>:\n"
+    for role in roles_iter:
+        txt += fmt_role(role, p2['team']) + "\n"
+    return txt
 
 def pokemon_get_team_display(game):
     p1, p2 = game['p1'], game['p2']
-
-    table_p1 = []
-    for role in POKEMON_ROLES:
-        entry = p1['team'].get(role)
+    def format_stat_line(role, team_dict):
+        entry = team_dict.get(role)
         if role == "Type":
-            val = f"{'/'.join(entry['types'])} ({entry['pokemon']})" if entry else "..."
+            val = f"{'/'.join(entry['types'])} ({entry['pokemon']})" if entry else ". . ."
         else:
-            val = f"{entry['value']} ({entry['pokemon']})" if entry else "..."
-        table_p1.append((role, val))
+            val = f"{entry['value']} ({entry['pokemon']})" if entry else ". . ."
+        prefix = f"• {role}: "
+        allowed_len = max(8, 35 - len(prefix))
+        if len(val) > allowed_len:
+            val = val[:allowed_len - 1] + "…"
+        return f"• {role}: <code>{html.escape(val)}</code>"
 
-    table_p2 = []
-    for role in POKEMON_ROLES:
-        entry = p2['team'].get(role)
-        if role == "Type":
-            val = f"{'/'.join(entry['types'])} ({entry['pokemon']})" if entry else "..."
-        else:
-            val = f"{entry['value']} ({entry['pokemon']})" if entry else "..."
-        table_p2.append((role, val))
-
-    p1_card = rich_ui.build_rich_card(
-        title=f"🔵 {p1['name']}'s Build",
-        table_data=table_p1
-    )
-    p2_card = rich_ui.build_rich_card(
-        title=f"🔴 {p2['name']}'s Build",
-        table_data=table_p2
-    )
-
-    return f"{p1_card}\n\n{p2_card}"
+    p1_name = p1['name'][:20]
+    p2_name = p2['name'][:20]
+    txt = f"🔵 <b>{html.escape(p1_name)}'s Build</b>:\n" + "\n".join(format_stat_line(r, p1['team']) for r in POKEMON_ROLES)
+    txt += f"\n\n🔴 <b>{html.escape(p2_name)}'s Build</b>:\n" + "\n".join(format_stat_line(r, p2['team']) for r in POKEMON_ROLES)
+    return txt

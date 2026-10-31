@@ -24,7 +24,7 @@ def build_rich_card(title, subtitle=None, badges=None, description=None, table_d
         card_lines.append("")
 
     if description:
-        card_lines.append(f"{html.escape(str(description))}\n")
+        card_lines.append(f"{str(description)}\n")
 
     if badges:
         badge_str = " ".join([f"<code>{html.escape(str(b))}</code>" for b in badges])
@@ -36,25 +36,25 @@ def build_rich_card(title, subtitle=None, badges=None, description=None, table_d
         else:
             items = list(table_data)
 
-        # Calculate dynamic column widths (max 22 chars for keys, 20 for vals)
-        k_width = max(12, min(22, max((len(str(k)) for k, _ in items), default=12)))
-        v_width = max(10, min(20, max((len(str(v)) for _, v in items), default=10)))
-        total_dash = k_width + v_width + 3
-
-        card_lines.append(f"<code>┌{'─' * total_dash}┐</code>")
+        # Mobile-friendly compact key-value display capped at max 36 chars per line
+        table_lines = []
         for k, v in items:
-            key_raw = str(k)[:k_width]
-            val_raw = str(v)[:v_width]
-            key_str = html.escape(key_raw).ljust(k_width)
-            val_str = html.escape(val_raw).rjust(v_width)
-            card_lines.append(f"<code>│ {key_str} {val_str} │</code>")
-        card_lines.append(f"<code>└{'─' * total_dash}┘</code>\n")
+            k_raw = str(k)
+            v_raw = str(v)
+            prefix = f"• {k_raw}: "
+            allowed_v = max(6, 35 - len(prefix))
+            if len(v_raw) > allowed_v:
+                v_raw = v_raw[:allowed_v - 1] + "…"
+            key_str = html.escape(k_raw)
+            val_str = html.escape(v_raw)
+            table_lines.append(f"• <b>{key_str}:</b> <code>{val_str}</code>")
+        card_lines.append("\n".join(table_lines) + "\n")
 
     if expandable_quote:
-        card_lines.append(f"<blockquote expandable>{html.escape(str(expandable_quote))}</blockquote>\n")
+        card_lines.append(f"<blockquote expandable>{str(expandable_quote)}</blockquote>\n")
 
     if footer:
-        card_lines.append(f"<i>{html.escape(str(footer))}</i>")
+        card_lines.append(f"<i>{str(footer)}</i>")
 
     return "\n".join(card_lines).strip()
 
@@ -103,15 +103,13 @@ def format_rich_keyboard(rows):
     return InlineKeyboardMarkup(formatted_rows)
 
 async def send_rich_message(client, chat_id, text, reply_markup=None, ephemeral_params=None, parse_mode=ParseMode.HTML, preview=False):
-    """Sends a rich message using Bot API 10.3 sendRichMessage HTTP endpoint if token available,
-    falling back to Pyrogram Client send_message.
-    """
-    token = getattr(client, "bot_token", None)
+    """Sends a rich message using Pyrogram Client or HTTP Bot API if ephemeral parameters provided."""
     markup = format_rich_keyboard(reply_markup)
+    token = getattr(client, "bot_token", None)
 
     if token and ephemeral_params:
         try:
-            url = f"https://api.telegram.org/bot{token}/sendRichMessage"
+            url = f"https://api.telegram.org/bot{token}/sendMessage"
             payload = {
                 "chat_id": chat_id,
                 "text": text,
@@ -120,7 +118,6 @@ async def send_rich_message(client, chat_id, text, reply_markup=None, ephemeral_
                 "ephemeral_message_parameters": ephemeral_params
             }
             if markup and hasattr(markup, "inline_keyboard"):
-                # Convert InlineKeyboardMarkup to raw json dict
                 keyboard_dict = []
                 for row in markup.inline_keyboard:
                     row_list = []
@@ -150,9 +147,8 @@ async def send_rich_message(client, chat_id, text, reply_markup=None, ephemeral_
                 result = resp_data.get("result", {})
                 return result.get("message_id")
         except Exception as e:
-            logging.debug(f"[RICH_UI] HTTP sendRichMessage failed: {e}, falling back to Pyrogram")
+            logging.debug(f"[RICH_UI] HTTP sendMessage failed: {e}, falling back to Pyrogram")
 
-    # Pyrogram fallback
     try:
         sent = await client.send_message(
             chat_id=chat_id,
