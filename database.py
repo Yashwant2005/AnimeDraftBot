@@ -28,6 +28,11 @@ USE_MONGO = False
 # Thread-local storage for current client context (for clones)
 _thread_local = threading.local()
 
+# Fast in-memory cache for user stats to minimize DB lookups and boost speed
+_USER_STATS_CACHE = {}
+_USER_STATS_CACHE_LOCK = threading.Lock()
+_CACHE_TTL = 60  # seconds
+
 def set_current_client(client):
     """Set the current client context for the thread (used for clone detection)."""
     _thread_local.current_client = client
@@ -226,34 +231,47 @@ def save_id_set(filename, id_set, client=None):
         logging.error(f"[DB] save_id_set file error: {e}")
 
 def get_user_stats(user_id, name="Unknown"):
-    """Get user stats from main or clone-specific database."""
+    """Get user stats from main or clone-specific database with fast in-memory caching."""
+    import time
     default = {"name": name, "wins": 0, "matches": 0, "rating": 1200}
+    cache_key = f"{get_clone_owner_id() or 'main'}_{user_id}"
+
+    with _USER_STATS_CACHE_LOCK:
+        if cache_key in _USER_STATS_CACHE:
+            cached_data, timestamp = _USER_STATS_CACHE[cache_key]
+            if time.time() - timestamp < _CACHE_TTL:
+                return cached_data.copy()
+
     try:
         clone_db = get_clone_db()
+        result = default
         if clone_db is not None:
-            # Use clone-specific collection
             logging.debug(f"[DB] Getting user {user_id} stats from clone DB")
             col = clone_db['leaderboard']
             u = col.find_one({"user_id": user_id})
-            if u:
-                return u
-            return default
+            result = u if u else default
         elif USE_MONGO:
             u = COL_LEADERBOARD.find_one({"user_id": user_id})
-            if u:
-                return u
-            return default
+            result = u if u else default
         else:
             if os.path.exists(LEADERBOARD_FILE):
                 with open(LEADERBOARD_FILE, "r") as f: data = json.load(f)
-                return data.get(str(user_id), default)
-            return default
+                result = data.get(str(user_id), default)
+
+        with _USER_STATS_CACHE_LOCK:
+            _USER_STATS_CACHE[cache_key] = (result.copy(), time.time())
+        return result
     except Exception as e:
         logging.error(f"[DB] Error getting user stats for {user_id}: {e}")
         return default
 
 def save_user_stats(user_id, stats):
-    """Save user stats to main or clone-specific database."""
+    """Save user stats to main or clone-specific database and update cache."""
+    import time
+    cache_key = f"{get_clone_owner_id() or 'main'}_{user_id}"
+    with _USER_STATS_CACHE_LOCK:
+        _USER_STATS_CACHE[cache_key] = (stats.copy(), time.time())
+
     try:
         clone_db = get_clone_db()
         if clone_db is not None:

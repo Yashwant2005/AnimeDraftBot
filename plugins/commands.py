@@ -57,11 +57,11 @@ _GUIDE_PAGES = [
     "• <code>/roulette</code> - Russian roulette\n"
     "• <code>/rps</code> - Rock paper scissors",
 
-    "📚 <b>Bot Guide - Page 2 (Economy & Trading)</b>\n\n"
-    "<b>Economy & Trading</b>\n"
+    "📚 <b>Bot Guide - Page 2 (Economy & Gifting)</b>\n\n"
+    "<b>Economy & Gifting</b>\n"
     "• <code>/balance</code> - Check your coins\n"
     "• <code>/daily</code> - Claim daily free coins\n"
-    "• <code>/trade</code> / <code>/gift</code> - Trade/gift users",
+    "• <code>/gift</code> - Gift characters to users",
 
     "📚 <b>Bot Guide - Page 3 (RPG & Combat)</b>\n\n"
     "• <code>/bounty</code> - Check bounty stats\n"

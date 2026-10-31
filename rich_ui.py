@@ -36,11 +36,17 @@ def build_rich_card(title, subtitle=None, badges=None, description=None, table_d
         else:
             items = list(table_data)
 
-        # Mobile-friendly compact key-value display to avoid monospaced box overflow on small screens
+        # Mobile-friendly compact key-value display capped at max 36 chars per line
         table_lines = []
         for k, v in items:
-            key_str = html.escape(str(k))
-            val_str = html.escape(str(v))
+            k_raw = str(k)
+            v_raw = str(v)
+            prefix = f"• {k_raw}: "
+            allowed_v = max(6, 35 - len(prefix))
+            if len(v_raw) > allowed_v:
+                v_raw = v_raw[:allowed_v - 1] + "…"
+            key_str = html.escape(k_raw)
+            val_str = html.escape(v_raw)
             table_lines.append(f"• <b>{key_str}:</b> <code>{val_str}</code>")
         card_lines.append("\n".join(table_lines) + "\n")
 
