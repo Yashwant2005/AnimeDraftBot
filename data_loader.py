@@ -14,7 +14,7 @@ def _load_character_sources(local_file):
 
     if database.USE_MONGO and database.COL_CHARACTERS is not None:
         try:
-            data.extend(database.COL_CHARACTERS.find({}))
+            data.extend(database.COL_CHARACTERS.find({'archived': {'$ne': True}}))
         except Exception as exc:
             logging.warning("Could not load saved characters from MongoDB: %s", exc)
 

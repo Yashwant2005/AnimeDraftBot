@@ -11,6 +11,7 @@ from data_loader import load_data, load_pokemon_data, load_achievements, load_ma
 import web_server
 import game_engine
 import global_state
+import database
 
 # --- FIX FOR WINDOWS CONSOLE CRASHES ---
 # This line prevents the "UnicodeEncodeError: 'charmap' codec" error
@@ -58,6 +59,15 @@ def main():
     # the engine handles the logging.
     t_monitor = threading.Thread(target=game_engine.forfeit_monitor, args=(None,), daemon=True)
     t_monitor.start()
+
+    # Maintain denormalized 24-hour/7-day group counters without fetching any
+    # Telegram history. Activity starts only from updates this bot receives.
+    t_group_rollups = threading.Thread(target=database.group_activity_rollup_worker, daemon=True)
+    t_group_rollups.start()
+
+    # Releases unjoined/abandoned auction records even after a bot restart.
+    t_auction_expiry = threading.Thread(target=database.auction_expiry_worker, daemon=True)
+    t_auction_expiry.start()
 
     try:
         import clone_manager

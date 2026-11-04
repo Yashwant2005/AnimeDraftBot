@@ -3,6 +3,7 @@ from pyrogram.enums import ParseMode
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from utils import is_admin, is_admin_sync, is_mod, is_owner, is_clone_instance
 from config import OWNER_ID, OWNER_IDS
+from plugins.audit import log_event
 import global_state
 import database
 from config import DATA_DIR
@@ -13,8 +14,350 @@ import os
 import re
 import html
 import time
+import uuid
+from datetime import datetime, timedelta, timezone
+
+try:
+    from bson import ObjectId
+except ImportError:  # pragma: no cover - pymongo installs bson
+    ObjectId = None
 
 _pending_draft_adds = {}
+
+
+# Owner-confirmed destructive database actions are persisted in Mongo rather
+# than held only in memory. This makes expiration and duplicate taps safe even
+# after a bot restart.
+_DELETION_TTL = timedelta(minutes=5)
+
+
+def _character_collections():
+    return [
+        ('characters', database.COL_CHARACTERS),
+    ]
+
+
+def _safe_object_id(value):
+    if ObjectId is None:
+        return None
+    try:
+        return ObjectId(str(value))
+    except Exception:
+        return None
+
+
+def _document_id(document):
+    return str(document.get('_id') or document.get('id') or '')
+
+
+def _character_series(document):
+    return document.get('series') or document.get('anime') or 'Unknown'
+
+
+def _find_character_matches(term, *, series=False):
+    """Search both established character catalogs without exposing secrets."""
+    if not database.USE_MONGO:
+        return []
+    exact_id = _safe_object_id(term)
+    id_options = [{'id': term}]
+    if str(term).isdigit():
+        id_options.append({'id': int(term)})
+    if exact_id:
+        id_options.append({'_id': exact_id})
+    field_queries = ([
+        {'series': {'$regex': f'^{re.escape(term)}$', '$options': 'i'}},
+        {'anime': {'$regex': f'^{re.escape(term)}$', '$options': 'i'}},
+    ] if series else [{'name': {'$regex': f'^{re.escape(term)}$', '$options': 'i'}}])
+    query = {
+        'archived': {'$ne': True},
+        '$or': id_options + field_queries,
+    }
+    matches = []
+    for source, collection in _character_collections():
+        if collection is None:
+            continue
+        for document in collection.find(query).limit(25):
+            document['_source_collection'] = source
+            matches.append(document)
+    return matches
+
+
+def _character_reference_count(document):
+    """Count known persisted and in-memory references before a hard delete."""
+    char_id, name = document.get('id'), document.get('name')
+    user_alternatives = [{'characters.name': name}]
+    market_alternatives = [{'character.name': name}]
+    if char_id is not None:
+        user_alternatives.append({'characters.id': char_id})
+        market_alternatives.extend([{'character_id': char_id}, {'character.id': char_id}])
+    references = 0
+    if database.COL_WAIFU_USERS is not None:
+        references += database.COL_WAIFU_USERS.count_documents({'$or': user_alternatives})
+    if database.COL_WAIFU_MARKET is not None:
+        references += database.COL_WAIFU_MARKET.count_documents({'$or': market_alternatives})
+    # An active draft has not yet become historical data; archive instead of
+    # pulling a card from a live game.
+    keys = {f'{name} | {_character_series(document)}', f'{name} | Marvel', name}
+    with global_state.GAMES_LOCK:
+        for games in global_state.GAMES.values():
+            for game in games.values():
+                if keys.intersection(set(game.get('used_chars', [])) | set((game.get('p1', {}).get('team') or {}).values()) | set((game.get('p2', {}).get('team') or {}).values())):
+                    references += 1
+    return references
+
+
+def _remove_document_from_local_source(document):
+    """Keep JSON bootstrap data from reintroducing an archived/deleted card."""
+    if document.get('_source_collection') != 'characters':
+        return
+    path = os.path.join(DATA_DIR, 'marvel.json' if document.get('kind') == 'comic' else 'character.json')
+    if not os.path.exists(path):
+        return
+    try:
+        with open(path, 'r', encoding='utf-8') as handle:
+            data = json.load(handle)
+        if not isinstance(data, list):
+            return
+        name, series = document.get('name'), _character_series(document)
+        retained = [item for item in data if not (item.get('name') == name and _character_series(item) == series)]
+        if len(retained) != len(data):
+            with open(path, 'w', encoding='utf-8') as handle:
+                json.dump(retained, handle, ensure_ascii=False, indent=2)
+    except Exception as exc:
+        logging.warning('[DELETE] Could not update local catalog source: %s', exc)
+
+
+def _purge_character_from_runtime(document):
+    name, series = document.get('name'), _character_series(document)
+    keys = {f'{name} | {series}', f'{name} | Marvel'}
+    for key in list(global_state.CHAR_STATS):
+        if key in keys:
+            global_state.CHAR_STATS.pop(key, None)
+            global_state.CHAR_IMAGES.pop(key, None)
+    global_state.ANIME_CHARACTERS[:] = [item for item in global_state.ANIME_CHARACTERS if item not in keys and item != name]
+    global_state.MARVEL_CHARACTERS[:] = [item for item in global_state.MARVEL_CHARACTERS if item not in keys]
+    for mapping, display in ((global_state.SERIES_MAP, global_state.SERIES_DISPLAY),
+                             (global_state.MARVEL_SERIES_MAP, global_state.MARVEL_SERIES_DISPLAY)):
+        for normalized, members in list(mapping.items()):
+            mapping[normalized] = [item for item in members if item not in keys]
+            if not mapping[normalized]:
+                mapping.pop(normalized, None)
+                display.pop(normalized, None)
+
+
+def _write_delete_action(request):
+    source = request['source_collection']
+    collection = dict(_character_collections()).get(source)
+    if collection is None:
+        raise RuntimeError('The source collection is unavailable.')
+    ids = [_safe_object_id(value) for value in request['document_ids']]
+    if not all(ids):
+        raise RuntimeError('Invalid stored character identifier.')
+    documents = list(collection.find({'_id': {'$in': ids}, 'archived': {'$ne': True}}))
+    if len(documents) != len(ids):
+        raise RuntimeError('One or more records no longer exist or were already archived.')
+    for document in documents:
+        document['_source_collection'] = source
+    references = sum(_character_reference_count(document) for document in documents)
+    now = datetime.now(timezone.utc)
+
+    def write(session=None):
+        if references:
+            collection.update_many(
+                {'_id': {'$in': ids}},
+                {'$set': {'archived': True, 'archived_at': now, 'archived_reason': 'owner_delete_with_references'}},
+                session=session,
+            )
+            return 'archived'
+        collection.delete_many({'_id': {'$in': ids}}, session=session)
+        return 'deleted'
+
+    # Atlas/repl-set deployments support transactions; standalone MongoDB
+    # deployments use the same guarded writes without pretending atomics exist.
+    try:
+        with database.MONGO_CLIENT.start_session() as session:
+            with session.start_transaction():
+                result = write(session)
+    except Exception as exc:
+        if 'Transaction numbers are only allowed' not in str(exc) and 'replica set' not in str(exc).lower():
+            raise
+        result = write()
+    for document in documents:
+        _remove_document_from_local_source(document)
+        _purge_character_from_runtime(document)
+    return result, len(documents), references
+
+
+def _deletion_message(request):
+    requester = request['requester']
+    warning = 'Deletion may affect existing game data. Referenced records will be archived instead of hard-deleted.'
+    if request['action'] == 'series':
+        subject = (
+            f"<b>Series:</b> {html.escape(request['series'])}\n"
+            f"<b>Associated characters:</b> {len(request['document_ids'])}"
+        )
+    else:
+        subject = (
+            f"<b>Character:</b> {html.escape(request['character_name'])}\n"
+            f"<b>Character ID:</b> <code>{request['document_ids'][0]}</code>\n"
+            f"<b>Series:</b> {html.escape(request['series'])}"
+        )
+    return (
+        '⚠️ <b>OWNER CONFIRMATION REQUIRED</b>\n\n'
+        f'<b>Requested by:</b> {html.escape(requester["name"])} (<code>{requester["id"]}</code>)\n'
+        f'{subject}\n\n{warning}\n\nExpires in 5 minutes.'
+    )
+
+
+async def _request_owner_confirmation(client, message, action, documents):
+    now = datetime.now(timezone.utc)
+    source = documents[0]['_source_collection']
+    request = {
+        'request_id': uuid.uuid4().hex[:16],
+        'action': action,
+        'source_collection': source,
+        'document_ids': [_document_id(document) for document in documents],
+        'character_name': documents[0].get('name', 'Unknown'),
+        'series': _character_series(documents[0]),
+        'requester': {'id': message.from_user.id, 'name': message.from_user.first_name or str(message.from_user.id)},
+        'requester_chat_id': message.chat.id,
+        'status': 'pending',
+        'created_at': now,
+        'expires_at': now + _DELETION_TTL,
+    }
+    keyboard = InlineKeyboardMarkup([[
+        InlineKeyboardButton('✅ Confirm Delete', callback_data=f"delete:{request['request_id']}:confirm"),
+        InlineKeyboardButton('❌ Cancel', callback_data=f"delete:{request['request_id']}:cancel"),
+    ]])
+    try:
+        database.COL_DELETION_REQUESTS.insert_one(request)
+    except Exception as exc:
+        logging.exception('[DELETE] Could not persist confirmation request: %s', exc)
+        return await message.reply('❌ Could not create a deletion confirmation request. Please try again later.')
+    try:
+        await client.send_message(config.OWNER_ID, _deletion_message(request), parse_mode=ParseMode.HTML, reply_markup=keyboard)
+    except Exception as exc:
+        database.COL_DELETION_REQUESTS.delete_one({'request_id': request['request_id']})
+        logging.warning('[DELETE] Could not deliver owner confirmation: %s', exc)
+        return await message.reply('❌ The configured bot owner must open a private chat and send /start before this request can be delivered.')
+    logging.info('[DELETE] %s request %s submitted by %s', action, request['request_id'], message.from_user.id)
+    if action == 'series':
+        found = f"🔎 Found <b>{html.escape(request['series'])}</b> with <b>{len(documents)}</b> associated character(s)."
+    else:
+        found = (
+            f"🔎 Found <b>{html.escape(request['character_name'])}</b> "
+            f"(<code>{request['document_ids'][0]}</code>) from <b>{html.escape(request['series'])}</b>."
+        )
+    await message.reply(found + '\n\n⏳ Sent to the configured bot owner for private confirmation. The request expires in 5 minutes.', parse_mode=ParseMode.HTML)
+
+
+def _show_match_list(matches, action):
+    title = 'series' if action == 'series' else 'characters'
+    lines = [f'⚠️ Multiple {title} matched. Re-run using one displayed ID:']
+    for document in matches[:10]:
+        lines.append(f'• <b>{html.escape(document.get("name", _character_series(document)))}</b> — <code>{_document_id(document)}</code> ({html.escape(_character_series(document))})')
+    return '\n'.join(lines)
+
+
+async def _delete_command(client, message, action):
+    if getattr(client, 'is_clone', False):
+        return await message.reply('❌ Database deletion is disabled on cloned bot instances.')
+    if not message.from_user or not await is_admin(message.from_user.id):
+        logging.warning('[DELETE] Unauthorized /del%s attempt by %s', action, getattr(message.from_user, 'id', None))
+        return await message.reply('Admin only.')
+    if not database.USE_MONGO or database.COL_DELETION_REQUESTS is None:
+        return await message.reply('❌ The configured database is unavailable; no deletion request was created.')
+    if len(message.command or []) < 2:
+        noun = 'series name or ID' if action == 'series' else 'character name or ID'
+        return await message.reply(f'Usage: <code>/del{action} &lt;{noun}&gt;</code>', parse_mode=ParseMode.HTML)
+    term = message.text.split(maxsplit=1)[1].strip()
+    matches = _find_character_matches(term, series=(action == 'series'))
+    if not matches:
+        return await message.reply('❌ No active matching record was found.')
+    if action == 'character':
+        if len(matches) != 1:
+            return await message.reply(_show_match_list(matches, action), parse_mode=ParseMode.HTML)
+        return await _request_owner_confirmation(client, message, action, matches)
+
+    # A series is represented by its characters in this project (there is no
+    # separate series table). Only a single exact source/series group is safe.
+    sources = {document['_source_collection'] for document in matches}
+    series_names = {_character_series(document).casefold() for document in matches}
+    if len(sources) != 1 or len(series_names) != 1:
+        return await message.reply(_show_match_list(matches, action), parse_mode=ParseMode.HTML)
+    return await _request_owner_confirmation(client, message, action, matches)
+
+
+@Client.on_message(filters.command('delchar'))
+async def delchar_command(client, message):
+    await _delete_command(client, message, 'character')
+
+
+@Client.on_message(filters.command('delseries'))
+async def delseries_command(client, message):
+    await _delete_command(client, message, 'series')
+
+
+async def _notify_deletion_request(client, request, text):
+    try:
+        await client.send_message(request['requester_chat_id'], text, parse_mode=ParseMode.HTML)
+    except Exception as exc:
+        logging.warning('[DELETE] Could not notify requester %s: %s', request['requester']['id'], exc)
+
+
+@Client.on_callback_query(filters.regex(r'^delete:([a-f0-9]{16}):(confirm|cancel)$'))
+async def deletion_confirmation_callback(client, callback_query: CallbackQuery):
+    if not callback_query.from_user or callback_query.from_user.id != config.OWNER_ID:
+        return await callback_query.answer('Only the configured bot owner can confirm this deletion.', show_alert=True)
+    # Confirmation is deliberately accepted only from the configured owner’s
+    # private chat; an owner button forwarded to a group is not sufficient.
+    if callback_query.message.chat.id != config.OWNER_ID:
+        return await callback_query.answer('Confirmation must happen in the owner’s private chat.', show_alert=True)
+    request_id, action = callback_query.matches[0].group(1), callback_query.matches[0].group(2)
+    now = datetime.now(timezone.utc)
+    claimed = database.COL_DELETION_REQUESTS.update_one(
+        {'request_id': request_id, 'status': 'pending', 'expires_at': {'$gt': now}},
+        {'$set': {'status': 'processing', 'owner_id': callback_query.from_user.id, 'processing_at': now}},
+    )
+    if claimed.modified_count != 1:
+        return await callback_query.answer('This request is expired or has already been handled.', show_alert=True)
+    request = database.COL_DELETION_REQUESTS.find_one({'request_id': request_id})
+    if action == 'cancel':
+        database.COL_DELETION_REQUESTS.update_one({'request_id': request_id}, {'$set': {'status': 'cancelled', 'completed_at': now}})
+        logging.info('[DELETE] Request %s cancelled by owner', request_id)
+        await log_event(client, 'DELETE REQUEST CANCELLED', actor=callback_query.from_user, details=f"Request {request_id} • {request['action']}")
+        await _notify_deletion_request(client, request, '❌ Your deletion request was cancelled by the bot owner.')
+        await callback_query.edit_message_text('❌ <b>Deletion cancelled.</b>', parse_mode=ParseMode.HTML)
+        return await callback_query.answer('Cancelled.')
+    try:
+        outcome, count, references = _write_delete_action(request)
+        database.COL_DELETION_REQUESTS.update_one(
+            {'request_id': request_id},
+            {'$set': {'status': 'completed', 'completed_at': datetime.now(timezone.utc), 'outcome': outcome,
+                      'affected_records': count, 'reference_count': references}},
+        )
+        verb = 'archived' if outcome == 'archived' else 'deleted'
+        logging.info('[DELETE] Request %s approved: %s %s record(s), refs=%s', request_id, verb, count, references)
+        await log_event(client, 'DELETE REQUEST COMPLETED', actor=callback_query.from_user, details=f"Request {request_id} • {count} record(s) {verb} • references: {references}")
+        await _notify_deletion_request(
+            client, request,
+            f'✅ Owner approved your request. {count} record(s) {verb}. ' +
+            ('They were archived to preserve existing game/player references.' if outcome == 'archived' else ''),
+        )
+        await callback_query.edit_message_text(
+            f'✅ <b>Deletion approved.</b> {count} record(s) {verb}.', parse_mode=ParseMode.HTML,
+        )
+        await callback_query.answer('Deletion completed.')
+    except Exception as exc:
+        logging.exception('[DELETE] Request %s failed: %s', request_id, exc)
+        database.COL_DELETION_REQUESTS.update_one(
+            {'request_id': request_id},
+            {'$set': {'status': 'failed', 'completed_at': datetime.now(timezone.utc), 'failure': str(exc)[:300]}},
+        )
+        await _notify_deletion_request(client, request, '❌ The approved deletion could not be completed. No further action was taken; check bot logs.')
+        await callback_query.edit_message_text('❌ <b>Deletion failed.</b> The requester has been notified.', parse_mode=ParseMode.HTML)
+        await callback_query.answer('Deletion failed.', show_alert=True)
+
 
 def _parse_anime_add(lines):
     if len(lines) < 11:
@@ -206,6 +549,13 @@ async def draft_add_approval_cb(client, callback_query: CallbackQuery):
         return await callback_query.answer(f"Save failed: {exc}", show_alert=True)
 
     _pending_draft_adds.pop(token, None)
+    await log_event(
+        client,
+        'CHARACTER ADD APPROVED',
+        actor=callback_query.from_user,
+        chat=callback_query.message.chat,
+        details=f"{kind} • {char_doc['name']} • {char_doc['series']}",
+    )
     await _edit_draft_add_approval(
         callback_query,
         caption + f"\n\n✅ <b>Approved by {html.escape(callback_query.from_user.first_name)}</b>",
@@ -239,8 +589,10 @@ async def acast_cmd(c, m):
     sent, failed = 0, 0
     await m.reply("📡 Sending broadcast...")
     chats = database.load_id_set(database.CHATS_FILE, client=c)
-    logging.info(f"[ACAST] Retrieved {len(chats)} chat(s) for broadcasting (owner={owner_id})")
-    for chat_id in chats:
+    users = database.load_id_set(database.USERS_FILE, client=c)
+    targets = chats | users
+    logging.info(f"[ACAST] Broadcasting to %s unique target(s): %s chats + %s user DMs (owner=%s)", len(targets), len(chats), len(users), owner_id)
+    for chat_id in targets:
         try:
             await c.send_message(chat_id, f"📢 <b>Broadcast</b>\n\n{msg}", parse_mode=ParseMode.HTML)
             sent += 1
@@ -267,6 +619,7 @@ async def add_char_cmd(c, m):
 
     try:
         _save_anime_add(char_doc)
+        await log_event(c, 'DRAFT CHARACTER ADDED', actor=m.from_user, chat=m.chat, details=f"{char_doc['name']} • {char_doc['series']}")
         return await m.reply(
             f"Added <b>{html.escape(char_doc['name'])}</b> from {html.escape(char_doc['series'])}!",
             parse_mode=ParseMode.HTML,
@@ -366,6 +719,7 @@ async def add_comic_cmd(c, m):
 
     try:
         _save_comic_add(char_doc)
+        await log_event(c, 'COMIC CHARACTER ADDED', actor=m.from_user, chat=m.chat, details=f"{char_doc['name']} • {char_doc['series']}")
         return await m.reply(
             f"Added <b>{html.escape(char_doc['name'])}</b> from {html.escape(char_doc['series'])}!",
             parse_mode=ParseMode.HTML,

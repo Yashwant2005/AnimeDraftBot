@@ -50,7 +50,10 @@ def _matches_anime_filter(char, anime_filter):
 def _get_random_character(anime_filter=None):
     if not database.USE_MONGO or database.COL_WAIFUS is None:
         return None
-    chars = list(database.COL_WAIFUS.find({"img_url": {"$exists": True, "$ne": ""}}))
+    chars = list(database.COL_WAIFUS.find({
+        "img_url": {"$exists": True, "$ne": ""},
+        "archived": {"$ne": True},
+    }))
     if anime_filter:
         chars = [char for char in chars if _matches_anime_filter(char, anime_filter)]
     if not chars:
@@ -121,6 +124,15 @@ def _char_cache_query(char):
         return {"_id": char["_id"]}
     return {"name": char.get("name"), "anime": _get_char_anime(char)}
 
+
+def _hint_cache_key(char):
+    """Stable identifier for game-owned hints, never written to image source."""
+    return str(
+        char.get("id")
+        or char.get("_id")
+        or f'{char.get("name", "")} | {_get_char_anime(char)}'
+    )
+
 def _is_bad_hint(hint, char_name, anime, index):
     hint_norm = _normalize_guess_text(hint)
     name_norm = _normalize_guess_text(char_name)
@@ -160,17 +172,28 @@ def _cached_game_hints(char, game_type):
         ]
         if len(cleaned) >= _HINT_COUNT:
             return cleaned[:_HINT_COUNT]
+    if database.USE_MONGO and database.COL_GAME_HINTS is not None:
+        try:
+            stored = database.COL_GAME_HINTS.find_one({
+                'character_key': _hint_cache_key(char), 'game_type': game_type,
+            }) or {}
+            hints = stored.get('hints')
+            if isinstance(hints, list) and len(hints) >= _HINT_COUNT:
+                return hints[:_HINT_COUNT]
+        except Exception as exc:
+            logging.debug(f"[HINTS] Could not read game hint cache: {exc}")
     return None
 
 def _save_game_hints(char, game_type, hints):
-    if not database.USE_MONGO or database.COL_WAIFUS is None:
+    if not database.USE_MONGO or database.COL_GAME_HINTS is None:
         return
     if not hints or len(hints) < _HINT_COUNT:
         return
     try:
-        database.COL_WAIFUS.update_one(
-            _char_cache_query(char),
-            {"$set": {f"game_hint_cache.{game_type}": hints[:_HINT_COUNT]}},
+        database.COL_GAME_HINTS.update_one(
+            {'character_key': _hint_cache_key(char), 'game_type': game_type},
+            {'$set': {'hints': hints[:_HINT_COUNT]}},
+            upsert=True,
         )
     except Exception as exc:
         logging.debug(f"[HINTS] Failed to cache {game_type} hints: {exc}")

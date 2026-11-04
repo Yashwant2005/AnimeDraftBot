@@ -1,6 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.enums import ParseMode
+from plugins.audit import log_event
 import time
 import random
 import re
@@ -80,6 +81,13 @@ async def draft_cmd(c, m):
     if msg_id:
         game['display_message'] = {'chat_id': m.chat.id, 'msg_id': msg_id}
     logging.info(f"[DRAFT] Draft initialized - {p1.id} vs {p2.id}, waiting for acceptance")
+    await log_event(
+        c,
+        'DRAFT INITIALIZED',
+        actor=p1,
+        chat=m.chat,
+        details=f'{mode} • {p1.first_name} vs {p2.first_name} • series: {s_name}',
+    )
 
 @Client.on_message(filters.command(["pokemondraft", "pdraft"]))
 async def pokemon_draft_cmd(c, m):
@@ -151,6 +159,7 @@ async def pokemon_draft_cmd(c, m):
     if msg_id:
         game['display_message'] = {'chat_id': m.chat.id, 'msg_id': msg_id}
     logging.info(f"[PDRAFT] Draft initialized - {p1.id} vs {p2.id}, waiting for acceptance")
+    await log_event(c, 'POKÉMON DRAFT INITIALIZED', actor=p1, chat=m.chat, details=f'{p1.first_name} vs {p2.first_name}')
 
 
 @Client.on_message(filters.command(["cdraft"]))
@@ -269,3 +278,4 @@ async def comic_draft_cmd(c, m):
     if msg_id:
         game['display_message'] = {'chat_id': m.chat.id, 'msg_id': msg_id}
     logging.info(f"[CDRAFT] Draft initialized - {p1.id} vs {p2.id}, waiting for acceptance")
+    await log_event(c, 'COMIC DRAFT INITIALIZED', actor=p1, chat=m.chat, details=f'{p1.first_name} vs {p2.first_name} • series: {series_name}')

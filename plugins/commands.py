@@ -24,6 +24,9 @@ async def start_cmd(c, m):
     logging.info(f"[CMD] /start invoked by {user.id} ({user.first_name})")
     database.save_id_set(database.CHATS_FILE, {m.chat.id}, client=c)
     database.save_id_set(database.USERS_FILE, {user.id}, client=c)
+    chat_type = getattr(getattr(m.chat, 'type', None), 'value', getattr(m.chat, 'type', None))
+    if str(chat_type).lower() == 'private':
+        database.mark_private_user(user.id)
 
     card = rich_ui.build_rich_card(
         title="👋 Welcome to Anime Draft Wars!",
@@ -42,12 +45,14 @@ _GUIDE_PAGES = [
     "<b>General</b>\n"
     "• <code>/start</code> - Start the bot\n"
     "• <code>/profile</code> - View your profile and stats\n"
+    "• <code>/groups</code> - Browse verified public group activity\n"
     "• <code>/leaderboard</code> - Choose a leaderboard\n"
     "• <code>/topglobal</code> - Choose a global leaderboard\n"
     "• <code>/topgroup</code> - Choose this group's leaderboard\n"
     "• <code>/commands</code> - Full usage guide for every active command\n"
     "• <code>/list</code> - List available series\n"
     "• <code>/clone</code> - Clone the bot\n\n"
+    "• <code>/auction</code> - Reply to an opponent to start a $20 blind auction\n"
     "<b>Minigames</b>\n"
     "• <code>/shambles</code> - Word search game\n"
     "• <code>/whoswho</code> - Blurred character guess\n"
@@ -71,6 +76,8 @@ _GUIDE_PAGES = [
     "<b>Admin Management</b>\n"
     "• <code>/add</code> / <code>/addpoints</code> - Give currency/points\n"
     "• <code>/characters</code> - Manage DB\n"
+    "• <code>/delchar</code> / <code>/delseries</code> - Request owner-confirmed catalog deletion\n"
+    "• <code>/groups_stats</code> - View group activity statistics\n"
     "• <code>/acast</code> - Broadcast message\n"
     "• <code>/sudo</code> / <code>/mods</code> - Manage admins\n"
     "• <code>/exportdb</code> - Export database\n"
@@ -88,6 +95,37 @@ async def guide_cmd(c, m):
         expandable_quote=_GUIDE_PAGES[0]
     )
     await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=kb)
+
+
+@Client.on_message(filters.command("about"))
+async def about_cmd(c, m):
+    """One shareable overview of the bot's active systems."""
+    overview = (
+        '🤖 <b>ANIME DRAFT BOT — COMPLETE GUIDE</b>\n\n'
+        '⚔️ <b>Draft Battles</b>\n'
+        'Reply to a player with <code>/draft</code> to start an 8-role anime draft. '
+        'Use <code>/draft Naruto</code> to restrict the pool to one series, <code>/draft_v2</code> for V2, '
+        '<code>/pdraft</code> for Pokémon, or <code>/cdraft</code> for comics. Players take turns choosing characters, then their teams battle.\n\n'
+        '🔥 <b>$20 Blind Auction</b>\n'
+        'Reply with <code>/auction</code>, or use it without a reply to open a lobby. Both players must first send <code>/start</code> in bot DM. '
+        'Ten hidden characters are auctioned; each player has $20 and builds a five-character team. Bid with buttons or <code>/bid 7</code>. '
+        'Use <code>/auction Series Name</code> for a specific auction roster, <code>/alist</code> to see available series, and <code>/auction_help</code> for rules.\n\n'
+        '🎮 <b>Minigames & Combat</b>\n'
+        '<code>/shambles</code>, <code>/whoswho</code>, <code>/punk</code>, <code>/docq</code>, <code>/roulette</code>, and <code>/rps</code> provide quick games. '
+        'Use <code>/duel</code>, <code>/fight</code>, <code>/plunder</code>, and <code>/bounty</code> for competitive modes.\n\n'
+        '💰 <b>Profile, Economy & Rankings</b>\n'
+        '<code>/profile</code> shows your progress. <code>/daily</code> claims coins, <code>/balance</code> shows them, and <code>/gift</code> lets you share eligible items. '
+        'Use <code>/leaderboard</code>, <code>/topglobal</code>, and <code>/topgroup</code> for rankings.\n\n'
+        '👥 <b>Groups</b>\n'
+        '<code>/groups</code> shows active verified public groups. <code>/groups today</code> and <code>/groups all</code> change the ranking period. '
+        'Only aggregate activity is stored—never message contents—and private groups are never listed.\n\n'
+        '🛡️ <b>Admin Tools</b>\n'
+        'Admins can manage characters, run <code>/acast</code>, inspect <code>/groups_stats</code>, and add auction-only characters with:\n'
+        '<code>/aucadd Name\nImage URL\nSeries\nTotal Power</code>\n'
+        'Catalog deletion requests via <code>/delchar</code> or <code>/delseries</code> require the configured owner’s private confirmation.\n\n'
+        '📚 Use <code>/commands</code> for the complete command-by-command reference.'
+    )
+    await m.reply(overview, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
 
 @Client.on_callback_query(filters.regex(r"^guide_(\d+)$"))
 async def guide_cb(client, callback_query):
@@ -128,6 +166,9 @@ _COMMANDS_PAGES = [
         "<code>/commands 3</code> - Open a specific guide page.\n\n"
         "<b>/profile</b>\n"
         "<code>/profile</code> - Show your draft points, matches, wins, rank, and achievements.\n\n"
+        "<b>/groups</b>\n"
+        "<code>/groups</code> - Top verified public groups this week.\n"
+        "<code>/groups today</code> - Today’s ranking. <code>/groups all</code> - All-time ranking.\n\n"
         "<b>/balance</b>\n"
         "<code>/balance</code> - Show your coins.\n\n"
         "<b>/daily</b>\n"
@@ -170,6 +211,12 @@ _COMMANDS_PAGES = [
         "<code>/pdraft Sinnoh 6l</code> - Region filter, legendary Pokemon only.\n"
         "<code>/cdraft</code> as a reply - Start comics draft.\n"
         "<code>/cdraft Avengers</code> as a reply - Comics draft filtered by series.\n\n"
+        "<b>$20 Blind Auction</b>\n"
+        "<code>/auction</code> - Open a five-versus-five auction lobby; reply to challenge one player directly.\n"
+        "<code>/bid AMOUNT</code> - Place a custom bid during an active auction.\n"
+        "<code>/auction_help</code> - Auction rules. <code>/auction_stats</code> - Your record.\n\n"
+        "<code>/alist</code> - List auction series.\n"
+        "<code>/aucadd</code> - Admin: add an independent auction character.\n\n"
         "<b>Combat</b>\n"
         "<code>/duel</code> as a reply - Character duel challenge.\n"
         "<code>/fight</code> as a reply - Fight a user for 10% bounty swing.\n"
@@ -208,6 +255,9 @@ _COMMANDS_PAGES = [
         "<code>/comicimg \"url\" \"name\" \"series name\"</code> - Update comic character image.\n"
         "<code>/characters</code> - Browse anime character database.\n"
         "<code>/characters comics</code> - Browse comics database.\n\n"
+        "<code>/delchar CHARACTER_NAME_OR_ID</code> - Send a deletion request to the owner.\n"
+        "<code>/delseries SERIES_NAME_OR_ID</code> - Request series deletion; referenced records are archived.\n"
+        "<code>/groups_stats</code> - Group tracking stats and membership refresh.\n\n"
         "<b>User/admin management</b>\n"
         "<code>/addpoints USER_ID POINTS</code> - Add or remove draft points.\n"
         "<code>/newyear on</code> / <code>/newyear off</code> - Toggle event mode.\n"

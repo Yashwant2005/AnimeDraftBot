@@ -3,9 +3,35 @@ import os
 # --- CREDENTIALS ---
 API_ID = 25695711
 API_HASH = "f20065cc26d4a31bf0efc0b44edaffa9"
-BOT_TOKEN = "8794415049:AAEfJWHRcq1iEnB107GReX2DEDEJFS4QYss"
-MONGO_URI = "mongodb+srv://yesvashisht2005_db_user:yash2005@cluster0.nd8dam5.mongodb.net/?appName=Cluster0"
-MONGO_DB_NAME = "anime_bot2"
+BOT_TOKEN = "8327638135:AAHnkljBy8S6XklWEt6hCVeINR_TpQRyaOQ"
+# Image/catalog source: this database is read-only to the bot.  It is used to
+# obtain existing character artwork and metadata, never for game state.
+IMAGE_MONGO_URI = os.getenv("IMAGE_MONGO_URI", "mongodb+srv://yesvashisht2005_db_user:yash2005@cluster0.nd8dam5.mongodb.net/?appName=Cluster0")
+IMAGE_MONGO_DB_NAME = os.getenv("IMAGE_MONGO_DB_NAME", "anime_bot2")
+
+# Game state (auction, bids, drafts, balances, rankings, groups, etc.) lives
+# in its own logical MongoDB database. Mongo creates it on first startup.
+GAME_MONGO_URI = os.getenv("GAME_MONGO_URI", IMAGE_MONGO_URI)
+GAME_MONGO_DB_NAME = os.getenv("GAME_MONGO_DB_NAME", "anime_draft_game")
+
+# Existing modules use these names for the writable game database.
+MONGO_URI = GAME_MONGO_URI
+MONGO_DB_NAME = GAME_MONGO_DB_NAME
+
+# $20 Blind Auction mode
+AUCTION_STARTING_BUDGET = 20
+AUCTION_TEAM_SIZE = 5
+AUCTION_POOL_SIZE = 10
+AUCTION_BID_TIMEOUT_SECONDS = int(os.getenv("AUCTION_BID_TIMEOUT_SECONDS", "30"))
+AUCTION_SELECTION_TIMEOUT_SECONDS = int(os.getenv("AUCTION_SELECTION_TIMEOUT_SECONDS", "60"))
+# A lobby cannot reserve users forever, and a game whose timer jobs disappeared
+# after a restart is released automatically after this much inactivity.
+AUCTION_WAITING_TIMEOUT_SECONDS = int(os.getenv("AUCTION_WAITING_TIMEOUT_SECONDS", "300"))
+AUCTION_STALE_TIMEOUT_SECONDS = int(os.getenv("AUCTION_STALE_TIMEOUT_SECONDS", "900"))
+
+# Central private audit feed. Set AUDIT_LOG_CHAT_ID=0 to disable Telegram
+# audit messages while keeping the normal local bot.log file.
+AUDIT_LOG_CHAT_ID = int(os.getenv("AUDIT_LOG_CHAT_ID", "-1003972934720"))
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyBqc-Ws0SHRblCsp_qNUUtgoNUIT1FNRok")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
@@ -46,7 +72,7 @@ MARVEL_ROLES = [
 # Default role set used by UI and draft flow (keeps anime as default)
 ROLES = ANIME_ROLES
 # Primary owner ID (can be overridden via OWNER_ID env var)
-OWNER_ID = 6265981509
+OWNER_ID = int(os.getenv("OWNER_ID", "6265981509"))
 # Additional owner IDs allowed to perform owner actions
 OWNER_IDS = [6265981509]
 CHAR_APPROVER_ID = int(os.getenv("CHAR_APPROVER_ID", "6265981509"))

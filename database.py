@@ -3,13 +3,17 @@ import json
 import os
 import logging
 import threading
-from datetime import datetime
-from pymongo import MongoClient
+import time
+from datetime import datetime, timedelta, timezone
+from pymongo import MongoClient, UpdateOne
+from pymongo.errors import DuplicateKeyError
 from config import *
 import global_state
 
 MONGO_CLIENT = None
 MONGO_DB = None
+IMAGE_MONGO_CLIENT = None
+IMAGE_MONGO_DB = None
 COL_ACTIVE_CHATS = None
 COL_ACTIVE_USERS = None
 COL_LEADERBOARD = None
@@ -23,6 +27,18 @@ COL_WAIFU_GROUP_USERS = None
 COL_WAIFU_TOP_GROUPS = None
 COL_WAIFU_MARKET = None
 COL_WAIFU_CREWS = None
+COL_IMAGE_CHARACTERS = None
+COL_GAME_HINTS = None
+COL_AUCTIONS = None
+COL_AUCTION_BIDS = None
+COL_AUCTION_CHARACTER_POOL = None
+COL_DRAFT_GAMES = None
+COL_GROUP_ACTIVITY = None
+COL_GROUP_ACTIVITY_DAILY = None
+COL_GROUP_ACTIVITY_USERS = None
+COL_GROUP_ACTIVITY_UPDATES = None
+COL_DELETION_REQUESTS = None
+COL_PRIVATE_USERS = None
 USE_MONGO = False
 
 # Thread-local storage for current client context (for clones)
@@ -90,8 +106,9 @@ def get_clone_db(owner_id=None, client=None):
         return None
 
 def init_mongo():
-    global MONGO_CLIENT, MONGO_DB, COL_ACTIVE_CHATS, COL_ACTIVE_USERS, COL_LEADERBOARD, COL_GROUP_LEADERBOARD, COL_CHARACTERS, COL_MODS, USE_MONGO
-    global COL_WAIFUS, COL_WAIFU_USERS, COL_WAIFU_TOTALS, COL_WAIFU_GROUP_USERS, COL_WAIFU_TOP_GROUPS, COL_WAIFU_MARKET, COL_WAIFU_CREWS
+    global MONGO_CLIENT, MONGO_DB, IMAGE_MONGO_CLIENT, IMAGE_MONGO_DB, COL_ACTIVE_CHATS, COL_ACTIVE_USERS, COL_LEADERBOARD, COL_GROUP_LEADERBOARD, COL_CHARACTERS, COL_MODS, USE_MONGO
+    global COL_WAIFUS, COL_IMAGE_CHARACTERS, COL_GAME_HINTS, COL_AUCTIONS, COL_AUCTION_BIDS, COL_AUCTION_CHARACTER_POOL, COL_DRAFT_GAMES, COL_WAIFU_USERS, COL_WAIFU_TOTALS, COL_WAIFU_GROUP_USERS, COL_WAIFU_TOP_GROUPS, COL_WAIFU_MARKET, COL_WAIFU_CREWS
+    global COL_GROUP_ACTIVITY, COL_GROUP_ACTIVITY_DAILY, COL_GROUP_ACTIVITY_USERS, COL_GROUP_ACTIVITY_UPDATES, COL_DELETION_REQUESTS, COL_PRIVATE_USERS
     try:
         MONGO_CLIENT = MongoClient(
             MONGO_URI,
@@ -110,13 +127,42 @@ def init_mongo():
         COL_GROUP_LEADERBOARD = MONGO_DB['group_leaderboard']
         COL_CHARACTERS = MONGO_DB['characters']
         COL_MODS = MONGO_DB['mods']  # Initialize mods collection
-        COL_WAIFUS = MONGO_DB['anime_characters']
         COL_WAIFU_USERS = MONGO_DB['users']
         COL_WAIFU_TOTALS = MONGO_DB['chat_settings']
         COL_WAIFU_GROUP_USERS = MONGO_DB['group_user_totals']
         COL_WAIFU_TOP_GROUPS = MONGO_DB['top_groups']
         COL_WAIFU_MARKET = MONGO_DB['market_listings']
         COL_WAIFU_CREWS = MONGO_DB['crews']
+        COL_GROUP_ACTIVITY = MONGO_DB['group_activity']
+        COL_GROUP_ACTIVITY_DAILY = MONGO_DB['group_activity_daily']
+        COL_GROUP_ACTIVITY_USERS = MONGO_DB['group_activity_users']
+        COL_GROUP_ACTIVITY_UPDATES = MONGO_DB['group_activity_updates']
+        COL_DELETION_REQUESTS = MONGO_DB['deletion_requests']
+        COL_PRIVATE_USERS = MONGO_DB['private_users']
+        COL_GAME_HINTS = MONGO_DB['game_hint_cache']
+        COL_AUCTIONS = MONGO_DB['auctions']
+        COL_AUCTION_BIDS = MONGO_DB['auction_bids']
+        COL_AUCTION_CHARACTER_POOL = MONGO_DB['auction_character_pool']
+        COL_DRAFT_GAMES = MONGO_DB['draft_games']
+
+        # Keep the legacy catalog database read-only. It may be hosted on the
+        # same Atlas cluster, but it is deliberately a separate database handle.
+        try:
+            if IMAGE_MONGO_URI == MONGO_URI:
+                IMAGE_MONGO_CLIENT = MONGO_CLIENT
+            else:
+                IMAGE_MONGO_CLIENT = MongoClient(
+                    IMAGE_MONGO_URI, serverSelectionTimeoutMS=5000,
+                    maxPoolSize=20, socketTimeoutMS=20000, retryWrites=False,
+                )
+                IMAGE_MONGO_CLIENT.admin.command('ping')
+            IMAGE_MONGO_DB = IMAGE_MONGO_CLIENT[IMAGE_MONGO_DB_NAME]
+            COL_IMAGE_CHARACTERS = IMAGE_MONGO_DB['anime_characters']
+            # Backward-compatible name for code that only reads catalog images.
+            COL_WAIFUS = COL_IMAGE_CHARACTERS
+        except Exception as exc:
+            COL_IMAGE_CHARACTERS = COL_WAIFUS = None
+            logging.warning('⚠️ Image catalog database unavailable: %s', exc)
         
         # Ensure Indexes
         try:
@@ -128,14 +174,41 @@ def init_mongo():
             COL_GROUP_LEADERBOARD.create_index([('chat_id', 1), ('wins', -1)])
             COL_CHARACTERS.create_index('name', unique=True)
             COL_MODS.create_index('user_id', unique=True)  # Unique index for mods
-            COL_WAIFUS.create_index('id', unique=True)
-            COL_WAIFUS.create_index('name')
             COL_WAIFU_USERS.create_index('id', unique=True)
             COL_WAIFU_CREWS.create_index('name', unique=True)
+            COL_GAME_HINTS.create_index([('character_key', 1), ('game_type', 1)], unique=True)
+            COL_AUCTIONS.create_index([('status', 1), ('ends_at', 1)])
+            COL_AUCTION_BIDS.create_index([('auction_id', 1), ('amount', -1)])
+            COL_AUCTION_BIDS.create_index([('auction_id', 1), ('bidder_id', 1)])
+            COL_AUCTION_CHARACTER_POOL.create_index('pool_id', unique=True)
+            COL_AUCTION_CHARACTER_POOL.create_index([('enabled', 1), ('anime', 1)])
+            COL_DRAFT_GAMES.create_index([('chat_id', 1), ('status', 1)])
+            COL_DRAFT_GAMES.create_index('game_id', unique=True)
+            COL_GROUP_ACTIVITY.create_index('chat_id', unique=True)
+            COL_GROUP_ACTIVITY.create_index([('is_member', 1), ('public_username', 1), ('weekly_message_count', -1), ('daily_message_count', -1)])
+            COL_GROUP_ACTIVITY_DAILY.create_index([('chat_id', 1), ('day', 1)], unique=True)
+            COL_GROUP_ACTIVITY_DAILY.create_index([('day', 1), ('message_count', -1)])
+            COL_GROUP_ACTIVITY_USERS.create_index([('chat_id', 1), ('user_id', 1)], unique=True)
+            COL_GROUP_ACTIVITY_UPDATES.create_index([('chat_id', 1), ('message_id', 1)], unique=True)
+            COL_GROUP_ACTIVITY_UPDATES.create_index('expires_at', expireAfterSeconds=0)
+            COL_DELETION_REQUESTS.create_index('expires_at', expireAfterSeconds=0)
+            COL_DELETION_REQUESTS.create_index('request_id', unique=True)
+            COL_PRIVATE_USERS.create_index('user_id', unique=True)
         except: pass
 
+        # Seed the checked-in auction-only CSV. It never modifies the legacy
+        # character catalog; its image URLs were copied from that catalog.
+        try:
+            from auction_catalog import AUCTION_CHARACTER_POOL
+            for character in AUCTION_CHARACTER_POOL:
+                COL_AUCTION_CHARACTER_POOL.update_one(
+                    {'pool_id': character['pool_id']}, {'$set': character}, upsert=True,
+                )
+        except Exception as exc:
+            logging.exception('Could not seed auction character pool: %s', exc)
+
         USE_MONGO = True
-        logging.info("✅ Connected to MongoDB.")
+        logging.info("✅ Connected to game MongoDB (%s); image catalog is read-only (%s).", MONGO_DB_NAME, IMAGE_MONGO_DB_NAME)
     except Exception as e:
         USE_MONGO = False
         logging.error(f"❌ MongoDB connection failed: {e}")
@@ -461,7 +534,7 @@ def load_characters():
     """Load all characters from database"""
     if USE_MONGO:
         try:
-            return list(COL_CHARACTERS.find())
+            return list(COL_CHARACTERS.find({'archived': {'$ne': True}}))
         except:
             return []
     else:
@@ -497,6 +570,203 @@ def save_character(char_data):
         except:
             return False
 
+# ==================== GROUP ACTIVITY FUNCTIONS ====================
+
+def _utc_day(value=None):
+    """Return the UTC date bucket used by group activity aggregates."""
+    value = value or datetime.now(timezone.utc)
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    return value.strftime('%Y-%m-%d')
+
+
+def record_group_message(chat, message_id, user_id, received_at=None):
+    """Atomically record one group message without retaining its content.
+
+    The lightweight update ledger is TTL-expired.  It makes retried Telegram
+    updates harmless while the aggregate documents remain compact.
+    """
+    if not USE_MONGO or COL_GROUP_ACTIVITY is None or not user_id:
+        return False
+
+    received_at = received_at or datetime.now(timezone.utc)
+    if received_at.tzinfo is None:
+        received_at = received_at.replace(tzinfo=timezone.utc)
+    chat_id = chat.id
+    try:
+        COL_GROUP_ACTIVITY_UPDATES.insert_one({
+            'chat_id': chat_id,
+            'message_id': message_id,
+            'expires_at': received_at + timedelta(days=2),
+        })
+    except DuplicateKeyError:
+        return False
+    except Exception as exc:
+        logging.warning('[GROUPS] Could not create duplicate-update guard for %s: %s', chat_id, exc)
+        return False
+
+    username = getattr(chat, 'username', None)
+    # A Telegram username is the only link we can safely treat as public from
+    # ordinary message updates. Invite links can be private and are never shown.
+    public_link = f'https://t.me/{username}' if username else None
+    base_update = {
+        '$inc': {'total_messages': 1},
+        '$set': {
+            'title': getattr(chat, 'title', None) or 'Untitled group',
+            'public_username': username,
+            'public_link': public_link,
+            'is_member': True,
+            'last_activity_at': received_at,
+            'last_membership_verified_at': received_at,
+            'updated_at': received_at,
+        },
+        '$setOnInsert': {'chat_id': chat_id, 'created_at': received_at, 'unique_active_users': 0},
+    }
+    try:
+        COL_GROUP_ACTIVITY.update_one({'chat_id': chat_id}, base_update, upsert=True)
+        COL_GROUP_ACTIVITY_DAILY.update_one(
+            {'chat_id': chat_id, 'day': _utc_day(received_at)},
+            {'$inc': {'message_count': 1}, '$set': {'updated_at': received_at},
+             '$setOnInsert': {'chat_id': chat_id, 'day': _utc_day(received_at)}},
+            upsert=True,
+        )
+        active_user = COL_GROUP_ACTIVITY_USERS.update_one(
+            {'chat_id': chat_id, 'user_id': user_id},
+            {'$set': {'last_activity_at': received_at},
+             '$setOnInsert': {'chat_id': chat_id, 'user_id': user_id, 'first_activity_at': received_at}},
+            upsert=True,
+        )
+        if active_user.upserted_id is not None:
+            COL_GROUP_ACTIVITY.update_one({'chat_id': chat_id}, {'$inc': {'unique_active_users': 1}})
+        return True
+    except Exception as exc:
+        logging.exception('[GROUPS] Failed to aggregate message for group %s: %s', chat_id, exc)
+        return False
+
+
+def set_group_membership(chat_id, is_member, *, title=None, username=None):
+    if not USE_MONGO or COL_GROUP_ACTIVITY is None:
+        return
+    now = datetime.now(timezone.utc)
+    changes = {'is_member': bool(is_member), 'last_membership_verified_at': now, 'updated_at': now}
+    if title is not None:
+        changes['title'] = title
+    if username is not None:
+        changes['public_username'] = username
+        changes['public_link'] = f'https://t.me/{username}' if username else None
+    COL_GROUP_ACTIVITY.update_one({'chat_id': chat_id}, {'$set': changes}, upsert=False)
+
+
+def refresh_group_activity_rollups():
+    """Refresh denormalized daily/rolling-week counters for indexed ranking."""
+    if not USE_MONGO or COL_GROUP_ACTIVITY is None:
+        return 0
+    today = datetime.now(timezone.utc).date()
+    days = [(today - timedelta(days=offset)).isoformat() for offset in range(7)]
+    pipeline = [
+        {'$match': {'day': {'$in': days}}},
+        {'$group': {
+            '_id': '$chat_id',
+            'weekly_message_count': {'$sum': '$message_count'},
+            'daily_message_count': {'$sum': {'$cond': [{'$eq': ['$day', today.isoformat()]}, '$message_count', 0]}},
+        }},
+    ]
+    try:
+        operations = [
+            UpdateOne({'chat_id': row['_id']}, {'$set': {
+                'weekly_message_count': row['weekly_message_count'],
+                'daily_message_count': row['daily_message_count'],
+                'rollup_updated_at': datetime.now(timezone.utc),
+            }})
+            for row in COL_GROUP_ACTIVITY_DAILY.aggregate(pipeline)
+        ]
+        if operations:
+            COL_GROUP_ACTIVITY.bulk_write(operations, ordered=False)
+        return len(operations)
+    except Exception as exc:
+        logging.warning('[GROUPS] Rollup refresh failed: %s', exc)
+        return 0
+
+
+def group_activity_rollup_worker(interval_seconds=900):
+    """Periodic rollup worker; daily source buckets remain the audit record."""
+    while True:
+        refresh_group_activity_rollups()
+        time.sleep(interval_seconds)
+
+
+def expire_stale_auctions():
+    """Release abandoned auction slots so they never block a player forever."""
+    if not USE_MONGO or COL_AUCTIONS is None:
+        return 0
+    now = datetime.now(timezone.utc)
+    try:
+        waiting_cutoff = now - timedelta(seconds=AUCTION_WAITING_TIMEOUT_SECONDS)
+        active_cutoff = now - timedelta(seconds=AUCTION_STALE_TIMEOUT_SECONDS)
+        waiting = COL_AUCTIONS.update_many(
+            {'status': 'waiting', 'updated_at': {'$lt': waiting_cutoff}},
+            {'$set': {'status': 'expired', 'phase': 'expired', 'expired_at': now, 'expiry_reason': 'waiting_timeout'}},
+        ).modified_count
+        abandoned = COL_AUCTIONS.update_many(
+            {'status': {'$in': ['auction', 'battle']}, 'updated_at': {'$lt': active_cutoff}},
+            {'$set': {'status': 'expired', 'phase': 'expired', 'expired_at': now, 'expiry_reason': 'inactivity_timeout'}},
+        ).modified_count
+        if waiting or abandoned:
+            logging.info('[AUCTION] Expired %s waiting and %s inactive game(s).', waiting, abandoned)
+        return waiting + abandoned
+    except Exception as exc:
+        logging.warning('[AUCTION] Expiry cleanup failed: %s', exc)
+        return 0
+
+
+def auction_expiry_worker(interval_seconds=60):
+    while True:
+        expire_stale_auctions()
+        time.sleep(interval_seconds)
+
+
+def get_group_activity_candidates(mode='weekly', limit=50):
+    if not USE_MONGO or COL_GROUP_ACTIVITY is None:
+        return []
+    refresh_group_activity_rollups()
+    fields = {
+        'weekly': [('weekly_message_count', -1), ('daily_message_count', -1), ('last_activity_at', -1)],
+        'today': [('daily_message_count', -1), ('weekly_message_count', -1), ('last_activity_at', -1)],
+        'all': [('total_messages', -1), ('last_activity_at', -1)],
+    }[mode]
+    # A public username is a verified, non-private Telegram join route.
+    query = {'is_member': True, 'public_username': {'$type': 'string', '$ne': ''}}
+    return list(COL_GROUP_ACTIVITY.find(query).sort(fields).limit(limit))
+
+
+def get_group_activity_stats():
+    if not USE_MONGO or COL_GROUP_ACTIVITY is None:
+        return None
+    return {
+        'tracked_groups': COL_GROUP_ACTIVITY.count_documents({}),
+        'member_groups': COL_GROUP_ACTIVITY.count_documents({'is_member': True}),
+        'public_groups': COL_GROUP_ACTIVITY.count_documents({'is_member': True, 'public_username': {'$type': 'string', '$ne': ''}}),
+        'messages': sum(row.get('total_messages', 0) for row in COL_GROUP_ACTIVITY.find({}, {'total_messages': 1})),
+        'active_users': sum(row.get('unique_active_users', 0) for row in COL_GROUP_ACTIVITY.find({}, {'unique_active_users': 1})),
+    }
+
+
+def mark_private_user(user_id):
+    """Record that a user can receive bot DMs after an explicit private /start."""
+    if not USE_MONGO or COL_PRIVATE_USERS is None:
+        return
+    COL_PRIVATE_USERS.update_one(
+        {'user_id': user_id},
+        {'$set': {'last_started_at': datetime.now(timezone.utc)}, '$setOnInsert': {'user_id': user_id}},
+        upsert=True,
+    )
+
+
+def has_private_start(user_id):
+    if not USE_MONGO or COL_PRIVATE_USERS is None:
+        return False
+    return COL_PRIVATE_USERS.find_one({'user_id': user_id}, {'_id': 1}) is not None
+
 # ==================== UTILITY FUNCTIONS ====================
 
 def close_connection():
@@ -505,3 +775,5 @@ def close_connection():
     if MONGO_CLIENT:
         MONGO_CLIENT.close()
         logging.info("🔌 MongoDB connection closed.")
+    if IMAGE_MONGO_CLIENT and IMAGE_MONGO_CLIENT is not MONGO_CLIENT:
+        IMAGE_MONGO_CLIENT.close()
