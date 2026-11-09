@@ -3,11 +3,11 @@ import os
 # --- CREDENTIALS ---
 API_ID = 25695711
 API_HASH = "f20065cc26d4a31bf0efc0b44edaffa9"
-BOT_TOKEN = "8327638135:AAHnkljBy8S6XklWEt6hCVeINR_TpQRyaOQ"
+BOT_TOKEN = "8794415049:AAEfJWHRcq1iEnB107GReX2DEDEJFS4QYss"
 # Image/catalog source: this database is read-only to the bot.  It is used to
 # obtain existing character artwork and metadata, never for game state.
 IMAGE_MONGO_URI = os.getenv("IMAGE_MONGO_URI", "mongodb+srv://yesvashisht2005_db_user:yash2005@cluster0.nd8dam5.mongodb.net/?appName=Cluster0")
-IMAGE_MONGO_DB_NAME = os.getenv("IMAGE_MONGO_DB_NAME", "anime_bot2")
+IMAGE_MONGO_DB_NAME = os.getenv("IMAGE_MONGO_DB_NAME", "anime_bot")
 
 # Game state (auction, bids, drafts, balances, rankings, groups, etc.) lives
 # in its own logical MongoDB database. Mongo creates it on first startup.

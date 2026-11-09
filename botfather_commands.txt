@@ -2,7 +2,7 @@ start - Start the Anime Draft bot
 guide - Open the bot guide
 commands - View all command usage
 cmds - View all command usage
-list - List anime or comic series
+list - Choose Draft or Auction Draft series
 profile - View your profile and draft stats
 groups - Browse top active public AnimeDraft groups
 balance - Check your coins
@@ -12,18 +12,12 @@ top - Open the leaderboard selector
 topglobal - Open the global leaderboard
 topgroup - Open the group leaderboard
 grouptop - Open the group leaderboard
-draft - Challenge a user to an anime draft
-draft_v2 - Start an anime draft v2
-pokemondraft - Challenge a user to a Pokemon draft
-pdraft - Challenge a user to a Pokemon draft
-auction - Challenge a user to a $20 blind anime auction
+draft - Choose a draft game mode
 auction_stats - View your auction match statistics
 auction_cancel - Cancel your waiting auction challenge
 auction_help - View $20 blind auction rules
 aucadd - Add a character to the independent auction pool (admin)
-alist - List auction series
 about - Explain bot features and game modes
-cdraft - Challenge a user to a comics draft
 duel - Challenge a user to a character duel
 shambles - Start a Shambles guessing game
 whoswho - Start a Who's Who guessing game

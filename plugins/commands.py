@@ -30,9 +30,9 @@ async def start_cmd(c, m):
 
     card = rich_ui.build_rich_card(
         title="👋 Welcome to Anime Draft Wars!",
-        subtitle="Bot API 10.3 Powered Anime Battle System",
-        badges=["Anime", "Draft Wars", "v10.3"],
-        description="Draft a team of 8 anime characters and battle friends!\nUse /draft to play.",
+        subtitle="Join Community :- @DRaft_wars",
+        badges=["Anime", "Draft Wars",],
+        description="Draft a team of 8 characters and battle friends!\nUse /draft to play.",
         expandable_quote="Quick Start:\n• Reply with /draft to challenge an opponent\n• Use /guide for a short guide\n• Use /commands for full command list"
     )
     await rich_ui.send_rich_message(
@@ -52,7 +52,7 @@ _GUIDE_PAGES = [
     "• <code>/commands</code> - Full usage guide for every active command\n"
     "• <code>/list</code> - List available series\n"
     "• <code>/clone</code> - Clone the bot\n\n"
-    "• <code>/auction</code> - Reply to an opponent to start a $20 blind auction\n"
+    "• <code>/draft</code> - Choose Anime, Auction, Pokémon, or Comic draft\n"
     "<b>Minigames</b>\n"
     "• <code>/shambles</code> - Word search game\n"
     "• <code>/whoswho</code> - Blurred character guess\n"
@@ -107,9 +107,9 @@ async def about_cmd(c, m):
         'Use <code>/draft Naruto</code> to restrict the pool to one series, <code>/draft_v2</code> for V2, '
         '<code>/pdraft</code> for Pokémon, or <code>/cdraft</code> for comics. Players take turns choosing characters, then their teams battle.\n\n'
         '🔥 <b>$20 Blind Auction</b>\n'
-        'Reply with <code>/auction</code>, or use it without a reply to open a lobby. Both players must first send <code>/start</code> in bot DM. '
+        'Use <code>/draft</code> and choose Auction Draft; use it without replying to open a lobby. Both players must first send <code>/start</code> in bot DM. '
         'Ten hidden characters are auctioned; each player has $20 and builds a five-character team. Bid with buttons or <code>/bid 7</code>. '
-        'Use <code>/auction Series Name</code> for a specific auction roster, <code>/alist</code> to see available series, and <code>/auction_help</code> for rules.\n\n'
+        'Use <code>/list</code> to browse the Draft and Auction rosters, and <code>/auction_help</code> for rules.\n\n'
         '🎮 <b>Minigames & Combat</b>\n'
         '<code>/shambles</code>, <code>/whoswho</code>, <code>/punk</code>, <code>/docq</code>, <code>/roulette</code>, and <code>/rps</code> provide quick games. '
         'Use <code>/duel</code>, <code>/fight</code>, <code>/plunder</code>, and <code>/bounty</code> for competitive modes.\n\n'
@@ -203,19 +203,13 @@ _COMMANDS_PAGES = [
         "Draft + Combat",
         "⚔️ <b>Commands Guide - Draft + Combat</b>\n\n"
         "<b>Draft battles</b>\n"
-        "<code>/draft</code> as a reply - Challenge a user to anime draft.\n"
-        "<code>/draft Naruto</code> as a reply - Draft only from that series.\n"
-        "<code>/draft_v2</code> as a reply - Start draft v2.\n"
-        "<code>/pokemondraft</code> or <code>/pdraft</code> as a reply - Start Pokemon draft.\n"
-        "<code>/pdraft Kanto 0l</code> - Region filter, no legendary Pokemon.\n"
-        "<code>/pdraft Sinnoh 6l</code> - Region filter, legendary Pokemon only.\n"
-        "<code>/cdraft</code> as a reply - Start comics draft.\n"
-        "<code>/cdraft Avengers</code> as a reply - Comics draft filtered by series.\n\n"
+        "<code>/draft</code> - Open the Anime, Auction, Pokémon, and Comic Draft picker.\n"
+        "Reply to a user before choosing any head-to-head mode; Auction Draft can also open a public lobby.\n"
+        "<code>/draft Naruto</code> as a reply - Directly start an Anime Draft filtered by series.\n\n"
         "<b>$20 Blind Auction</b>\n"
-        "<code>/auction</code> - Open a five-versus-five auction lobby; reply to challenge one player directly.\n"
         "<code>/bid AMOUNT</code> - Place a custom bid during an active auction.\n"
         "<code>/auction_help</code> - Auction rules. <code>/auction_stats</code> - Your record.\n\n"
-        "<code>/alist</code> - List auction series.\n"
+        "<code>/list</code> - Choose the Draft or Auction series catalog.\n"
         "<code>/aucadd</code> - Admin: add an independent auction character.\n\n"
         "<b>Combat</b>\n"
         "<code>/duel</code> as a reply - Character duel challenge.\n"
@@ -310,7 +304,7 @@ async def commands_cmd(c, m):
     card = rich_ui.build_rich_card(
         title=f"📘 Commands Guide - {title}",
         badges=["Commands", f"Page {page + 1}/{len(_COMMANDS_PAGES)}"],
-        expandable_quote=body
+        description=body
     )
     await rich_ui.send_rich_message(
         c, m.chat.id, card, reply_markup=_commands_markup(page)
@@ -328,7 +322,7 @@ async def commands_cb(client, callback_query):
     card = rich_ui.build_rich_card(
         title=f"📘 Commands Guide - {title}",
         badges=["Commands", f"Page {page + 1}/{len(_COMMANDS_PAGES)}"],
-        expandable_quote=body
+        description=body
     )
     await rich_ui.edit_rich_message(
         client, callback_query.message.chat.id, callback_query.message.id,
@@ -338,6 +332,20 @@ async def commands_cb(client, callback_query):
 @Client.on_message(filters.command("list"))
 async def list_cmd(c, m):
     logging.info(f"[CMD] /list invoked by {m.from_user.id} with text: {m.text}")
+    # Keep the catalog choice out of the command list. Explicit arguments
+    # (for example /list comics or /list 2) retain the old direct behaviour.
+    if len(m.command or []) == 1:
+        card = rich_ui.build_rich_card(
+            title="📚 Available Series",
+            badges=["Choose a catalog"],
+            expandable_quote="Select the game mode whose series you want to browse.",
+        )
+        keyboard = InlineKeyboardMarkup([[
+            InlineKeyboardButton("🎭 Draft", callback_data="list_anime_1"),
+            InlineKeyboardButton("🔥 Auction Draft", callback_data="alist:1"),
+        ]])
+        return await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=keyboard)
+
     mode = "anime"
     if len(m.text.split()) > 1 and m.text.split()[1].lower() == "comics":
         mode = "comics"
@@ -366,11 +374,11 @@ async def list_cmd(c, m):
     end_idx = start_idx + per_page
     page_series = series[start_idx:end_idx]
     
-    series_list_str = "\n".join(f"• {s}" for s in page_series)
+    series_list_str = "\n".join(f"• {html.escape(s)}" for s in page_series)
     card = rich_ui.build_rich_card(
         title=f"📚 Available {mode.capitalize()} Series",
         badges=[mode.capitalize(), f"Page {page}/{total_pages}"],
-        expandable_quote=series_list_str
+        description=series_list_str
     )
     
     kb = []

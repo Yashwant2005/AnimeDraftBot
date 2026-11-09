@@ -16,6 +16,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 import config
 import database
+import rich_ui
 from plugins.audit import log_event
 from utils import is_admin
 
@@ -792,20 +793,66 @@ async def auction_add_character_command(_, message):
     )
 
 
-@Client.on_message(filters.command('alist'))
-async def auction_series_list_command(_, message):
-    """Public listing of series available in the independent auction roster."""
-    if not database.USE_MONGO or database.COL_AUCTION_CHARACTER_POOL is None:
-        return await message.reply('❌ Auction game database is unavailable.')
+_AUCTION_SERIES_PER_PAGE = 25
+
+
+def _auction_series():
+    """Return the visible auction series in the same order as /list."""
     rows = list(database.COL_AUCTION_CHARACTER_POOL.aggregate([
         {'$match': {'enabled': True, '$or': [{'roster': 'auction_roster_v1'}, {'source': 'aucadd'}]}},
-        {'$group': {'_id': '$anime', 'characters': {'$sum': 1}}},
+        {'$group': {'_id': '$anime'}},
         {'$sort': {'_id': 1}},
     ]))
-    if not rows:
-        return await message.reply('No auction series are available yet.')
-    lines = ['📚 <b>AUCTION SERIES</b>', '']
-    lines.extend(f'• <b>{html.escape(str(row["_id"]))}</b> — {row["characters"]} character(s)' for row in rows)
-    lines.append('\nAdmins can add more with <code>/aucadd</code>.')
-    await message.reply('\n'.join(lines), parse_mode=ParseMode.HTML)
+    return [str(row['_id']) for row in rows if row.get('_id')]
 
+
+def _auction_series_card(series, page):
+    total_pages = max(1, (len(series) + _AUCTION_SERIES_PER_PAGE - 1) // _AUCTION_SERIES_PER_PAGE)
+    page = min(max(1, page), total_pages)
+    start = (page - 1) * _AUCTION_SERIES_PER_PAGE
+    page_series = series[start:start + _AUCTION_SERIES_PER_PAGE]
+    card = rich_ui.build_rich_card(
+        title='📚 Available Auction Series',
+        badges=['Auction', f'Page {page}/{total_pages}'],
+        description='\n'.join(f'• {html.escape(name)}' for name in page_series),
+    )
+    buttons = []
+    navigation = []
+    if page > 1:
+        navigation.append(InlineKeyboardButton('⬅️ Prev', callback_data=f'alist:{page - 1}'))
+    if page < total_pages:
+        navigation.append(InlineKeyboardButton('Next ➡️', callback_data=f'alist:{page + 1}'))
+    if navigation:
+        buttons.append(navigation)
+    return card, InlineKeyboardMarkup(buttons) if buttons else None
+
+
+@Client.on_message(filters.command('alist'))
+async def auction_series_list_command(client, message):
+    """List auction series with the same paginated UI used by /list."""
+    if not database.USE_MONGO or database.COL_AUCTION_CHARACTER_POOL is None:
+        return await message.reply('❌ Auction game database is unavailable.')
+    series = _auction_series()
+    if not series:
+        return await message.reply('No auction series are available yet.')
+    try:
+        page = max(1, int((message.command or [])[1]))
+    except (IndexError, ValueError):
+        page = 1
+    card, markup = _auction_series_card(series, page)
+    await rich_ui.send_rich_message(client, message.chat.id, card, reply_markup=markup)
+
+
+@Client.on_callback_query(filters.regex(r'^alist:(\d+)$'))
+async def auction_series_list_callback(client, callback_query):
+    if not database.USE_MONGO or database.COL_AUCTION_CHARACTER_POOL is None:
+        return await callback_query.answer('Auction game database is unavailable.', show_alert=True)
+    series = _auction_series()
+    if not series:
+        return await callback_query.answer('No auction series are available.', show_alert=True)
+    page = int(callback_query.matches[0].group(1))
+    card, markup = _auction_series_card(series, page)
+    await callback_query.answer()
+    await rich_ui.edit_rich_message(
+        client, callback_query.message.chat.id, callback_query.message.id, card, reply_markup=markup,
+    )

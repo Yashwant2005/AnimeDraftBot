@@ -105,6 +105,45 @@ def get_clone_db(owner_id=None, client=None):
         logging.error(f"[DB] Error getting clone DB: {e}")
         return None
 
+def _ensure_character_identity_index(collection=None):
+    """Allow same-name characters from different series without ambiguous upserts."""
+    collection = COL_CHARACTERS if collection is None else collection
+    duplicate = next(collection.aggregate([
+        {
+            '$group': {
+                '_id': {'name': '$name', 'series': '$series'},
+                'count': {'$sum': 1},
+            }
+        },
+        {'$match': {'count': {'$gt': 1}}},
+        {'$limit': 1},
+    ]), None)
+    if duplicate:
+        identity = duplicate.get('_id') or {}
+        raise RuntimeError(
+            'Cannot migrate character identity index: duplicate name/series '
+            f'pair {identity.get("name")!r} / {identity.get("series")!r}.'
+        )
+
+    indexes = collection.index_information()
+    compound = [
+        (name, spec)
+        for name, spec in indexes.items()
+        if spec.get('key') == [('name', 1), ('series', 1)]
+    ]
+    if not any(spec.get('unique') for _, spec in compound):
+        for name, _ in compound:
+            collection.drop_index(name)
+        collection.create_index(
+            [('name', 1), ('series', 1)],
+            unique=True,
+            name='name_series_unique',
+        )
+
+    for name, spec in indexes.items():
+        if spec.get('key') == [('name', 1)] and spec.get('unique'):
+            collection.drop_index(name)
+
 def init_mongo():
     global MONGO_CLIENT, MONGO_DB, IMAGE_MONGO_CLIENT, IMAGE_MONGO_DB, COL_ACTIVE_CHATS, COL_ACTIVE_USERS, COL_LEADERBOARD, COL_GROUP_LEADERBOARD, COL_CHARACTERS, COL_MODS, USE_MONGO
     global COL_WAIFUS, COL_IMAGE_CHARACTERS, COL_GAME_HINTS, COL_AUCTIONS, COL_AUCTION_BIDS, COL_AUCTION_CHARACTER_POOL, COL_DRAFT_GAMES, COL_WAIFU_USERS, COL_WAIFU_TOTALS, COL_WAIFU_GROUP_USERS, COL_WAIFU_TOP_GROUPS, COL_WAIFU_MARKET, COL_WAIFU_CREWS
@@ -165,6 +204,7 @@ def init_mongo():
             logging.warning('⚠️ Image catalog database unavailable: %s', exc)
         
         # Ensure Indexes
+        _ensure_character_identity_index()
         try:
             COL_ACTIVE_CHATS.create_index('chat_id', unique=True)
             COL_ACTIVE_USERS.create_index('user_id', unique=True)
@@ -172,7 +212,6 @@ def init_mongo():
             COL_GROUP_LEADERBOARD.create_index([('chat_id', 1), ('user_id', 1)], unique=True)
             COL_GROUP_LEADERBOARD.create_index([('chat_id', 1), ('rating', -1)])
             COL_GROUP_LEADERBOARD.create_index([('chat_id', 1), ('wins', -1)])
-            COL_CHARACTERS.create_index('name', unique=True)
             COL_MODS.create_index('user_id', unique=True)  # Unique index for mods
             COL_WAIFU_USERS.create_index('id', unique=True)
             COL_WAIFU_CREWS.create_index('name', unique=True)
@@ -551,7 +590,7 @@ def save_character(char_data):
     if USE_MONGO:
         try:
             COL_CHARACTERS.update_one(
-                {"name": char_data["name"]},
+                {"name": char_data["name"], "series": char_data.get("series", "Unknown")},
                 {"$set": char_data},
                 upsert=True
             )
@@ -561,7 +600,14 @@ def save_character(char_data):
     else:
         characters = load_characters()
         # Remove existing if any
-        characters = [c for c in characters if c.get("name") != char_data["name"]]
+        identity = (
+            char_data["name"],
+            char_data.get("series", "Unknown"),
+        )
+        characters = [
+            c for c in characters
+            if (c.get("name"), c.get("series", "Unknown")) != identity
+        ]
         characters.append(char_data)
         try:
             with open(CHARACTERS_FILE, 'w') as f:

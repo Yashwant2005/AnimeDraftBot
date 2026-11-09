@@ -415,7 +415,7 @@ def _save_anime_add(char_doc):
     char_doc = {**char_doc, "kind": "anime"}
     if database.USE_MONGO and database.COL_CHARACTERS is not None:
         database.COL_CHARACTERS.update_one(
-            {"name": char_name},
+            {"name": char_name, "series": anime_name},
             {"$set": char_doc},
             upsert=True,
         )
@@ -424,7 +424,10 @@ def _save_anime_add(char_doc):
         if os.path.exists(database.CHARACTERS_FILE):
             with open(database.CHARACTERS_FILE, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-        data = [item for item in data if item.get("name") != char_name]
+        data = [
+            item for item in data
+            if (item.get("name"), item.get("series", "Unknown")) != (char_name, anime_name)
+        ]
         data.append(char_doc)
         with open(database.CHARACTERS_FILE, 'w', encoding='utf-8') as f:
             json.dump(data, f)
@@ -450,7 +453,7 @@ def _save_comic_add(char_doc):
     char_doc = {**char_doc, "kind": "comic"}
     if database.USE_MONGO and database.COL_CHARACTERS is not None:
         database.COL_CHARACTERS.update_one(
-            {"name": char_name},
+            {"name": char_name, "series": series_name},
             {"$set": char_doc},
             upsert=True,
         )
@@ -460,7 +463,10 @@ def _save_comic_add(char_doc):
         if os.path.exists(marvel_file):
             with open(marvel_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-        data = [item for item in data if item.get("name") != char_name]
+        data = [
+            item for item in data
+            if (item.get("name"), item.get("series", "Unknown")) != (char_name, series_name)
+        ]
         data.append(char_doc)
         with open(marvel_file, 'w', encoding='utf-8') as f:
             json.dump(data, f)

@@ -12,12 +12,94 @@ import rich_ui
 import html
 import os
 import json
+import uuid
+from types import SimpleNamespace
 # --- FIX: Split imports correctly ---
 from config import MAX_ACTIVE_DRAFTS_PER_CHAT, MARVEL_ROLES, ROLES, DATA_DIR
 from global_state import SERIES_MAP, SERIES_DISPLAY, POKEMON_LIST, POKEMON_DATA
 
+
+_DRAFT_MODE_PICKERS = {}
+
+
+async def _send_draft_mode_picker(client, message):
+    """Offer all draft variants from one entry command."""
+    token = uuid.uuid4().hex[:12]
+    _DRAFT_MODE_PICKERS[token] = {
+        'owner_id': message.from_user.id,
+        'reply_to_message': message.reply_to_message,
+    }
+    card = rich_ui.build_rich_card(
+        title='⚔️ Choose Draft Mode',
+        badges=['Draft Setup'],
+        expandable_quote='Choose a mode to challenge the replied player.',
+    )
+    keyboard = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton('🎭 Draft', callback_data=f'draftmenu:{token}:anime'),
+            InlineKeyboardButton('🔥 Auction Draft', callback_data=f'draftmenu:{token}:auction'),
+        ],
+        [
+            InlineKeyboardButton('⚡ Pokémon Draft', callback_data=f'draftmenu:{token}:pokemon'),
+            InlineKeyboardButton('🎬 Comic Draft', callback_data=f'draftmenu:{token}:comic'),
+        ],
+        [InlineKeyboardButton('✖️ Cancel', callback_data=f'draftmenu:{token}:cancel')],
+    ])
+    await rich_ui.send_rich_message(client, message.chat.id, card, reply_markup=keyboard)
+
+
+def _menu_message(callback_query, command, reply_to_message):
+    """Expose the picker context through the same small message API as commands."""
+    return SimpleNamespace(
+        from_user=callback_query.from_user,
+        reply_to_message=reply_to_message,
+        chat=callback_query.message.chat,
+        command=[command],
+        text=f'/{command}',
+        reply=callback_query.message.reply,
+        _from_draft_mode_picker=True,
+    )
+
+
+@Client.on_callback_query(filters.regex(r'^draftmenu:([a-f0-9]{12}):(anime|auction|pokemon|comic|cancel)$'))
+async def draft_mode_picker_callback(client, callback_query):
+    token, mode = callback_query.matches[0].group(1), callback_query.matches[0].group(2)
+    picker = _DRAFT_MODE_PICKERS.get(token)
+    if not picker:
+        return await callback_query.answer('This draft menu expired. Send /draft again.', show_alert=True)
+    if callback_query.from_user.id != picker['owner_id']:
+        return await callback_query.answer('Only the player who opened this menu can choose a mode.', show_alert=True)
+    _DRAFT_MODE_PICKERS.pop(token, None)
+    if mode == 'cancel':
+        await callback_query.answer('Cancelled.')
+        return await callback_query.message.edit_text('❌ Draft setup cancelled.')
+
+    labels = {'anime': 'Draft', 'auction': 'Auction Draft', 'pokemon': 'Pokémon Draft', 'comic': 'Comic Draft'}
+    await callback_query.answer(f'{labels[mode]} selected.')
+    await callback_query.message.edit_text(f'⏳ Starting <b>{labels[mode]}</b>...', parse_mode=ParseMode.HTML)
+    message = _menu_message(
+        callback_query,
+        {'anime': 'draft', 'auction': 'auction', 'pokemon': 'pokemondraft', 'comic': 'cdraft'}[mode],
+        picker['reply_to_message'],
+    )
+    if mode == 'anime':
+        return await draft_cmd(client, message)
+    if mode == 'pokemon':
+        return await pokemon_draft_cmd(client, message)
+    if mode == 'comic':
+        return await comic_draft_cmd(client, message)
+    # Import lazily to avoid a module-load cycle between draft and auction.
+    from plugins.auction import auction_command
+    return await auction_command(client, message)
+
 @Client.on_message(filters.command(["draft", "draft_v2"]))
 async def draft_cmd(c, m):
+    if (
+        m.command[0].lower() == 'draft'
+        and len(m.command) == 1
+        and not getattr(m, '_from_draft_mode_picker', False)
+    ):
+        return await _send_draft_mode_picker(c, m)
     database.set_current_client(c)
     is_v2 = "v2" in m.command[0]
     p1, p2 = m.from_user, m.reply_to_message.from_user if m.reply_to_message else None
