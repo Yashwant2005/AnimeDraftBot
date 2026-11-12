@@ -40,60 +40,21 @@ async def start_cmd(c, m):
         reply_markup=[[("🎮 Play Draft", "start_draft_hint"), ("📚 View Guide", "guide_0")]]
     )
 
-_GUIDE_PAGES = [
-    "📚 <b>Bot Guide - Page 1 (General & Minigames)</b>\n\n"
-    "<b>General</b>\n"
-    "• <code>/start</code> - Start the bot\n"
-    "• <code>/profile</code> - View your profile and stats\n"
-    "• <code>/groups</code> - Browse verified public group activity\n"
-    "• <code>/leaderboard</code> - Choose a leaderboard\n"
-    "• <code>/topglobal</code> - Choose a global leaderboard\n"
-    "• <code>/topgroup</code> - Choose this group's leaderboard\n"
-    "• <code>/commands</code> - Full usage guide for every active command\n"
-    "• <code>/list</code> - List available series\n"
-    "• <code>/clone</code> - Clone the bot\n\n"
-    "• <code>/draft</code> - Choose Anime, Auction, Pokémon, or Comic draft\n"
-    "<b>Minigames</b>\n"
-    "• <code>/shambles</code> - Word search game\n"
-    "• <code>/whoswho</code> - Blurred character guess\n"
-    "• <code>/punk</code> - Detail guessing game\n"
-    "• <code>/answer &lt;name&gt;</code> - Submit answer for solo games\n"
-    "• <code>/docq</code> - Apple explosion minigame\n"
-    "• <code>/roulette</code> - Russian roulette\n"
-    "• <code>/rps</code> - Rock paper scissors",
-
-    "📚 <b>Bot Guide - Page 2 (Economy & Gifting)</b>\n\n"
-    "<b>Economy & Gifting</b>\n"
-    "• <code>/balance</code> - Check your coins\n"
-    "• <code>/daily</code> - Claim daily free coins\n"
-    "• <code>/gift</code> - Gift characters to users",
-
-    "📚 <b>Bot Guide - Page 3 (RPG & Combat)</b>\n\n"
-    "• <code>/bounty</code> - Check bounty stats\n"
-    "• <code>/fight</code> / <code>/plunder</code> - Attack other users",
-
-    "📚 <b>Bot Guide - Page 4 (Admins)</b>\n\n"
-    "<b>Admin Management</b>\n"
-    "• <code>/add</code> / <code>/addpoints</code> - Give currency/points\n"
-    "• <code>/characters</code> - Manage DB\n"
-    "• <code>/delchar</code> / <code>/delseries</code> - Request owner-confirmed catalog deletion\n"
-    "• <code>/groups_stats</code> - View group activity statistics\n"
-    "• <code>/acast</code> - Broadcast message\n"
-    "• <code>/sudo</code> / <code>/mods</code> - Manage admins\n"
-    "• <code>/exportdb</code> - Export database\n"
-    "• <code>/status</code> - Check bot status"
-]
+def _guide_card(page):
+    section, body = _COMMANDS_PAGES[page]
+    _, _, description = body.partition("\n\n")
+    return rich_ui.build_rich_card(
+        title=f"📚 Bot Guide - {section}",
+        badges=["Guide", f"Page {page + 1}/{len(_COMMANDS_PAGES)}"],
+        description=description,
+    )
 
 @Client.on_message(filters.command("guide"))
 async def guide_cmd(c, m):
     logging.info(f"[CMD] /guide invoked by {m.from_user.id}")
 
     kb = [[InlineKeyboardButton("Next ➡️", callback_data="guide_1")]]
-    card = rich_ui.build_rich_card(
-        title="📚 Bot Guide - Page 1",
-        badges=["Guide", "Page 1/4"],
-        expandable_quote=_GUIDE_PAGES[0]
-    )
+    card = _guide_card(0)
     await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=kb)
 
 
@@ -103,18 +64,18 @@ async def about_cmd(c, m):
     overview = (
         '🤖 <b>ANIME DRAFT BOT — COMPLETE GUIDE</b>\n\n'
         '⚔️ <b>Draft Battles</b>\n'
-        'Reply to a player with <code>/draft</code> to start an 8-role anime draft. '
+        'Reply to a player with <code>/draft</code> to choose a head-to-head draft mode and start an 8-role anime draft. '
         'Use <code>/draft Naruto</code> to restrict the pool to one series, <code>/draft_v2</code> for V2, '
         '<code>/pdraft</code> for Pokémon, or <code>/cdraft</code> for comics. Players take turns choosing characters, then their teams battle.\n\n'
         '🔥 <b>$20 Blind Auction</b>\n'
-        'Use <code>/draft</code> and choose Auction Draft; use it without replying to open a lobby. Both players must first send <code>/start</code> in bot DM. '
+        'Use <code>/auction</code> without replying to open a public lobby, or reply to a player to challenge them directly. Both players must first send <code>/start</code> in bot DM. '
         'Ten hidden characters are auctioned; each player has $20 and builds a five-character team. Bid with buttons or <code>/bid 7</code>. '
         'Use <code>/list</code> to browse the Draft and Auction rosters, and <code>/auction_help</code> for rules.\n\n'
         '🎮 <b>Minigames & Combat</b>\n'
         '<code>/shambles</code>, <code>/whoswho</code>, <code>/punk</code>, <code>/docq</code>, <code>/roulette</code>, and <code>/rps</code> provide quick games. '
         'Use <code>/duel</code>, <code>/fight</code>, <code>/plunder</code>, and <code>/bounty</code> for competitive modes.\n\n'
         '💰 <b>Profile, Economy & Rankings</b>\n'
-        '<code>/profile</code> shows your progress. <code>/daily</code> claims coins, <code>/balance</code> shows them, and <code>/gift</code> lets you share eligible items. '
+        '<code>/profile</code> shows your progress. <code>/daily</code> claims 200 coins (plus 100 if your bio includes @anime_draft_bot), <code>/balance</code> shows your coins, and <code>/gift</code> lets you share eligible items. '
         'Use <code>/leaderboard</code>, <code>/topglobal</code>, and <code>/topgroup</code> for rankings.\n\n'
         '👥 <b>Groups</b>\n'
         '<code>/groups</code> shows active verified public groups. <code>/groups today</code> and <code>/groups all</code> change the ranking period. '
@@ -131,23 +92,19 @@ async def about_cmd(c, m):
 async def guide_cb(client, callback_query):
     page = int(callback_query.matches[0].group(1))
 
-    if page < 0 or page >= len(_GUIDE_PAGES):
+    if page < 0 or page >= len(_COMMANDS_PAGES):
         return await callback_query.answer("Invalid page.", show_alert=True)
 
     kb = []
     row = []
     if page > 0:
         row.append(InlineKeyboardButton("⬅️ Prev", callback_data=f"guide_{page-1}"))
-    if page < len(_GUIDE_PAGES) - 1:
+    if page < len(_COMMANDS_PAGES) - 1:
         row.append(InlineKeyboardButton("Next ➡️", callback_data=f"guide_{page+1}"))
     if row:
         kb.append(row)
 
-    card = rich_ui.build_rich_card(
-        title=f"📚 Bot Guide - Page {page + 1}",
-        badges=["Guide", f"Page {page + 1}/4"],
-        expandable_quote=_GUIDE_PAGES[page]
-    )
+    card = _guide_card(page)
     await rich_ui.edit_rich_message(
         client, callback_query.message.chat.id, callback_query.message.id,
         card, reply_markup=InlineKeyboardMarkup(kb) if kb else None
@@ -158,12 +115,14 @@ _COMMANDS_PAGES = [
         "Start + Info",
         "📘 <b>Commands Guide - Start + Info</b>\n\n"
         "<b>/start</b>\n"
-        "<code>/start</code> - Open the bot intro.\n\n"
+        "<code>/start</code> - Register this chat and show the bot intro.\n\n"
         "<b>/guide</b>\n"
-        "<code>/guide</code> - Short feature guide with next/prev buttons.\n\n"
+        "<code>/guide</code> - Browse this full guide with next/prev buttons.\n\n"
         "<b>/commands</b>\n"
-        "<code>/commands</code> - Open this full usage guide.\n"
-        "<code>/commands 3</code> - Open a specific guide page.\n\n"
+        "<code>/commands</code> or <code>/cmds</code> - Open the detailed command guide.\n"
+        "<code>/commands 3</code> - Open a specific page (page numbers start at 1).\n\n"
+        "<b>/about</b>\n"
+        "<code>/about</code> - Read the bot's features and systems overview.\n\n"
         "<b>/profile</b>\n"
         "<code>/profile</code> - Show your draft points, matches, wins, rank, and achievements.\n\n"
         "<b>/groups</b>\n"
@@ -172,15 +131,20 @@ _COMMANDS_PAGES = [
         "<b>/balance</b>\n"
         "<code>/balance</code> - Show your coins.\n\n"
         "<b>/daily</b>\n"
-        "<code>/daily</code> - Claim daily coins.\n\n"
+        "<code>/daily</code> - Claim 200 coins every 24 hours; add @anime_draft_bot to your bio for 100 extra coins.\n\n"
+        "<b>/gift</b>\n"
+        "In a group, reply to a user's message with <code>/gift CHARACTER_ID</code> to offer them a character from your collection. Confirm with the button.\n\n"
         "<b>/list</b>\n"
-        "<code>/list</code> - Show anime series.\n"
-        "<code>/list comics</code> - Show comic series.\n\n"
+        "<code>/list</code> - Choose Draft or Auction Draft rosters; use Back on a list to return here.\n"
+        "<code>/list comics</code> - Open the comic series list directly.\n"
+        "<code>/alist</code> - Open the auction series list directly.\n\n"
         "<b>/bounty</b>\n"
         "<code>/bounty</code> - Show your bounty profile with wanted poster when available.\n"
         "<code>/bounty</code> as a reply - Show that user's bounty profile/poster.\n\n"
         "<b>/status</b>\n"
-        "<code>/status</code> - Show active bot users and chats."
+        "<code>/status</code> - Admin-only: show active bot users and chats.\n\n"
+        "<b>/clone BOT_TOKEN</b>\n"
+        "Privately send your bot token to start your own bot instance."
     ),
     (
         "Leaderboards",
@@ -203,14 +167,18 @@ _COMMANDS_PAGES = [
         "Draft + Combat",
         "⚔️ <b>Commands Guide - Draft + Combat</b>\n\n"
         "<b>Draft battles</b>\n"
-        "<code>/draft</code> - Open the Anime, Auction, Pokémon, and Comic Draft picker.\n"
-        "Reply to a user before choosing any head-to-head mode; Auction Draft can also open a public lobby.\n"
+        "<code>/draft</code> - Reply to a friend's message first, then choose a draft mode.\n"
         "<code>/draft Naruto</code> as a reply - Directly start an Anime Draft filtered by series.\n\n"
+        "<code>/draft_v2</code> as a reply - Start an Anime Draft V2 challenge.\n"
+        "<code>/pdraft</code> or <code>/pokemondraft</code> as a reply - Start a Pokémon stat draft; optional filters include region names, <code>6l</code> (legendary only), or <code>0l</code> (non-legendary).\n"
+        "<code>/cdraft</code> as a reply - Start a comic character draft; add a series name to filter the pool.\n\n"
         "<b>$20 Blind Auction</b>\n"
+        "<code>/auction</code> - Open an auction lobby in a group; reply to a user to challenge them directly.\n"
         "<code>/bid AMOUNT</code> - Place a custom bid during an active auction.\n"
-        "<code>/auction_help</code> - Auction rules. <code>/auction_stats</code> - Your record.\n\n"
+        "<code>/auction_cancel</code> - Cancel your waiting auction lobby.\n"
+        "<code>/auction_help</code> - Read auction rules. <code>/auction_stats</code> - View your auction record.\n\n"
         "<code>/list</code> - Choose the Draft or Auction series catalog.\n"
-        "<code>/aucadd</code> - Admin: add an independent auction character.\n\n"
+        "<code>/aucadd</code> - Admin-only: add an auction character using four lines: name, image URL, series, total power (1-100).\n\n"
         "<b>Combat</b>\n"
         "<code>/duel</code> as a reply - Character duel challenge.\n"
         "<code>/fight</code> as a reply - Fight a user for 10% bounty swing.\n"
@@ -239,27 +207,28 @@ _COMMANDS_PAGES = [
     (
         "Admin",
         "🛠 <b>Commands Guide - Admin</b>\n\n"
-        "<b>Broadcast + status</b>\n"
-        "<code>/acast message text</code> - Broadcast to saved chats.\n"
-        "<code>/status</code> - Show active users/chats.\n"
-        "<code>/exportdb</code> or <code>/backupdb</code> - Export database backup.\n\n"
-        "<b>Draft database</b>\n"
-        "<code>/add Character Name</code> - Add anime character using multiline format: command line, anime, image URL, then stats.\n"
-        "<code>/add_comic Character Name</code> - Add comic character using multiline format: command line, series, image URL, then stats.\n"
-        "<code>/comicimg \"url\" \"name\" \"series name\"</code> - Update comic character image.\n"
-        "<code>/characters</code> - Browse anime character database.\n"
-        "<code>/characters comics</code> - Browse comics database.\n\n"
-        "<code>/delchar CHARACTER_NAME_OR_ID</code> - Send a deletion request to the owner.\n"
-        "<code>/delseries SERIES_NAME_OR_ID</code> - Request series deletion; referenced records are archived.\n"
-        "<code>/groups_stats</code> - Group tracking stats and membership refresh.\n\n"
-        "<b>User/admin management</b>\n"
-        "<code>/addpoints USER_ID POINTS</code> - Add or remove draft points.\n"
-        "<code>/newyear on</code> / <code>/newyear off</code> - Toggle event mode.\n"
-        "<code>/sudo promote</code> as a reply - Promote moderator. Owner only.\n"
-        "<code>/sudo demote @username</code> - Demote moderator. Owner only.\n"
-        "<code>/mods</code> - List moderators.\n"
-        "<code>/add_sudo</code> as a reply - Promote a user to clone admin.\n\n"
-        "<b>Clone</b>\n"
+        "<b>Who can use admin commands?</b>\n"
+        "Admin-only commands require a configured bot admin. Owner-only commands are restricted to the bot owner. Some catalog changes are disabled on clones.\n\n"
+        "<b>Character catalog</b>\n"
+        "<code>/add Character Name</code> then put Anime, Image URL, and 8 numeric stats on separate lines. Admins add it directly; other users' requests go for approval.\n"
+        "<code>/add_comic Character Name</code> then put Series, Image URL, and 8 stats on separate lines. Admins add it directly; other requests go for approval.\n"
+        "<code>/comicimg \"URL\" \"Character Name\" \"Series\"</code> - Admin-only: change a comic character's image.\n"
+        "<code>/characters</code> / <code>/characters comics</code> - Admin-only: browse anime/comic series and characters.\n"
+        "<code>/delchar NAME_OR_ID</code> - Admin-only: request a character deletion; the owner must confirm privately.\n"
+        "<code>/delseries NAME_OR_ID</code> - Admin-only: request deletion of a series and its records; owner confirmation is required.\n"
+        "<code>/aucadd NAME</code> followed on new lines by Image URL, Series, and Total Power (1-100) - Admin-only: add an auction-only character.\n\n"
+        "<b>Moderators + points</b>\n"
+        "<code>/addpoints USER_ID POINTS</code> - Admin-only: add points; use a negative number to subtract (rating cannot go below zero).\n"
+        "<code>/sudo promote</code> as a reply, or <code>/sudo promote @username</code> - Owner-only: promote a moderator.\n"
+        "<code>/sudo demote</code> as a reply, or <code>/sudo demote @username</code> - Owner-only: remove a moderator.\n"
+        "<code>/add_sudo</code> as a reply - Admin-only: add a clone admin/moderator.\n"
+        "<code>/mods</code> - Admin-only: list moderators.\n\n"
+        "<b>Bot operations</b>\n"
+        "<code>/acast MESSAGE</code> - Broadcast to saved chats/users; main bot owner only, while clone admins/mods can broadcast on their clone.\n"
+        "<code>/groups_stats</code> - Admin-only: see aggregate group tracking totals. <code>/groups_stats list</code> lists tracked groups; Refresh updates membership status.\n"
+        "<code>/newyear on</code> / <code>/newyear off</code> - Admin-only: toggle the event mode.\n"
+        "<code>/status</code> - Admin-only: show active users and chats.\n"
+        "<code>/exportdb</code> or <code>/backupdb</code> - Owner-only: export a database backup; optionally give a destination chat.\n"
         "<code>/clone BOT_TOKEN</code> - Register and start your cloned bot."
     ),
 ]
@@ -392,6 +361,7 @@ async def list_cmd(c, m):
     
     toggle_btn = InlineKeyboardButton("🎬 Comics", callback_data="list_comics_1") if mode == "anime" else InlineKeyboardButton("🎭 Anime", callback_data="list_anime_1")
     kb.append([toggle_btn])
+    kb.append([InlineKeyboardButton("⬅️ Back to catalog choice", callback_data="list_home")])
     
     await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=InlineKeyboardMarkup(kb) if kb else None)
 
@@ -575,7 +545,7 @@ async def status_cmd(c, m):
     await rich_ui.send_rich_message(c, m.chat.id, card)
 
 
-_LB_PAGE_SIZE = 10
+_LB_PAGE_SIZE = 20
 _LB_BOARDS = {
     "draft": "Draft",
     "bounty": "Bounty",
@@ -585,16 +555,8 @@ def _lb_is_group_chat(chat) -> bool:
     chat_type = str(getattr(chat, "type", "")).lower()
     return "group" in chat_type or "supergroup" in chat_type
 
-def _lb_user_link(user_id, name) -> str:
-    safe_name = html.escape(str(name or user_id or "Unknown"))
-    if user_id:
-        return f"<a href='tg://user?id={user_id}'>{safe_name}</a>"
-    return safe_name
-
 def _lb_default_metric(board):
-    if board == "draft":
-        return "points"
-    return "value"
+    return "points" if board == "draft" else "value"
 
 def _lb_scope_from_command(command_parts):
     command = (command_parts[0] if command_parts else "leaderboard").lower()
@@ -624,29 +586,13 @@ def _lb_page_from_command(command_parts):
             return max(1, int(arg))
     return 1
 
-def _lb_selector_markup(scope):
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("Draft", callback_data=f"lb:draft:{scope}:points:1")],
-        [InlineKeyboardButton("Bounty", callback_data=f"lb:bounty:{scope}:value:1")],
-        [
-            InlineKeyboardButton("Global", callback_data="lbsel:global"),
-            InlineKeyboardButton("Group", callback_data="lbsel:group"),
-        ],
-    ])
-
-def _lb_selector_text(scope):
-    scope_title = "Global" if scope == "global" else "Group"
-    return (
-        f"🏆 <b>{scope_title} Leaderboards</b>\n\n"
-        "Which leaderboard do you want to see?"
-    )
-
 def _lb_col_draft(scope):
+    main_db = database.IMAGE_MONGO_DB
+    if main_db is not None:
+        collection = "group_leaderboard" if scope == "group" else "leaderboard"
+        return main_db[collection]
     if scope == "group":
         return database.COL_GROUP_LEADERBOARD if database.USE_MONGO else None
-    clone_db = database.get_clone_db()
-    if clone_db is not None:
-        return clone_db["leaderboard"]
     return database.COL_LEADERBOARD if database.USE_MONGO else None
 
 def _lb_draft_entries(scope, chat_id, metric, page):
@@ -692,19 +638,22 @@ def _lb_draft_entries(scope, chat_id, metric, page):
     return [], 0
 
 def _lb_bounty_entries(scope, chat_id, page):
-    if not database.USE_MONGO or database.COL_WAIFU_USERS is None:
+    main_db = database.IMAGE_MONGO_DB
+    users = main_db["users"] if main_db is not None else database.COL_WAIFU_USERS
+    if not database.USE_MONGO or users is None:
         return None, 0
     start = (page - 1) * _LB_PAGE_SIZE
     score_expr = {"$ifNull": ["$bounty", {"$ifNull": ["$coins", 0]}]}
 
     if scope == "group":
-        if database.COL_WAIFU_GROUP_USERS is None:
+        group_users = main_db["group_user_totals"] if main_db is not None else database.COL_WAIFU_GROUP_USERS
+        if group_users is None:
             return [], 0
         base = [
             {"$match": {"group_id": chat_id}},
             {
                 "$lookup": {
-                    "from": database.COL_WAIFU_USERS.name,
+                    "from": users.name,
                     "localField": "user_id",
                     "foreignField": "id",
                     "as": "user",
@@ -714,12 +663,12 @@ def _lb_bounty_entries(scope, chat_id, page):
             {"$addFields": {"score": {"$ifNull": ["$user.bounty", {"$ifNull": ["$user.coins", 0]}]}}},
             {"$match": {"score": {"$gt": 0}}},
         ]
-        docs = list(database.COL_WAIFU_GROUP_USERS.aggregate(base + [
+        docs = list(group_users.aggregate(base + [
             {"$sort": {"score": -1, "count": -1}},
             {"$skip": start},
             {"$limit": _LB_PAGE_SIZE},
         ]))
-        total_doc = list(database.COL_WAIFU_GROUP_USERS.aggregate(base + [{"$count": "total"}]))
+        total_doc = list(group_users.aggregate(base + [{"$count": "total"}]))
         total = total_doc[0]["total"] if total_doc else 0
         return [
             {
@@ -734,12 +683,12 @@ def _lb_bounty_entries(scope, chat_id, page):
         {"$addFields": {"score": score_expr}},
         {"$match": {"score": {"$gt": 0}}},
     ]
-    docs = list(database.COL_WAIFU_USERS.aggregate(base + [
+    docs = list(users.aggregate(base + [
         {"$sort": {"score": -1, "total_guesses": -1}},
         {"$skip": start},
         {"$limit": _LB_PAGE_SIZE},
     ]))
-    total_doc = list(database.COL_WAIFU_USERS.aggregate(base + [{"$count": "total"}]))
+    total_doc = list(users.aggregate(base + [{"$count": "total"}]))
     total = total_doc[0]["total"] if total_doc else 0
     return [
         {
@@ -758,20 +707,18 @@ def _lb_entries(board, scope, chat_id, metric, page):
     return [], 0
 
 def _lb_markup(board, scope, metric, page, total_pages):
-    rows = [[
-        InlineKeyboardButton("Draft", callback_data=f"lb:draft:{scope}:points:1"),
-        InlineKeyboardButton("Bounty", callback_data=f"lb:bounty:{scope}:value:1"),
-    ]]
-    rows.append([
-        InlineKeyboardButton("Global", callback_data=f"lb:{board}:global:{metric}:1"),
-        InlineKeyboardButton("Group", callback_data=f"lb:{board}:group:{metric}:1"),
-    ])
-    if board == "draft":
-        rows.append([
-            InlineKeyboardButton("Points", callback_data=f"lb:draft:{scope}:points:1"),
-            InlineKeyboardButton("Wins", callback_data=f"lb:draft:{scope}:wins:1"),
-        ])
-
+    options = [
+        ("draft", "points", "Points"),
+        ("draft", "wins", "Wins"),
+        ("bounty", "value", "Bounty"),
+    ]
+    current = ("draft", metric) if board == "draft" else ("bounty", "value")
+    switches = [
+        InlineKeyboardButton(label, callback_data=f"lb:{target_board}:{scope}:{target_metric}:1")
+        for target_board, target_metric, label in options
+        if (target_board, target_metric) != current
+    ]
+    rows = [switches]
     nav = []
     if page > 1:
         nav.append(InlineKeyboardButton("Prev", callback_data=f"lb:{board}:{scope}:{metric}:{page - 1}"))
@@ -783,7 +730,7 @@ def _lb_markup(board, scope, metric, page, total_pages):
 
 def _lb_text_and_markup(chat, board, scope, metric, page):
     if scope == "group" and not _lb_is_group_chat(chat):
-        return "Group leaderboard only works inside a group chat.", _lb_selector_markup("global")
+        return "Group leaderboard only works inside a group chat.", None
 
     metric = metric if board == "draft" and metric in ("points", "wins") else _lb_default_metric(board)
     page = max(1, page)
@@ -800,7 +747,7 @@ def _lb_text_and_markup(chat, board, scope, metric, page):
     if board == "draft":
         board_title = "Draft Wins" if metric == "wins" else "Draft Points"
     scope_title = "Global" if scope == "global" else html.escape(getattr(chat, "title", None) or "This Group")
-    lines = [f"<b>Top {scope_title} {board_title}</b> - Page {page}/{total_pages}\n"]
+    lines = [f"<b>Top {scope_title} {board_title} - Page {page}/{total_pages}</b>", ""]
 
     if not entries:
         lines.append("No entries yet.")
@@ -808,43 +755,32 @@ def _lb_text_and_markup(chat, board, scope, metric, page):
         start_rank = (page - 1) * _LB_PAGE_SIZE + 1
         for offset, entry in enumerate(entries):
             rank = start_rank + offset
-            name = _lb_user_link(entry.get("id"), entry.get("name"))
+            name = str(entry.get("name") or entry.get("id") or "Unknown")
+            prefix = f"{rank}. "
+            safe_name = html.escape(name)
             if board == "draft":
-                rating = int(entry.get("rating") or 0)
-                wins = int(entry.get("wins") or 0)
                 if metric == "wins":
-                    lines.append(f"{rank}. {name} - <b>{wins:,}</b> wins ({rating:,} pts)")
+                    wins = int(entry.get("wins") or 0)
+                    score = f"{wins:,}"
+                    lines.append(f"{prefix}{safe_name} - <b>{score}</b> wins")
                 else:
-                    lines.append(f"{rank}. {name} - <b>{rating:,}</b> pts ({wins:,} wins)")
+                    rating = int(entry.get("rating") or 0)
+                    score = f"{rating:,}"
+                    lines.append(f"{prefix}{safe_name} - <b>{score}</b> pts")
             elif board == "bounty":
                 score = int(entry.get("score") or 0)
-                lines.append(f"{rank}. {name} - <b>{score:,}</b> bounty")
+                score = f"{score:,}"
+                lines.append(f"{prefix}{safe_name} - <b>{score}</b> bounty")
             else:
                 score = int(entry.get("score") or 0)
-                lines.append(f"{rank}. {name} - <b>{score:,}</b>")
+                score = f"{score:,}"
+                lines.append(f"{prefix}{safe_name} - <b>{score}</b>")
 
     return "\n".join(lines), _lb_markup(board, scope, metric, page, total_pages)
-
-async def _lb_send_selector(message, scope):
-    await message.reply_text(
-        _lb_selector_text(scope),
-        parse_mode=ParseMode.HTML,
-        reply_markup=_lb_selector_markup(scope),
-    )
 
 async def _lb_send(message, board, scope, metric, page):
     text, markup = _lb_text_and_markup(message.chat, board, scope, metric, page)
     await message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
-
-@Client.on_callback_query(filters.regex(r"^lbsel:(global|group)$"))
-async def leaderboard_selector_callback(client, callback_query):
-    scope = callback_query.matches[0].group(1)
-    await callback_query.answer()
-    await callback_query.edit_message_text(
-        _lb_selector_text(scope),
-        parse_mode=ParseMode.HTML,
-        reply_markup=_lb_selector_markup(scope),
-    )
 
 @Client.on_callback_query(filters.regex(r"^lb:(draft|bounty):(global|group):(points|wins|value):(\d+)$"))
 async def leaderboard_switch_callback(client, callback_query):
@@ -861,10 +797,7 @@ async def leaderboard_entry_cmd(c, m):
     database.set_current_client(c)
     command_parts = m.command or []
     scope = _lb_scope_from_command(command_parts)
-    board = _lb_board_from_command(command_parts)
-    if board is None:
-        return await _lb_send_selector(m, scope)
-
+    board = _lb_board_from_command(command_parts) or "draft"
     metric = _lb_metric_from_command(board, command_parts)
     page = _lb_page_from_command(command_parts)
     await _lb_send(m, board, scope, metric, page)

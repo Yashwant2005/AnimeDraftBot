@@ -94,6 +94,12 @@ async def draft_mode_picker_callback(client, callback_query):
 
 @Client.on_message(filters.command(["draft", "draft_v2"]))
 async def draft_cmd(c, m):
+    if not m.reply_to_message:
+        logging.warning("[DRAFT] %s must reply to a friend before choosing a draft mode", m.from_user.id)
+        return await m.reply_text(
+            "<b>⚠️ Reply to a friend's message first, then use /draft to choose a mode.</b>",
+            parse_mode=ParseMode.HTML,
+        )
     if (
         m.command[0].lower() == 'draft'
         and len(m.command) == 1
@@ -106,9 +112,6 @@ async def draft_cmd(c, m):
     is_clone = getattr(c, 'is_clone', False)
     logging.info(f"[DRAFT] {p1.id} initiated {'DRAFT_V2' if is_v2 else 'DRAFT'} {'(clone)' if is_clone else '(main)'}")
     
-    if not m.reply_to_message:
-        logging.warning(f"[DRAFT] {p1.id} missing opponent (no reply)")
-        return await m.reply("⚠️ Reply to a friend!")
     if not p2 or p2.is_bot or p1.id == p2.id:
         logging.warning(f"[DRAFT] {p1.id} invalid opponent - bot:{p2.is_bot if p2 else 'None'}, same:{p1.id == p2.id if p2 else 'N/A'}")
         return await m.reply("⚠️ Invalid opponent.")

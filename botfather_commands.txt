@@ -1,63 +1,57 @@
-start - Start the Anime Draft bot
-guide - Open the bot guide
-commands - View all command usage
-cmds - View all command usage
-list - Choose Draft or Auction Draft series
-profile - View your profile and draft stats
-groups - Browse top active public AnimeDraft groups
-balance - Check your coins
-daily - Claim daily coins
-leaderboard - Open the leaderboard selector
-top - Open the leaderboard selector
-topglobal - Open the global leaderboard
-topgroup - Open the group leaderboard
-grouptop - Open the group leaderboard
-draft - Choose a draft game mode
-auction_stats - View your auction match statistics
-auction_cancel - Cancel your waiting auction challenge
-auction_help - View $20 blind auction rules
-aucadd - Add a character to the independent auction pool (admin)
-about - Explain bot features and game modes
-duel - Challenge a user to a character duel
-shambles - Start a Shambles guessing game
-whoswho - Start a Who's Who guessing game
-punk - Start a Punk Records guessing game
-answer - Submit an answer to a guessing game
-cancelgame - Cancel the active guessing game
-docq - Play the apple explosion game
-roulette - Start a Russian Roulette game
-rps - Play Rock Paper Scissors
-bounty - View your bounty profile
-fight - Fight another user for bounty
-plunder - Attack another user for bounty
-trade - Trade characters with another user
-gift - Gift coins or characters to another user
-harem - View your character collection
-collection - View your character collection
-guess - Claim the dropped character
-grab - Claim the dropped character
-collect - Claim the dropped character
-protecc - Claim the dropped character
-hunt - Claim the dropped character
-fav - Set a favourite character
-changetime - Set the group drop timing
-upload - Upload a new waifu character
-uploadchar - Upload a character from a replied image
-deletechar - Delete a waifu character (admin)
-exportdb - Export a database backup (admin)
-backupdb - Export a database backup (admin)
-status - View bot status (admin)
-acast - Broadcast a message (admin)
-add - Add an anime character (admin)
-add_comic - Add a comics character (admin)
-comicimg - Update a comics character image (admin)
-characters - Browse the character database (admin)
-delchar - Request owner-confirmed character deletion (admin)
-delseries - Request owner-confirmed series deletion (admin)
-groups_stats - View group activity tracking statistics (admin)
-addpoints - Add draft points to a user (admin)
-newyear - Toggle the New Year event (admin)
-sudo - Promote or demote a moderator (owner)
-mods - List moderators (admin)
-add_sudo - Promote a user to clone admin (admin)
-clone - Create and start a cloned bot
+start - Start the bot and view the welcome menu
+guide - Browse the bot guide
+commands - Browse detailed command help
+cmds - Alias for commands
+about - Read about the bot and its features
+profile - View your draft profile, rank, and stats
+balance - Check your coin balance
+daily - Claim daily coins; add @anime_draft_bot to your bio for a bonus
+list - Choose a draft or auction series list
+alist - Browse auction series
+bounty - View your bounty profile; reply to a user to view theirs
+gift - Reply to a user with a character ID to offer a character
+leaderboard - Open leaderboard options
+top - Open leaderboard options
+topglobal - View the global leaderboard
+topgroup - View this group's leaderboard
+grouptop - Alias for topgroup
+draft - Reply to a friend to choose a draft mode
+draft_v2 - Reply to a friend to start Draft V2
+pdraft - Reply to a friend to start a Pokemon draft
+pokemondraft - Alias for pdraft
+cdraft - Reply to a friend to start a comics draft
+auction - Start or challenge someone to an auction in a group
+bid - Place a bid in an active auction
+auction_cancel - Cancel your waiting auction
+auction_help - Read auction rules
+auction_stats - View your auction record
+duel - Reply to a user to challenge them to a duel
+fight - Reply to a user to start a bounty fight
+plunder - Reply to a user to attempt a bounty plunder
+shambles - Create a Shambles guessing game in a group
+whoswho - Create a Who's Who guessing game in a group
+punk - Create a Punk Records guessing game in a group
+answer - Submit an answer in an active guessing game
+cancelgame - Cancel your active guessing game
+docq - Start the apple-picking game in a group
+roulette - Reply to a user to start Russian Roulette
+rps - Reply to a user to challenge them to Rock Paper Scissors
+groups - Browse verified public group activity
+clone - Register your own bot using its token
+add - Admin: add an anime character
+add_comic - Admin: add a comics character
+comicimg - Admin: update a comics character image
+aucadd - Admin: add a character to the auction roster
+characters - Admin: browse the anime and comics catalog
+delchar - Admin: request character deletion
+delseries - Admin: request series deletion
+addpoints - Admin: add or remove a user's draft points
+newyear - Admin: turn event mode on or off
+acast - Admin: broadcast a message
+sudo - Owner: promote or demote moderators
+add_sudo - Admin: reply to a user to add a clone moderator
+mods - Admin: list moderators
+status - Admin: view bot user and chat statistics
+groups_stats - Admin: view group tracking statistics
+exportdb - Owner: export a database backup
+backupdb - Alias for exportdb

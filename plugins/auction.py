@@ -824,7 +824,8 @@ def _auction_series_card(series, page):
         navigation.append(InlineKeyboardButton('Next ➡️', callback_data=f'alist:{page + 1}'))
     if navigation:
         buttons.append(navigation)
-    return card, InlineKeyboardMarkup(buttons) if buttons else None
+    buttons.append([InlineKeyboardButton('⬅️ Back to catalog choice', callback_data='list_home')])
+    return card, InlineKeyboardMarkup(buttons)
 
 
 @Client.on_message(filters.command('alist'))

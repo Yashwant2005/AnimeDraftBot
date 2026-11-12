@@ -10,9 +10,11 @@ import global_state
 import game_engine
 import ui
 import database
+import rich_ui
 # --- FIX: Split imports correctly ---
 from config import STAT_MAP, POKEMON_ROLES
 from global_state import SERIES_MAP, ANIME_CHARACTERS, POKEMON_LIST, POKEMON_DATA, CHAR_IMAGES
+
 
 async def show_anime_draw(c, m, game, gid):
     turn_id = game["turn"]
@@ -37,6 +39,18 @@ async def callbacks(c, q: CallbackQuery):
 
         # --- HANDLE LIST PAGINATION FIRST ---
         if data.startswith("list_"):
+            if data == "list_home":
+                card = rich_ui.build_rich_card(
+                    title="📚 Available Series",
+                    badges=["Choose a catalog"],
+                    description="Select the game mode whose series you want to browse.",
+                )
+                keyboard = InlineKeyboardMarkup([[
+                    InlineKeyboardButton("🎭 Draft", callback_data="list_anime_1"),
+                    InlineKeyboardButton("🔥 Auction Draft", callback_data="alist:1"),
+                ]])
+                await q.edit_message_text(card, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+                return
             try:
                 parts = data.split("_")
                 if len(parts) < 3:
@@ -81,6 +95,7 @@ async def callbacks(c, q: CallbackQuery):
             # Add toggle button for Anime/Comics
             toggle_btn = InlineKeyboardButton("🎬 Comics", callback_data="list_comics_1") if mode == "anime" else InlineKeyboardButton("🎭 Anime", callback_data="list_anime_1")
             kb.append([toggle_btn])
+            kb.append([InlineKeyboardButton("⬅️ Back to catalog choice", callback_data="list_home")])
             
             await q.edit_message_text(
                 text=txt,
@@ -89,136 +104,90 @@ async def callbacks(c, q: CallbackQuery):
             )
             return
 
-        # --- LEADERBOARD INLINE NAVIGATION / TOGGLE ---
-        if data.startswith("leader_"):
+        # --- LEADERBOARD INLINE NAVIGATION ---
+        if data.startswith("leader_") or data.startswith("lb_toggle_wins"):
             try:
-                parts = data.split("_")
-                if len(parts) < 2:
-                    return await q.answer("Invalid page", show_alert=True)
-                page = int(parts[1])
+                if data.startswith("lb_toggle_wins"):
+                    page = int(data.rsplit("_", 1)[-1])
+                else:
+                    parts = data.split("_")
+                    if len(parts) < 2:
+                        return await q.answer("Invalid page", show_alert=True)
+                    page = int(parts[1])
             except Exception:
                 return await q.answer("Invalid Data", show_alert=True)
 
-            per_page = 16
+            per_page = 20
             start = (page - 1) * per_page
             end = start + per_page
 
-            # fetch entries by rating
             entries = []
             try:
-                if database.USE_MONGO is not None and database.COL_LEADERBOARD is not None:
-                    docs = list(database.COL_LEADERBOARD.find({}).sort("rating", -1).skip(start).limit(per_page))
+                collection = (
+                    database.IMAGE_MONGO_DB["leaderboard"]
+                    if database.IMAGE_MONGO_DB is not None
+                    else database.COL_LEADERBOARD
+                )
+                if database.USE_MONGO and collection is not None:
+                    query = {"matches": {"$gt": 0}}
+                    docs = list(collection.find(query).sort("rating", -1).skip(start).limit(per_page))
                     for d in docs:
-                        name = d.get("name") or str(d.get("user_id"))
-                        entries.append((name, d.get("rating", 0), d.get("wins", 0)))
+                        entries.append((d.get("user_id"), d.get("name") or d.get("user_id"), d.get("rating", 0)))
                 else:
                     if os.path.exists(database.LEADERBOARD_FILE):
                         with open(database.LEADERBOARD_FILE, "r", encoding="utf-8") as f:
                             data = json.load(f)
-                        sorted_users = sorted(data.items(), key=lambda x: x[1].get("rating", 0), reverse=True)
+                        sorted_users = sorted(
+                            (
+                                (uid, stats) for uid, stats in data.items()
+                                if stats.get("matches", 0) > 0
+                            ),
+                            key=lambda x: x[1].get("rating", 0),
+                            reverse=True,
+                        )
                         for uid, stats in sorted_users[start:end]:
-                            entries.append((stats.get("name") or uid, stats.get("rating", 0), stats.get("wins", 0)))
+                            entries.append((uid, stats.get("name") or uid, stats.get("rating", 0)))
             except Exception:
                 return await q.answer("Failed to load leaderboard.")
 
             if not entries:
                 return await q.answer("No entries.")
 
-            txt_lines = [f"🏆 <b>Leaderboard — Points</b> — Page {page}\n"]
+            title = f"🏆 Leaderboard — Page {page}"
+            txt_lines = [f"<b>{title}</b>", ""]
             rank = start + 1
-            for name, rating, wins in entries:
-                txt_lines.append(f"{rank}. {html.escape(str(name))} — {rating} pts ")
+            for user_id, name, rating in entries:
+                display_name = str(name or user_id or "Unknown")
+                safe_name = html.escape(display_name)
+                score = f"{rating:,}"
+                txt_lines.append(f"{rank}. {safe_name} — <b>{score}</b> pts")
                 rank += 1
 
-            # determine total pages if possible
-            total_pages = None
             try:
-                if database.USE_MONGO is not None and database.COL_LEADERBOARD is not None:
-                    total = database.COL_LEADERBOARD.count_documents({})
-                    total_pages = (total + per_page - 1) // per_page
+                if database.USE_MONGO and collection is not None:
+                    total = collection.count_documents({"matches": {"$gt": 0}})
                 else:
                     if os.path.exists(database.LEADERBOARD_FILE):
                         with open(database.LEADERBOARD_FILE, "r", encoding="utf-8") as f:
-                            total = len(json.load(f))
-                            total_pages = (total + per_page - 1) // per_page
+                            total = sum(stats.get("matches", 0) > 0 for stats in json.load(f).values())
+                total_pages = max(1, (total + per_page - 1) // per_page)
             except Exception:
-                total_pages = None
+                total_pages = page
 
             kb = []
-            row = []
-            if row:
-                kb.append(row)
+            nav = []
+            if page > 1:
+                nav.append(InlineKeyboardButton("Prev", callback_data=f"leader_{page - 1}"))
+            if page < total_pages:
+                nav.append(InlineKeyboardButton("Next", callback_data=f"leader_{page + 1}"))
+            if nav:
+                kb.append(nav)
 
-            # toggle to wins view (keep same page)
-            kb.append([InlineKeyboardButton("Most Wins", callback_data=f"lb_toggle_wins_{page}")])
-
-            await q.edit_message_text("\n".join(txt_lines), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-            return
-
-        if data.startswith("lb_toggle_wins"):
-            # support lb_toggle_wins or lb_toggle_wins_{page}
-            try:
-                parts = data.split("_")
-                page = 1
-                if len(parts) > 2 and parts[-1].isdigit():
-                    page = int(parts[-1])
-            except Exception:
-                page = 1
-
-            per_page = 16
-            start = (page - 1) * per_page
-            end = start + per_page
-
-            entries = []
-            try:
-                if database.USE_MONGO is not None and database.COL_LEADERBOARD is not None:
-                    docs = list(database.COL_LEADERBOARD.find({}).sort("wins", -1).skip(start).limit(per_page))
-                    for d in docs:
-                        name = d.get("name") or str(d.get("user_id"))
-                        entries.append((name, d.get("rating", 0), d.get("wins", 0)))
-                else:
-                    if os.path.exists(database.LEADERBOARD_FILE):
-                        with open(database.LEADERBOARD_FILE, "r", encoding="utf-8") as f:
-                            data = json.load(f)
-                        sorted_users = sorted(data.items(), key=lambda x: x[1].get("wins", 0), reverse=True)
-                        for uid, stats in sorted_users[start:end]:
-                            entries.append((stats.get("name") or uid, stats.get("rating", 0), stats.get("wins", 0)))
-            except Exception as e:
-                print(e)
-                return await q.answer("Failed to load leaderboard.")
-
-            if not entries:
-                return await q.answer("No entries.")
-
-            txt_lines = [f"🏆 <b>Leaderboard — Most Wins</b> — Page {page}\n"]
-            rank = start + 1
-            for name, rating, wins in entries:
-                txt_lines.append(f"{rank}. {html.escape(str(name))} — {wins} wins ")
-                rank += 1
-
-            # nav
-            total_pages = None
-            try:
-                if database.USE_MONGO is not None and database.COL_LEADERBOARD is not None:
-                    total = database.COL_LEADERBOARD.count_documents({})
-                    total_pages = (total + per_page - 1) // per_page
-                else:
-                    if os.path.exists(database.LEADERBOARD_FILE):
-                        with open(database.LEADERBOARD_FILE, "r", encoding="utf-8") as f:
-                            total = len(json.load(f))
-                            total_pages = (total + per_page - 1) // per_page
-            except Exception:
-                total_pages = None
-
-            kb = []
-            row = []
-            if row:
-                kb.append(row)
-
-            # button to go back to points view
-            kb.append([InlineKeyboardButton("Points", callback_data=f"leader_{page}")])
-
-            await q.edit_message_text("\n".join(txt_lines), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+            await q.edit_message_text(
+                "\n".join(txt_lines),
+                reply_markup=InlineKeyboardMarkup(kb) if kb else None,
+                parse_mode=ParseMode.HTML,
+            )
             return
 
         # --- HANDLE CHARACTER VIEWER (Admin) ---
@@ -492,17 +461,8 @@ async def callbacks(c, q: CallbackQuery):
             
             p_name = game[pkey]["name"]
             img_url = CHAR_IMAGES.get(f"{pokemon} | Pokemon")
-            txt = f"{ui.pokemon_get_team_display(game)}\n✨ <b>{p_name}</b> Pulled: <b>{pokemon}</b>"
-            if img_url:
-                try:
-                    await c.send_photo(
-                        q.message.chat.id,
-                        photo=img_url,
-                        caption=f"✨ <b>{p_name}</b> pulled <b>{pokemon}</b>",
-                        parse_mode=ParseMode.HTML,
-                    )
-                except Exception as exc:
-                    logging.warning("[PDRAFT] Could not send Pokemon image for %s: %s", pokemon, exc)
+            image_preview = f"<a href='{html.escape(img_url, quote=True)}'>&#160;</a>" if img_url else ""
+            txt = f"{image_preview}{ui.pokemon_get_team_display(game)}\n✨ <b>{html.escape(p_name)}</b> Pulled: <b>{html.escape(pokemon)}</b>"
             await ui.ensure_display_message(c, q.message.chat.id, game, txt, kb, preview=True)
 
         elif action == "pset":

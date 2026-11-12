@@ -3,7 +3,7 @@ import os
 # --- CREDENTIALS ---
 API_ID = 25695711
 API_HASH = "f20065cc26d4a31bf0efc0b44edaffa9"
-BOT_TOKEN = "8794415049:AAEfJWHRcq1iEnB107GReX2DEDEJFS4QYss"
+BOT_TOKEN = "8322954992:AAEBxrBl7q5s8l9YoBrpX804Callvc3KcCw"
 # Image/catalog source: this database is read-only to the bot.  It is used to
 # obtain existing character artwork and metadata, never for game state.
 IMAGE_MONGO_URI = os.getenv("IMAGE_MONGO_URI", "mongodb+srv://yesvashisht2005_db_user:yash2005@cluster0.nd8dam5.mongodb.net/?appName=Cluster0")
@@ -119,7 +119,6 @@ TYPE_CHART = {
 }
 
 # --- MERGED BOTS CONFIGURATION ---
-DAILY_COINS = 500
+DAILY_COINS = 200
 DUEL_WIN_COINS = 200
 DUEL_LOSE_COINS = 50
-

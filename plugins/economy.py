@@ -1,10 +1,12 @@
 import math
 import time
 import html
+import logging
 from bson import ObjectId
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from pyrogram.enums import ParseMode
+from pyrogram.errors import RPCError
 
 import database
 import config
@@ -73,20 +75,33 @@ async def daily_command(client, message):
         )
         return
 
-    reward = config.DAILY_COINS
+    try:
+        profile = await client.get_chat(user.id)
+    except (RPCError, ValueError):
+        logging.exception("[DAILY] Could not verify bio for user %s", user.id)
+        return await message.reply_text("❌ Couldn't verify your bio right now, so your daily wasn't claimed. Please try again later.")
+
+    bio_bonus = 100 if "@anime_draft_bot" in (getattr(profile, "bio", "") or "").casefold() else 0
+    reward = config.DAILY_COINS + bio_bonus
     new_coins = doc.get("coins", 0) + reward
     database.COL_WAIFU_USERS.update_one(
         {"id": user.id},
         {"$inc": {"coins": reward}, "$set": {"last_daily": now, "bounty": new_coins}},
     )
+    reward_rows = [("Daily reward", f"{config.DAILY_COINS:,} 🪙")]
+    if bio_bonus:
+        reward_rows.append(("Bio bonus", f"+{bio_bonus:,} 🪙"))
     card = rich_ui.build_rich_card(
         title="🎁 Daily Reward Claimed!",
-        badges=[f"+{reward:,} Coins", "Daily Streak"],
-        table_data=[
-            ("Claimed", f"{reward:,} 🪙"),
+        badges=[f"+{reward:,} Coins"],
+        table_data=reward_rows + [
             ("New Balance", f"{new_coins:,} 🪙")
         ],
-        footer="Come back in 24 hours for your next reward!"
+        footer=(
+            "Bio bonus added for @anime_draft_bot! Come back in 24 hours."
+            if bio_bonus
+            else "Add @anime_draft_bot to your bio for a +100 coin daily bonus. Come back in 24 hours."
+        )
     )
     await rich_ui.send_rich_message(client, message.chat.id, card)
 

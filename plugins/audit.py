@@ -6,12 +6,25 @@ details. Ordinary message content and configuration secrets are never copied.
 
 import html
 import logging
+import re
 from datetime import datetime, timezone
 
 from pyrogram import Client, filters
 from pyrogram.enums import ParseMode
 
 import config
+
+BOT_COMMANDS = {
+    'about', 'acast', 'add', 'add_comic', 'add_sudo', 'addpoints', 'alist',
+    'answer', 'aucadd', 'auction', 'auction_cancel', 'auction_help',
+    'auction_stats', 'backupdb', 'balance', 'bid', 'bounty', 'cancelgame',
+    'cdraft', 'characters', 'clone', 'comicimg', 'commands', 'cmds', 'daily',
+    'delchar', 'delseries', 'docq', 'draft', 'draft_v2', 'duel', 'exportdb',
+    'fight', 'gift', 'grouptop', 'groups', 'groups_stats', 'guide', 'leaderboard',
+    'mods', 'newyear', 'pdraft', 'plunder', 'pokemondraft', 'profile', 'punk',
+    'rps', 'roulette', 'shambles', 'start', 'status', 'sudo', 'top', 'topglobal',
+    'topgroup', 'whoswho',
+}
 
 
 def _chat_label(chat):
@@ -60,8 +73,18 @@ async def log_event(client, event, *, actor=None, chat=None, details=None):
     group=-100,
 )
 async def audit_command_invocation(client, message):
-    """Track every bot command globally, without storing its arguments."""
+    """Track recognized commands for this bot without storing their arguments."""
     if not message.from_user or message.from_user.is_bot:
         return
-    command = (message.text or '/unknown').split(maxsplit=1)[0][1:].split('@', 1)[0].lower()
+    match = re.match(r'^/([A-Za-z][A-Za-z0-9_]*)(?:@([A-Za-z0-9_]+))?(?:\s|$)', message.text or '')
+    if not match:
+        return
+    command = match.group(1).lower()
+    target_username = match.group(2)
+    if command not in BOT_COMMANDS:
+        return
+    if target_username:
+        bot = await client.get_me()
+        if target_username.casefold() != (bot.username or '').casefold():
+            return
     await log_event(client, 'COMMAND USED', actor=message.from_user, chat=message.chat, details=f'/{command}')

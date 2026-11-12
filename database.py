@@ -235,16 +235,14 @@ def init_mongo():
             COL_PRIVATE_USERS.create_index('user_id', unique=True)
         except: pass
 
-        # Seed the checked-in auction-only CSV. It never modifies the legacy
-        # character catalog; its image URLs were copied from that catalog.
-        try:
-            from auction_catalog import AUCTION_CHARACTER_POOL
-            for character in AUCTION_CHARACTER_POOL:
-                COL_AUCTION_CHARACTER_POOL.update_one(
-                    {'pool_id': character['pool_id']}, {'$set': character}, upsert=True,
-                )
-        except Exception as exc:
-            logging.exception('Could not seed auction character pool: %s', exc)
+        auction_pool_size = COL_AUCTION_CHARACTER_POOL.count_documents({
+            'roster': 'auction_roster_v1',
+            'enabled': True,
+        })
+        if auction_pool_size:
+            logging.info("Loaded %s auction roster characters from MongoDB.", auction_pool_size)
+        else:
+            logging.error("MongoDB auction character pool is empty; check the game database.")
 
         USE_MONGO = True
         logging.info("✅ Connected to game MongoDB (%s); image catalog is read-only (%s).", MONGO_DB_NAME, IMAGE_MONGO_DB_NAME)
