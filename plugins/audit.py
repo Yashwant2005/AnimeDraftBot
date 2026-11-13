@@ -4,6 +4,7 @@ Only action metadata is sent: command, actor, source chat, and safe result
 details. Ordinary message content and configuration secrets are never copied.
 """
 
+import asyncio
 import html
 import logging
 import re
@@ -87,4 +88,6 @@ async def audit_command_invocation(client, message):
         bot = await client.get_me()
         if target_username.casefold() != (bot.username or '').casefold():
             return
-    await log_event(client, 'COMMAND USED', actor=message.from_user, chat=message.chat, details=f'/{command}')
+    asyncio.create_task(
+        log_event(client, 'COMMAND USED', actor=message.from_user, chat=message.chat, details=f'/{command}')
+    )

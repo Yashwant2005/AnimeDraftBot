@@ -1,7 +1,10 @@
 """Privacy-preserving public group activity directory."""
 
+import asyncio
 import html
 import logging
+import threading
+import time
 
 from pyrogram import Client, filters
 from pyrogram.enums import ParseMode
@@ -14,7 +17,21 @@ from utils import is_admin
 
 PAGE_SIZE = 5
 MAX_GROUPS = 15
+GROUP_CACHE_TTL_SECONDS = 6 * 60 * 60
 _VALID_MEMBER_STATUSES = {'owner', 'administrator', 'member', 'restricted'}
+_GROUP_CACHE = {}
+_GROUP_CACHE_REFRESHING = {}
+_GROUP_CACHE_EPOCH = {}
+_GROUP_CACHE_LOCK = threading.Lock()
+
+
+def _keep_cached_group_after_verification_error(group, exc):
+    error = str(exc).upper()
+    if any(reason in error for reason in ('CHANNEL_INVALID', 'CHANNEL_PRIVATE', 'USER_NOT_PARTICIPANT')):
+        database.set_group_membership(group['chat_id'], False)
+        return None
+    logging.warning('[GROUPS] Could not refresh cached membership for %s: %s', group.get('chat_id'), exc)
+    return group
 
 
 def _mode_from_message(message):
@@ -31,31 +48,35 @@ def _status_is_member(member):
 
 async def _verify_group(client, group, bot_id=None):
     """Verify both bot membership and public username with Telegram before display."""
-    try:
-        chat_id = group['chat_id']
-        if bot_id is None:
+    chat_id = group['chat_id']
+    if bot_id is None:
+        try:
             bot_id = (await client.get_me()).id
-        member = await client.get_chat_member(chat_id, bot_id)
-        if not _status_is_member(member):
-            database.set_group_membership(chat_id, False)
-            return None
-        chat = await client.get_chat(chat_id)
-        username = getattr(chat, 'username', None)
-        if not username:
-            # A group that lost its username became private. Do not list it.
-            database.set_group_membership(chat_id, True, title=getattr(chat, 'title', None), username='')
-            return None
-        database.set_group_membership(chat_id, True, title=chat.title, username=username)
-        group.update({'title': chat.title, 'public_username': username, 'public_link': f'https://t.me/{username}'})
-        return group
+        except Exception as exc:
+            return _keep_cached_group_after_verification_error(group, exc)
+    chat_ref = group.get('public_username') or chat_id
+    try:
+        member = await client.get_chat_member(chat_ref, bot_id)
     except Exception as exc:
-        # Inability to verify is treated as ineligible, never as permission to expose it.
-        logging.info('[GROUPS] Membership verification failed for %s: %s', group.get('chat_id'), exc)
-        database.set_group_membership(group['chat_id'], False)
+        return _keep_cached_group_after_verification_error(group, exc)
+    if not _status_is_member(member):
+        database.set_group_membership(chat_id, False)
         return None
+    try:
+        chat = await client.get_chat(chat_ref)
+    except Exception as exc:
+        return _keep_cached_group_after_verification_error(group, exc)
+    username = getattr(chat, 'username', None)
+    if not username:
+        # A group that lost its username became private. Do not list it.
+        database.set_group_membership(chat_id, True, title=getattr(chat, 'title', None), username='')
+        return None
+    database.set_group_membership(chat_id, True, title=chat.title, username=username)
+    group.update({'title': chat.title, 'public_username': username, 'public_link': f'https://t.me/{username}'})
+    return group
 
 
-async def _verified_groups(client, mode):
+async def _refresh_verified_groups(client, mode):
     candidates = database.get_group_activity_candidates(mode, limit=60)
     groups = []
     bot_id = (await client.get_me()).id
@@ -66,6 +87,66 @@ async def _verified_groups(client, mode):
         if len(groups) >= MAX_GROUPS:
             break
     return groups
+
+
+async def _refresh_group_cache(client, mode, cache_key, cache_epoch):
+    try:
+        groups = await _refresh_verified_groups(client, mode)
+        with _GROUP_CACHE_LOCK:
+            if _GROUP_CACHE_EPOCH.get(cache_key[0], 0) == cache_epoch:
+                _GROUP_CACHE[cache_key] = {
+                    'groups': groups,
+                    'expires_at': time.monotonic() + GROUP_CACHE_TTL_SECONDS,
+                }
+                logging.info('[GROUPS] Refreshed %s cached groups for %s', len(groups), mode)
+    except Exception:
+        logging.exception('[GROUPS] Could not refresh cached %s directory', mode)
+        with _GROUP_CACHE_LOCK:
+            if _GROUP_CACHE_EPOCH.get(cache_key[0], 0) == cache_epoch:
+                cached = _GROUP_CACHE.get(cache_key)
+                if cached:
+                    cached['expires_at'] = time.monotonic() + GROUP_CACHE_TTL_SECONDS
+    finally:
+        with _GROUP_CACHE_LOCK:
+            if _GROUP_CACHE_REFRESHING.get(cache_key) == cache_epoch:
+                _GROUP_CACHE_REFRESHING.pop(cache_key, None)
+
+
+async def _verified_groups(client, mode):
+    cache_key = (id(client), mode)
+    now = time.monotonic()
+    with _GROUP_CACHE_LOCK:
+        cached = _GROUP_CACHE.get(cache_key)
+        if cached and now < cached['expires_at']:
+            return list(cached['groups'])
+
+    if not cached:
+        # Use the last persisted public-group snapshot immediately on cold start.
+        candidates = database.get_group_activity_candidates(mode, limit=MAX_GROUPS)
+        with _GROUP_CACHE_LOCK:
+            cached = _GROUP_CACHE.setdefault(cache_key, {
+                'groups': candidates,
+                'expires_at': time.monotonic() + GROUP_CACHE_TTL_SECONDS,
+            })
+
+    with _GROUP_CACHE_LOCK:
+        cache_epoch = _GROUP_CACHE_EPOCH.get(cache_key[0], 0)
+        should_refresh = _GROUP_CACHE_REFRESHING.get(cache_key) != cache_epoch
+        if should_refresh:
+            _GROUP_CACHE_REFRESHING[cache_key] = cache_epoch
+        groups = list(cached['groups'])
+
+    if should_refresh:
+        asyncio.create_task(_refresh_group_cache(client, mode, cache_key, cache_epoch))
+    return groups
+
+
+def _invalidate_group_cache(client):
+    client_key = id(client)
+    with _GROUP_CACHE_LOCK:
+        _GROUP_CACHE_EPOCH[client_key] = _GROUP_CACHE_EPOCH.get(client_key, 0) + 1
+        for key in [key for key in _GROUP_CACHE if key[0] == client_key]:
+            _GROUP_CACHE.pop(key, None)
 
 
 def _ranking_count(group, mode):
@@ -134,7 +215,7 @@ async def track_group_activity(_, message):
 
 
 @Client.on_chat_member_updated(group=-1)
-async def track_bot_membership(_, update):
+async def track_bot_membership(client, update):
     """Mark a tracked group ineligible as soon as Telegram reports the bot left."""
     try:
         user = getattr(update.new_chat_member, 'user', None)
@@ -142,6 +223,7 @@ async def track_bot_membership(_, update):
             database.set_group_membership(update.chat.id, _status_is_member(update.new_chat_member),
                                           title=getattr(update.chat, 'title', None),
                                           username=getattr(update.chat, 'username', None))
+            _invalidate_group_cache(client)
     except Exception:
         logging.exception('[GROUPS] Could not process bot membership update')
 
@@ -160,7 +242,7 @@ async def groups_command(client, message):
 async def groups_pagination_callback(client, callback_query):
     mode = callback_query.matches[0].group(1)
     page = int(callback_query.matches[0].group(2))
-    await callback_query.answer('Refreshing verified group data…')
+    await callback_query.answer('Showing cached group data.')
     await _send_or_edit_listing(client, callback_query, mode, page, edit=True)
 
 
@@ -220,5 +302,6 @@ async def groups_admin_refresh_callback(client, callback_query):
         return await callback_query.answer('Admin only.', show_alert=True)
     await callback_query.answer('Verifying tracked groups…')
     checked, removed = await _refresh_all_memberships(client)
+    _invalidate_group_cache(client)
     await callback_query.message.reply_text(f'✅ Membership refresh complete. Checked {checked}; excluded {removed} unavailable or private groups.')
 

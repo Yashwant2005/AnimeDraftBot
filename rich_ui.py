@@ -397,7 +397,7 @@ def _api_call(token, method, payload):
         url, data=json.dumps(payload).encode("utf-8"), headers={"Content-Type": "application/json"}
     )
     try:
-        with urllib.request.urlopen(req, timeout=10) as response:
+        with urllib.request.urlopen(req, timeout=3) as response:
             return json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         try:
@@ -419,7 +419,6 @@ def _rich_payload(body_html, rows, photo_id, skip_entities=False):
 
 
 _NO_RETRY = ("not found", "can't be edited", "forbidden", "blocked", "kicked", "chat not", "not enough rights")
-
 
 async def _rich_call(token, method, base_payload, body_html, rows, photo_id):
     """Call a rich method with a retry ladder:
@@ -448,10 +447,8 @@ async def _rich_call(token, method, base_payload, body_html, rows, photo_id):
             logging.warning("[RICH_UI] %s rejected (%s); retrying with cleaned text", method, result.get("description"))
             result = await asyncio.to_thread(_api_call, token, method, build(hard_clean_html(body_html), True))
             continue
-        if not code:  # network error / timeout: one more try
-            logging.warning("[RICH_UI] %s network error (%s); retrying", method, result.get("description"))
-            result = await asyncio.to_thread(_api_call, token, method, build(body_html, False))
-            continue
+        if not code:
+            logging.warning("[RICH_UI] %s network error (%s); using standard message fallback", method, result.get("description"))
         break
     return result
 
@@ -673,9 +670,25 @@ async def send_rich_message(client, chat_id, text, reply_markup=None, ephemeral_
         return None
 
 async def edit_rich_message(client, chat_id, message_id, text, reply_markup=None, parse_mode=ParseMode.HTML, preview=False):
-    """Edits a rich message using Pyrogram client or HTTP Bot API fallback."""
+    """Edit through the connected client, falling back to HTTP if necessary."""
     markup = format_rich_keyboard(reply_markup)
     token = getattr(client, "bot_token", None)
+
+    try:
+        await client.edit_message_text(
+            chat_id=chat_id,
+            message_id=message_id,
+            text=text,
+            reply_markup=markup,
+            parse_mode=parse_mode,
+            disable_web_page_preview=not preview
+        )
+        return True
+    except Exception as e:
+        err_str = str(e).lower()
+        if "not modified" in err_str or "message_not_modified" in err_str:
+            return True
+        logging.debug(f"[RICH_UI] Pyrogram edit_message_text failed: {e}")
 
     if token:
         try:
@@ -707,7 +720,7 @@ async def edit_rich_message(client, chat_id, message_id, text, reply_markup=None
                     data=json.dumps(payload).encode("utf-8"),
                     headers={"Content-Type": "application/json"}
                 )
-                with urllib.request.urlopen(req, timeout=5) as response:
+                with urllib.request.urlopen(req, timeout=3) as response:
                     if response.status == 200:
                         return json.loads(response.read().decode("utf-8"))
                 return None
@@ -715,22 +728,8 @@ async def edit_rich_message(client, chat_id, message_id, text, reply_markup=None
             resp_data = await asyncio.to_thread(_do_http_edit)
             if resp_data and resp_data.get("ok"):
                 return True
-        except Exception as e:
-            logging.debug(f"[RICH_UI] HTTP editMessageText failed: {e}, falling back to Pyrogram")
+            logging.error("[RICH_UI] HTTP editMessageText failed: %s", (resp_data or {}).get("description", "no response"))
+        except Exception as exc:
+            logging.error("[RICH_UI] HTTP editMessageText failed: %s", exc)
 
-    try:
-        await client.edit_message_text(
-            chat_id=chat_id,
-            message_id=message_id,
-            text=text,
-            reply_markup=markup,
-            parse_mode=parse_mode,
-            disable_web_page_preview=not preview
-        )
-        return True
-    except Exception as e:
-        err_str = str(e).lower()
-        if "not modified" in err_str or "message_not_modified" in err_str:
-            return True
-        logging.debug(f"[RICH_UI] Pyrogram edit_message_text error: {e}")
-        return False
+    return False

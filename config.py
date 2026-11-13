@@ -32,9 +32,9 @@ AUCTION_SELECTION_TIMEOUT_SECONDS = int(os.getenv("AUCTION_SELECTION_TIMEOUT_SEC
 AUCTION_WAITING_TIMEOUT_SECONDS = int(os.getenv("AUCTION_WAITING_TIMEOUT_SECONDS", "300"))
 AUCTION_STALE_TIMEOUT_SECONDS = int(os.getenv("AUCTION_STALE_TIMEOUT_SECONDS", "900"))
 
-# Central private audit feed. Set AUDIT_LOG_CHAT_ID=0 to disable Telegram
-# audit messages while keeping the normal local bot.log file.
-AUDIT_LOG_CHAT_ID = int(os.getenv("AUDIT_LOG_CHAT_ID", "-1003972934720"))
+# Optional private audit feed. Set AUDIT_LOG_CHAT_ID to its chat ID to enable
+# Telegram audit messages; 0 disables Telegram audit delivery.
+AUDIT_LOG_CHAT_ID = int(os.getenv("AUDIT_LOG_CHAT_ID", "0"))
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyBqc-Ws0SHRblCsp_qNUUtgoNUIT1FNRok")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 

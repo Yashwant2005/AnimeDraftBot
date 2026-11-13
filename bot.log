@@ -283,3 +283,598 @@
 2026-11-13 20:05:17,759 - root - INFO - [HANDLER] callbacks called
 2026-11-13 20:05:17,867 - root - INFO - [HANDLER] callbacks completed in 0.11s
 2026-11-13 20:07:20,758 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 20:07:20] "GET / HTTP/1.1" 200 -
+2026-11-13 21:11:12,072 - root - INFO - Initializing Database and Data...
+2026-11-13 21:11:17,213 - root - INFO - Loaded 228 auction roster characters from MongoDB.
+2026-11-13 21:11:17,214 - root - INFO - ✅ Connected to game MongoDB (anime_draft_game); image catalog is read-only (anime_bot).
+2026-11-13 21:11:18,319 - root - INFO - ✅ Loaded 5847 characters.
+2026-11-13 21:11:18,337 - root - INFO - ✅ Loaded 727 Pokémon.
+2026-11-13 21:11:18,712 - root - INFO - ✅ Loaded 505 Marvel characters with 11 series.
+2026-11-13 21:11:18,713 - root - INFO - Starting Web Server...
+2026-11-13 21:11:18,716 - root - INFO - Starting Background Threads...
+2026-11-13 21:11:18,788 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.29.224:8000
+2026-11-13 21:11:18,788 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-11-13 21:11:18,997 - root - INFO - [CLONE] Cleared runtime stats for saved clone 7074080974
+2026-11-13 21:11:18,998 - root - INFO - [CLONE] Startup cleared runtime stats for 1/1 saved clones; auto-start skipped.
+2026-11-13 21:11:18,998 - root - INFO - [CLONE] Startup auto-initialization disabled; saved clones will not be restored on restart.
+2026-11-13 21:11:18,999 - root - INFO - Starting Pyrogram Client...
+2026-11-13 21:11:20,653 - pyrogram.session.auth - INFO - Start creating a new auth key on DC2
+2026-11-13 21:11:20,654 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 21:11:20,782 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 21:11:20] "[35m[1mGET / HTTP/1.1[0m" 503 -
+2026-11-13 21:11:20,783 - root - WARNING - Keepalive request failed: HTTP Error 503: SERVICE UNAVAILABLE
+2026-11-13 21:11:20,861 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2026-11-13 21:11:22,734 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2026-11-13 21:11:22,735 - pyrogram.connection.connection - INFO - Disconnected
+2026-11-13 21:11:22,820 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 21:11:23,038 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2026-11-13 21:11:23,040 - pyrogram.session.session - INFO - NetworkTask started
+2026-11-13 21:11:23,934 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-11-13 21:11:23,934 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-11-13 21:11:23,935 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-11-13 21:11:23,935 - pyrogram.session.session - INFO - Session started
+2026-11-13 21:11:23,942 - pyrogram.session.session - INFO - PingTask started
+2026-11-13 21:11:24,171 - pyrogram.session.session - INFO - PingTask stopped
+2026-11-13 21:11:24,172 - pyrogram.connection.connection - INFO - Disconnected
+2026-11-13 21:11:24,172 - pyrogram.session.session - INFO - NetworkTask stopped
+2026-11-13 21:11:24,172 - pyrogram.session.session - INFO - Session stopped
+2026-11-13 21:11:24,208 - pyrogram.session.auth - INFO - Start creating a new auth key on DC5
+2026-11-13 21:11:24,208 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 21:11:24,327 - pyrogram.connection.connection - INFO - Connected! Production DC5 - IPv4
+2026-11-13 21:11:26,129 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2026-11-13 21:11:26,130 - pyrogram.connection.connection - INFO - Disconnected
+2026-11-13 21:11:26,176 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 21:11:26,295 - pyrogram.connection.connection - INFO - Connected! Production DC5 - IPv4
+2026-11-13 21:11:26,296 - pyrogram.session.session - INFO - NetworkTask started
+2026-11-13 21:11:26,888 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-11-13 21:11:26,889 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-11-13 21:11:26,891 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-11-13 21:11:26,891 - pyrogram.session.session - INFO - Session started
+2026-11-13 21:11:26,892 - pyrogram.session.session - INFO - PingTask started
+2026-11-13 21:11:27,392 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delchar_command") in group 0 from "plugins.admin"
+2026-11-13 21:11:27,396 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delseries_command") in group 0 from "plugins.admin"
+2026-11-13 21:11:27,399 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("deletion_confirmation_callback") in group 0 from "plugins.admin"
+2026-11-13 21:11:27,400 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("draft_add_approval_cb") in group 0 from "plugins.admin"
+2026-11-13 21:11:27,400 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("acast_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:11:27,400 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_char_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:11:27,400 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("addpoints_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:11:27,401 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("newyear_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:11:27,401 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comicimg_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:11:27,401 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_comic_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:11:27,401 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("characters_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:11:27,402 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sudo_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:11:27,402 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("mods_list_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:11:27,424 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_command") in group 0 from "plugins.auction"
+2026-11-13 21:11:27,430 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("auction_callback") in group 0 from "plugins.auction"
+2026-11-13 21:11:27,432 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("custom_bid_command") in group 0 from "plugins.auction"
+2026-11-13 21:11:27,433 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("distribution_callback") in group 0 from "plugins.auction"
+2026-11-13 21:11:27,433 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("fighter_selection_callback") in group 0 from "plugins.auction"
+2026-11-13 21:11:27,435 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_cancel_command") in group 0 from "plugins.auction"
+2026-11-13 21:11:27,436 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_stats_command") in group 0 from "plugins.auction"
+2026-11-13 21:11:27,437 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_help_command") in group 0 from "plugins.auction"
+2026-11-13 21:11:27,438 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_add_character_command") in group 0 from "plugins.auction"
+2026-11-13 21:11:27,438 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_series_list_command") in group 0 from "plugins.auction"
+2026-11-13 21:11:27,439 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("auction_series_list_callback") in group 0 from "plugins.auction"
+2026-11-13 21:11:27,439 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("audit_command_invocation") in group -100 from "plugins.audit"
+2026-11-13 21:11:27,977 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bounty_command") in group 0 from "plugins.bounty"
+2026-11-13 21:11:27,979 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("poster_callback") in group 0 from "plugins.bounty"
+2026-11-13 21:11:27,983 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("fight_command") in group 0 from "plugins.bounty"
+2026-11-13 21:11:27,984 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("plunder_command") in group 0 from "plugins.bounty"
+2026-11-13 21:11:28,014 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("callbacks") in group 0 from "plugins.callbacks"
+2026-11-13 21:11:28,037 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("start_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,039 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("start_draft_hint_callback") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,040 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("guide_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,040 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("about_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,041 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("guide_cb") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,044 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("commands_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,044 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("commands_cb") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,046 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("list_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,046 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("profile_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,047 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("clone_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,047 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_sudo_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,047 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("status_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,048 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("leaderboard_switch_callback") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,048 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("leaderboard_entry_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:11:28,072 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("createcrew_command") in group 0 from "plugins.crew"
+2026-11-13 21:11:28,074 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("joincrew_command") in group 0 from "plugins.crew"
+2026-11-13 21:11:28,074 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("disbandcrew_command") in group 0 from "plugins.crew"
+2026-11-13 21:11:28,074 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("crew_command") in group 0 from "plugins.crew"
+2026-11-13 21:11:28,090 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("draft_mode_picker_callback") in group 0 from "plugins.draft"
+2026-11-13 21:11:28,093 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("draft_cmd") in group 0 from "plugins.draft"
+2026-11-13 21:11:28,094 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("pokemon_draft_cmd") in group 0 from "plugins.draft"
+2026-11-13 21:11:28,096 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comic_draft_cmd") in group 0 from "plugins.draft"
+2026-11-13 21:11:28,110 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("duel_command") in group 0 from "plugins.duel"
+2026-11-13 21:11:28,114 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("duel_pick_a_callback") in group 0 from "plugins.duel"
+2026-11-13 21:11:28,115 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("duel_pick_b_callback") in group 0 from "plugins.duel"
+2026-11-13 21:11:28,130 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("balance_command") in group 0 from "plugins.economy"
+2026-11-13 21:11:28,130 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("daily_command") in group 0 from "plugins.economy"
+2026-11-13 21:11:28,132 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sell_command") in group 0 from "plugins.economy"
+2026-11-13 21:11:28,133 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("market_command") in group 0 from "plugins.economy"
+2026-11-13 21:11:28,133 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("market_page_callback") in group 0 from "plugins.economy"
+2026-11-13 21:11:28,134 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("buy_command") in group 0 from "plugins.economy"
+2026-11-13 21:11:28,135 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delist_command") in group 0 from "plugins.economy"
+2026-11-13 21:11:28,165 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("export_db_cmd") in group 0 from "plugins.export_db"
+2026-11-13 21:11:28,195 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("cb_guess_lobby") in group 0 from "plugins.games"
+2026-11-13 21:11:28,195 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_cancel_guess_game") in group 0 from "plugins.games"
+2026-11-13 21:11:28,196 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_shambles") in group 0 from "plugins.games"
+2026-11-13 21:11:28,197 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_whoswho") in group 0 from "plugins.games"
+2026-11-13 21:11:28,197 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_gol") in group 0 from "plugins.games"
+2026-11-13 21:11:28,198 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("cb_gol") in group 0 from "plugins.games"
+2026-11-13 21:11:28,198 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_punk") in group 0 from "plugins.games"
+2026-11-13 21:11:28,198 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_answer") in group 0 from "plugins.games"
+2026-11-13 21:11:28,211 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("track_group_activity") in group -1 from "plugins.groups"
+2026-11-13 21:11:28,217 - pyrogram.client - INFO - [anime_bot] [LOAD] ChatMemberUpdatedHandler("track_bot_membership") in group -1 from "plugins.groups"
+2026-11-13 21:11:28,218 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("groups_command") in group 0 from "plugins.groups"
+2026-11-13 21:11:28,218 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("groups_pagination_callback") in group 0 from "plugins.groups"
+2026-11-13 21:11:28,228 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("groups_stats_command") in group 0 from "plugins.groups"
+2026-11-13 21:11:28,233 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("groups_admin_refresh_callback") in group 0 from "plugins.groups"
+2026-11-13 21:11:28,265 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("docq_command") in group 0 from "plugins.minigames"
+2026-11-13 21:11:28,268 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("docq_callback") in group 0 from "plugins.minigames"
+2026-11-13 21:11:28,268 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("roulette_command") in group 0 from "plugins.minigames"
+2026-11-13 21:11:28,269 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("roulette_callback") in group 0 from "plugins.minigames"
+2026-11-13 21:11:28,269 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("rps_command") in group 0 from "plugins.minigames"
+2026-11-13 21:11:28,269 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("rps_callback") in group 0 from "plugins.minigames"
+2026-11-13 21:11:28,280 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("prediction_command") in group 0 from "plugins.prediction"
+2026-11-13 21:11:28,280 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bet_command") in group 0 from "plugins.prediction"
+2026-11-13 21:11:28,281 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("pred_bet_callback") in group 0 from "plugins.prediction"
+2026-11-13 21:11:28,282 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("resolveprediction_command") in group 0 from "plugins.prediction"
+2026-11-13 21:11:28,282 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cancelprediction_command") in group 0 from "plugins.prediction"
+2026-11-13 21:11:28,289 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("gift_command") in group 0 from "plugins.trade"
+2026-11-13 21:11:28,289 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("gift_callback") in group 0 from "plugins.trade"
+2026-11-13 21:11:28,290 - pyrogram.client - INFO - [anime_bot] Successfully loaded 90 plugins from "plugins"
+2026-11-13 21:11:28,291 - pyrogram.dispatcher - INFO - Started 24 HandlerTasks
+2026-11-13 21:11:28,293 - root - INFO - Telegram bot is online and polling updates.
+2026-11-13 21:11:30,493 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:11:30,493 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:11:30,560 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:11:38,177 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:11:38,179 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:11:38,272 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:11:41,784 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:11:41,786 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:11:41,856 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:11:50,501 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:11:50,502 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:11:50,595 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:11:58,874 - root - INFO - [CMD] /profile invoked by 6265981509
+2026-11-13 21:12:19,622 - root - INFO - [CMD] /profile invoked by 6265981509
+2026-11-13 21:12:22,259 - root - INFO - [CMD] /profile invoked by 6265981509
+2026-11-13 21:12:24,248 - root - INFO - [CMD] /profile invoked by 6265981509
+2026-11-13 21:12:26,154 - root - INFO - [CMD] /profile invoked by 6265981509
+2026-11-13 21:12:38,182 - root - INFO - [CMD] /commands invoked by 6265981509
+2026-11-13 21:12:39,333 - root - INFO - [CMD] /commands invoked by 6265981509
+2026-11-13 21:12:40,647 - root - INFO - [CMD] /commands invoked by 6265981509
+2026-11-13 21:12:44,404 - root - INFO - [CMD] /guide invoked by 6265981509
+2026-11-13 21:12:55,964 - root - INFO - [HANDLER] callbacks called
+2026-11-13 21:12:58,543 - root - INFO - [HANDLER] callbacks completed in 2.58s
+2026-11-13 21:12:59,385 - root - INFO - [HANDLER] callbacks called
+2026-11-13 21:13:00,401 - root - INFO - [HANDLER] callbacks called
+2026-11-13 21:13:01,615 - root - INFO - [HANDLER] callbacks completed in 1.21s
+2026-11-13 21:13:10,445 - root - INFO - [HANDLER] callbacks completed in 11.06s
+2026-11-13 21:14:31,592 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:14:31,593 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:14:31,653 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:14:35,948 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:14:35,948 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:14:36,041 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:16:22,837 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 21:16:22] "GET / HTTP/1.1" 200 -
+2026-11-13 21:17:00,161 - root - INFO - [GROUPS] Membership verification failed for -1003843106392: Peer id invalid: -1003843106392
+2026-11-13 21:17:00,235 - root - INFO - [GROUPS] Membership verification failed for -1002735367151: Peer id invalid: -1002735367151
+2026-11-13 21:17:00,328 - root - INFO - [GROUPS] Membership verification failed for -1003291474024: Peer id invalid: -1003291474024
+2026-11-13 21:17:00,423 - root - INFO - [GROUPS] Membership verification failed for -1003857697527: Peer id invalid: -1003857697527
+2026-11-13 21:17:00,514 - root - INFO - [GROUPS] Membership verification failed for -1003905162051: Peer id invalid: -1003905162051
+2026-11-13 21:17:00,591 - root - INFO - [GROUPS] Membership verification failed for -1002671504579: Peer id invalid: -1002671504579
+2026-11-13 21:17:00,653 - root - INFO - [GROUPS] Membership verification failed for -1004376328195: Peer id invalid: -1004376328195
+2026-11-13 21:17:00,747 - root - INFO - [GROUPS] Membership verification failed for -1003380967549: Peer id invalid: -1003380967549
+2026-11-13 21:17:00,840 - root - INFO - [GROUPS] Membership verification failed for -1002855458451: Peer id invalid: -1002855458451
+2026-11-13 21:17:00,932 - root - INFO - [GROUPS] Membership verification failed for -1003875553143: Peer id invalid: -1003875553143
+2026-11-13 21:17:01,010 - root - INFO - [GROUPS] Membership verification failed for -1003873399030: Peer id invalid: -1003873399030
+2026-11-13 21:17:01,079 - root - INFO - [GROUPS] Membership verification failed for -1003974767688: Peer id invalid: -1003974767688
+2026-11-13 21:17:01,782 - root - INFO - [GROUPS] Membership verification failed for -1002454723830: Peer id invalid: -1002454723830
+2026-11-13 21:17:02,002 - root - INFO - [GROUPS] Membership verification failed for -1001931294223: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 21:17:02,064 - root - INFO - [GROUPS] Membership verification failed for -1004452059368: Peer id invalid: -1004452059368
+2026-11-13 21:17:02,129 - root - INFO - [GROUPS] Membership verification failed for -1002896799089: Peer id invalid: -1002896799089
+2026-11-13 21:17:02,199 - root - INFO - [GROUPS] Membership verification failed for -1003603092187: Peer id invalid: -1003603092187
+2026-11-13 21:17:02,278 - root - INFO - [GROUPS] Membership verification failed for -1003888609175: Peer id invalid: -1003888609175
+2026-11-13 21:17:02,354 - root - INFO - [GROUPS] Membership verification failed for -1003704089947: Peer id invalid: -1003704089947
+2026-11-13 21:17:02,446 - root - INFO - [GROUPS] Membership verification failed for -1003426754164: Peer id invalid: -1003426754164
+2026-11-13 21:17:02,509 - root - INFO - [GROUPS] Membership verification failed for -1004404874271: Peer id invalid: -1004404874271
+2026-11-13 21:17:02,570 - root - INFO - [GROUPS] Membership verification failed for -1002704602367: Peer id invalid: -1002704602367
+2026-11-13 21:17:02,630 - root - INFO - [GROUPS] Membership verification failed for -1004292633463: Peer id invalid: -1004292633463
+2026-11-13 21:17:02,692 - root - INFO - [GROUPS] Membership verification failed for -1003812876377: Peer id invalid: -1003812876377
+2026-11-13 21:17:02,770 - root - INFO - [GROUPS] Membership verification failed for -1003647635479: Peer id invalid: -1003647635479
+2026-11-13 21:17:02,833 - root - INFO - [GROUPS] Membership verification failed for -1002470250083: Peer id invalid: -1002470250083
+2026-11-13 21:17:02,896 - root - INFO - [GROUPS] Membership verification failed for -1004295666009: Peer id invalid: -1004295666009
+2026-11-13 21:17:02,960 - root - INFO - [GROUPS] Membership verification failed for -1003902127755: Peer id invalid: -1003902127755
+2026-11-13 21:17:03,039 - root - INFO - [GROUPS] Membership verification failed for -1004301440415: Peer id invalid: -1004301440415
+2026-11-13 21:17:03,129 - root - INFO - [GROUPS] Membership verification failed for -1003632091391: Peer id invalid: -1003632091391
+2026-11-13 21:17:03,223 - root - INFO - [GROUPS] Membership verification failed for -1002297320695: Peer id invalid: -1002297320695
+2026-11-13 21:17:03,299 - root - INFO - [GROUPS] Membership verification failed for -1004353701674: Peer id invalid: -1004353701674
+2026-11-13 21:17:04,199 - root - INFO - [GROUPS] Membership verification failed for -1003770034326: Peer id invalid: -1003770034326
+2026-11-13 21:17:04,292 - root - INFO - [GROUPS] Membership verification failed for -1003934988679: Peer id invalid: -1003934988679
+2026-11-13 21:17:04,384 - root - INFO - [GROUPS] Membership verification failed for -1002820271674: Peer id invalid: -1002820271674
+2026-11-13 21:17:04,478 - root - INFO - [GROUPS] Membership verification failed for -1004470975421: Peer id invalid: -1004470975421
+2026-11-13 21:17:04,571 - root - INFO - [GROUPS] Membership verification failed for -1004401537279: Peer id invalid: -1004401537279
+2026-11-13 21:17:04,666 - root - INFO - [GROUPS] Membership verification failed for -1003906875047: Peer id invalid: -1003906875047
+2026-11-13 21:17:04,881 - root - INFO - [GROUPS] Membership verification failed for -1001693032196: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 21:17:04,962 - root - INFO - [GROUPS] Membership verification failed for -1002395285684: Peer id invalid: -1002395285684
+2026-11-13 21:17:05,035 - root - INFO - [GROUPS] Membership verification failed for -1002216969649: Peer id invalid: -1002216969649
+2026-11-13 21:17:05,097 - root - INFO - [GROUPS] Membership verification failed for -1003633960079: Peer id invalid: -1003633960079
+2026-11-13 21:17:05,453 - root - INFO - [GROUPS] Membership verification failed for -1004316104177: Peer id invalid: -1004316104177
+2026-11-13 21:17:05,544 - root - INFO - [GROUPS] Membership verification failed for -1002911121894: Peer id invalid: -1002911121894
+2026-11-13 21:19:33,931 - root - INFO - [GROUPS] Membership verification failed for -1003843106392: Peer id invalid: -1003843106392
+2026-11-13 21:19:34,775 - root - INFO - [GROUPS] Membership verification failed for -1002735367151: Peer id invalid: -1002735367151
+2026-11-13 21:19:34,866 - root - INFO - [GROUPS] Membership verification failed for -1003291474024: Peer id invalid: -1003291474024
+2026-11-13 21:19:34,960 - root - INFO - [GROUPS] Membership verification failed for -1003857697527: Peer id invalid: -1003857697527
+2026-11-13 21:19:35,054 - root - INFO - [GROUPS] Membership verification failed for -1002671504579: Peer id invalid: -1002671504579
+2026-11-13 21:19:35,126 - root - INFO - [GROUPS] Membership verification failed for -1004376328195: Peer id invalid: -1004376328195
+2026-11-13 21:19:35,191 - root - INFO - [GROUPS] Membership verification failed for -1003380967549: Peer id invalid: -1003380967549
+2026-11-13 21:19:35,253 - root - INFO - [GROUPS] Membership verification failed for -1002855458451: Peer id invalid: -1002855458451
+2026-11-13 21:19:35,315 - root - INFO - [GROUPS] Membership verification failed for -1002454723830: Peer id invalid: -1002454723830
+2026-11-13 21:19:35,393 - root - INFO - [GROUPS] Membership verification failed for -1004452059368: Peer id invalid: -1004452059368
+2026-11-13 21:22:08,910 - root - INFO - Initializing Database and Data...
+2026-11-13 21:22:13,063 - root - INFO - Loaded 228 auction roster characters from MongoDB.
+2026-11-13 21:22:13,064 - root - INFO - ✅ Connected to game MongoDB (anime_draft_game); image catalog is read-only (anime_bot).
+2026-11-13 21:22:14,008 - root - INFO - ✅ Loaded 5847 characters.
+2026-11-13 21:22:14,085 - root - INFO - ✅ Loaded 727 Pokémon.
+2026-11-13 21:22:14,673 - root - INFO - ✅ Loaded 505 Marvel characters with 11 series.
+2026-11-13 21:22:14,674 - root - INFO - Starting Web Server...
+2026-11-13 21:22:14,676 - root - INFO - Starting Background Threads...
+2026-11-13 21:22:14,743 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.29.224:8000
+2026-11-13 21:22:14,743 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-11-13 21:22:14,990 - root - INFO - [CLONE] Cleared runtime stats for saved clone 7074080974
+2026-11-13 21:22:14,991 - root - INFO - [CLONE] Startup cleared runtime stats for 1/1 saved clones; auto-start skipped.
+2026-11-13 21:22:14,992 - root - INFO - [CLONE] Startup auto-initialization disabled; saved clones will not be restored on restart.
+2026-11-13 21:22:14,993 - root - INFO - Starting Pyrogram Client...
+2026-11-13 21:22:16,545 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 21:22:16,684 - pyrogram.connection.connection - INFO - Connected! Production DC5 - IPv4
+2026-11-13 21:22:16,687 - pyrogram.session.session - INFO - NetworkTask started
+2026-11-13 21:22:16,733 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 21:22:16] "[35m[1mGET / HTTP/1.1[0m" 503 -
+2026-11-13 21:22:16,735 - root - WARNING - Keepalive request failed: HTTP Error 503: SERVICE UNAVAILABLE
+2026-11-13 21:22:17,584 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-11-13 21:22:17,590 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-11-13 21:22:17,596 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-11-13 21:22:17,596 - pyrogram.session.session - INFO - Session started
+2026-11-13 21:22:17,622 - pyrogram.session.session - INFO - PingTask started
+2026-11-13 21:22:17,948 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delchar_command") in group 0 from "plugins.admin"
+2026-11-13 21:22:17,949 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delseries_command") in group 0 from "plugins.admin"
+2026-11-13 21:22:17,950 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("deletion_confirmation_callback") in group 0 from "plugins.admin"
+2026-11-13 21:22:17,950 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("draft_add_approval_cb") in group 0 from "plugins.admin"
+2026-11-13 21:22:17,951 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("acast_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:22:17,951 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_char_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:22:17,952 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("addpoints_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:22:17,952 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("newyear_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:22:17,952 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comicimg_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:22:17,953 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_comic_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:22:17,953 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("characters_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:22:17,954 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sudo_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:22:17,954 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("mods_list_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:22:17,968 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_command") in group 0 from "plugins.auction"
+2026-11-13 21:22:17,969 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("auction_callback") in group 0 from "plugins.auction"
+2026-11-13 21:22:17,970 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("custom_bid_command") in group 0 from "plugins.auction"
+2026-11-13 21:22:17,970 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("distribution_callback") in group 0 from "plugins.auction"
+2026-11-13 21:22:17,971 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("fighter_selection_callback") in group 0 from "plugins.auction"
+2026-11-13 21:22:17,971 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_cancel_command") in group 0 from "plugins.auction"
+2026-11-13 21:22:17,971 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_stats_command") in group 0 from "plugins.auction"
+2026-11-13 21:22:17,972 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_help_command") in group 0 from "plugins.auction"
+2026-11-13 21:22:17,972 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_add_character_command") in group 0 from "plugins.auction"
+2026-11-13 21:22:17,972 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_series_list_command") in group 0 from "plugins.auction"
+2026-11-13 21:22:17,973 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("auction_series_list_callback") in group 0 from "plugins.auction"
+2026-11-13 21:22:17,973 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("audit_command_invocation") in group -100 from "plugins.audit"
+2026-11-13 21:22:18,219 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bounty_command") in group 0 from "plugins.bounty"
+2026-11-13 21:22:18,219 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("poster_callback") in group 0 from "plugins.bounty"
+2026-11-13 21:22:18,219 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("fight_command") in group 0 from "plugins.bounty"
+2026-11-13 21:22:18,220 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("plunder_command") in group 0 from "plugins.bounty"
+2026-11-13 21:22:18,242 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("callbacks") in group 0 from "plugins.callbacks"
+2026-11-13 21:22:18,264 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("start_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,267 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("start_draft_hint_callback") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,270 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("guide_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,271 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("about_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,271 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("guide_cb") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,271 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("commands_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,276 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("commands_cb") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,280 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("list_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,281 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("profile_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,282 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("clone_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,282 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_sudo_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,283 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("status_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,283 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("leaderboard_switch_callback") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,283 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("leaderboard_entry_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:22:18,304 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("createcrew_command") in group 0 from "plugins.crew"
+2026-11-13 21:22:18,306 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("joincrew_command") in group 0 from "plugins.crew"
+2026-11-13 21:22:18,311 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("disbandcrew_command") in group 0 from "plugins.crew"
+2026-11-13 21:22:18,314 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("crew_command") in group 0 from "plugins.crew"
+2026-11-13 21:22:18,352 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("draft_mode_picker_callback") in group 0 from "plugins.draft"
+2026-11-13 21:22:18,353 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("draft_cmd") in group 0 from "plugins.draft"
+2026-11-13 21:22:18,355 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("pokemon_draft_cmd") in group 0 from "plugins.draft"
+2026-11-13 21:22:18,355 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comic_draft_cmd") in group 0 from "plugins.draft"
+2026-11-13 21:22:18,380 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("duel_command") in group 0 from "plugins.duel"
+2026-11-13 21:22:18,380 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("duel_pick_a_callback") in group 0 from "plugins.duel"
+2026-11-13 21:22:18,381 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("duel_pick_b_callback") in group 0 from "plugins.duel"
+2026-11-13 21:22:18,400 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("balance_command") in group 0 from "plugins.economy"
+2026-11-13 21:22:18,401 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("daily_command") in group 0 from "plugins.economy"
+2026-11-13 21:22:18,401 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sell_command") in group 0 from "plugins.economy"
+2026-11-13 21:22:18,402 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("market_command") in group 0 from "plugins.economy"
+2026-11-13 21:22:18,402 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("market_page_callback") in group 0 from "plugins.economy"
+2026-11-13 21:22:18,403 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("buy_command") in group 0 from "plugins.economy"
+2026-11-13 21:22:18,403 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delist_command") in group 0 from "plugins.economy"
+2026-11-13 21:22:18,451 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("export_db_cmd") in group 0 from "plugins.export_db"
+2026-11-13 21:22:18,478 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("cb_guess_lobby") in group 0 from "plugins.games"
+2026-11-13 21:22:18,479 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_cancel_guess_game") in group 0 from "plugins.games"
+2026-11-13 21:22:18,479 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_shambles") in group 0 from "plugins.games"
+2026-11-13 21:22:18,480 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_whoswho") in group 0 from "plugins.games"
+2026-11-13 21:22:18,480 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_gol") in group 0 from "plugins.games"
+2026-11-13 21:22:18,481 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("cb_gol") in group 0 from "plugins.games"
+2026-11-13 21:22:18,481 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_punk") in group 0 from "plugins.games"
+2026-11-13 21:22:18,482 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_answer") in group 0 from "plugins.games"
+2026-11-13 21:22:18,505 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("track_group_activity") in group -1 from "plugins.groups"
+2026-11-13 21:22:18,506 - pyrogram.client - INFO - [anime_bot] [LOAD] ChatMemberUpdatedHandler("track_bot_membership") in group -1 from "plugins.groups"
+2026-11-13 21:22:18,508 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("groups_command") in group 0 from "plugins.groups"
+2026-11-13 21:22:18,509 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("groups_pagination_callback") in group 0 from "plugins.groups"
+2026-11-13 21:22:18,509 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("groups_stats_command") in group 0 from "plugins.groups"
+2026-11-13 21:22:18,510 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("groups_admin_refresh_callback") in group 0 from "plugins.groups"
+2026-11-13 21:22:18,531 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("docq_command") in group 0 from "plugins.minigames"
+2026-11-13 21:22:18,531 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("docq_callback") in group 0 from "plugins.minigames"
+2026-11-13 21:22:18,532 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("roulette_command") in group 0 from "plugins.minigames"
+2026-11-13 21:22:18,532 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("roulette_callback") in group 0 from "plugins.minigames"
+2026-11-13 21:22:18,535 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("rps_command") in group 0 from "plugins.minigames"
+2026-11-13 21:22:18,537 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("rps_callback") in group 0 from "plugins.minigames"
+2026-11-13 21:22:18,585 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("prediction_command") in group 0 from "plugins.prediction"
+2026-11-13 21:22:18,586 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bet_command") in group 0 from "plugins.prediction"
+2026-11-13 21:22:18,586 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("pred_bet_callback") in group 0 from "plugins.prediction"
+2026-11-13 21:22:18,587 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("resolveprediction_command") in group 0 from "plugins.prediction"
+2026-11-13 21:22:18,587 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cancelprediction_command") in group 0 from "plugins.prediction"
+2026-11-13 21:22:18,606 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("gift_command") in group 0 from "plugins.trade"
+2026-11-13 21:22:18,607 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("gift_callback") in group 0 from "plugins.trade"
+2026-11-13 21:22:18,609 - pyrogram.client - INFO - [anime_bot] Successfully loaded 90 plugins from "plugins"
+2026-11-13 21:22:18,616 - pyrogram.dispatcher - INFO - Started 24 HandlerTasks
+2026-11-13 21:22:18,619 - root - INFO - Telegram bot is online and polling updates.
+2026-11-13 21:22:22,941 - root - INFO - [GROUPS] Membership verification failed for -1003843106392: Peer id invalid: -1003843106392
+2026-11-13 21:22:23,789 - root - INFO - [GROUPS] Membership verification failed for -1002735367151: Peer id invalid: -1002735367151
+2026-11-13 21:22:23,883 - root - INFO - [GROUPS] Membership verification failed for -1003291474024: Peer id invalid: -1003291474024
+2026-11-13 21:22:23,976 - root - INFO - [GROUPS] Membership verification failed for -1003857697527: Peer id invalid: -1003857697527
+2026-11-13 21:22:24,037 - root - INFO - [GROUPS] Membership verification failed for -1002671504579: Peer id invalid: -1002671504579
+2026-11-13 21:22:24,132 - root - INFO - [GROUPS] Membership verification failed for -1003905162051: Peer id invalid: -1003905162051
+2026-11-13 21:22:24,224 - root - INFO - [GROUPS] Membership verification failed for -1004376328195: Peer id invalid: -1004376328195
+2026-11-13 21:22:24,316 - root - INFO - [GROUPS] Membership verification failed for -1002855458451: Peer id invalid: -1002855458451
+2026-11-13 21:22:24,410 - root - INFO - [GROUPS] Membership verification failed for -1003875553143: Peer id invalid: -1003875553143
+2026-11-13 21:22:24,505 - root - INFO - [GROUPS] Membership verification failed for -1003873399030: Peer id invalid: -1003873399030
+2026-11-13 21:22:24,590 - root - INFO - [GROUPS] Membership verification failed for -1002454723830: Peer id invalid: -1002454723830
+2026-11-13 21:22:24,818 - root - INFO - [GROUPS] Membership verification failed for -1001931294223: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 21:22:24,908 - root - INFO - [GROUPS] Membership verification failed for -1004452059368: Peer id invalid: -1004452059368
+2026-11-13 21:25:23,356 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:25:23,356 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:25:23,444 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:25:26,901 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:25:26,901 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:25:26,991 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:25:31,139 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:25:31,140 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:25:31,201 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:25:37,307 - root - INFO - [CMD] /guide invoked by 6265981509
+2026-11-13 21:25:39,940 - root - INFO - [CMD] /commands invoked by 6265981509
+2026-11-13 21:25:44,022 - root - INFO - [CMD] /commands invoked by 6265981509
+2026-11-13 21:25:47,353 - root - INFO - [CMD] /commands invoked by 6265981509
+2026-11-13 21:26:08,704 - root - INFO - [CMD] /list invoked by 6265981509 with text: /list
+2026-11-13 21:26:14,371 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 21:26:14,475 - pyrogram.connection.connection - INFO - Connected! Production DC5 (media) - IPv4
+2026-11-13 21:26:14,477 - pyrogram.session.session - INFO - NetworkTask started
+2026-11-13 21:26:15,126 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-11-13 21:26:15,140 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-11-13 21:26:15,157 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-11-13 21:26:15,162 - pyrogram.session.session - INFO - Session started
+2026-11-13 21:26:15,221 - pyrogram.session.session - INFO - PingTask started
+2026-11-13 21:26:15,751 - pyrogram.session.session - INFO - PingTask stopped
+2026-11-13 21:26:15,752 - pyrogram.connection.connection - INFO - Disconnected
+2026-11-13 21:26:15,753 - pyrogram.session.session - INFO - NetworkTask stopped
+2026-11-13 21:26:15,755 - pyrogram.session.session - INFO - Session stopped
+2026-11-13 21:26:16,450 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 21:26:16,566 - pyrogram.connection.connection - INFO - Connected! Production DC5 (media) - IPv4
+2026-11-13 21:26:16,567 - pyrogram.session.session - INFO - NetworkTask started
+2026-11-13 21:26:17,479 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-11-13 21:26:17,479 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-11-13 21:26:17,480 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-11-13 21:26:17,480 - pyrogram.session.session - INFO - Session started
+2026-11-13 21:26:17,482 - pyrogram.session.session - INFO - PingTask started
+2026-11-13 21:26:17,964 - pyrogram.session.session - INFO - PingTask stopped
+2026-11-13 21:26:17,965 - pyrogram.connection.connection - INFO - Disconnected
+2026-11-13 21:26:17,967 - pyrogram.session.session - INFO - NetworkTask stopped
+2026-11-13 21:26:17,968 - pyrogram.session.session - INFO - Session stopped
+2026-11-13 21:26:32,235 - root - INFO - [CMD] /profile invoked by 6265981509
+2026-11-13 21:26:35,722 - root - INFO - [CMD] /profile invoked by 6265981509
+2026-11-13 21:26:41,255 - root - INFO - [CMD] /profile invoked by 6265981509
+2026-11-13 21:27:07,694 - root - WARNING - [RICH_UI] editMessageText network error (URLError(TimeoutError('_ssl.c:989: The handshake operation timed out'))); using standard message fallback
+2026-11-13 21:27:07,695 - root - WARNING - [RICH_UI] rich editMessageText failed (chat=6265981509 msg=625), using fallback: URLError(TimeoutError('_ssl.c:989: The handshake operation timed out'))
+2026-11-13 21:27:18,805 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 21:27:18] "GET / HTTP/1.1" 200 -
+2026-11-13 21:32:21,064 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 21:32:21] "GET / HTTP/1.1" 200 -
+2026-11-13 21:37:23,129 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 21:37:23] "GET / HTTP/1.1" 200 -
+2026-11-13 21:39:06,623 - root - INFO - Stop signal received (SIGINT). Exiting...
+2026-11-13 21:39:06,670 - pyrogram.dispatcher - INFO - Stopped 24 HandlerTasks
+2026-11-13 21:39:06,680 - pyrogram.session.session - INFO - PingTask stopped
+2026-11-13 21:39:06,685 - pyrogram.connection.connection - INFO - Disconnected
+2026-11-13 21:39:06,688 - pyrogram.session.session - INFO - NetworkTask stopped
+2026-11-13 21:39:06,689 - pyrogram.session.session - INFO - Session stopped
+2026-11-13 21:39:06,695 - root - WARNING - Telegram client stopped; restarting in 15s
+2026-11-13 21:39:07,730 - root - INFO - Stop signal received (SIGINT). Exiting...
+2026-11-13 21:39:08,619 - root - INFO - Stop signal received (SIGINT). Exiting...
+2026-11-13 21:39:08,916 - root - INFO - Stop signal received (SIGINT). Exiting...
+2026-11-13 21:39:09,119 - root - INFO - Stop signal received (SIGINT). Exiting...
+2026-11-13 21:39:21,907 - root - INFO - Initializing Database and Data...
+2026-11-13 21:39:26,246 - root - INFO - Loaded 228 auction roster characters from MongoDB.
+2026-11-13 21:39:26,246 - root - INFO - ✅ Connected to game MongoDB (anime_draft_game); image catalog is read-only (anime_bot).
+2026-11-13 21:39:27,900 - root - INFO - ✅ Loaded 5847 characters.
+2026-11-13 21:39:27,906 - root - INFO - ✅ Loaded 727 Pokémon.
+2026-11-13 21:39:29,263 - root - INFO - ✅ Loaded 505 Marvel characters with 11 series.
+2026-11-13 21:39:29,265 - root - INFO - Starting Web Server...
+2026-11-13 21:39:29,269 - root - INFO - Starting Background Threads...
+2026-11-13 21:39:29,309 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.29.224:8000
+2026-11-13 21:39:29,309 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-11-13 21:39:29,551 - root - INFO - [CLONE] Cleared runtime stats for saved clone 7074080974
+2026-11-13 21:39:29,552 - root - INFO - [CLONE] Startup cleared runtime stats for 1/1 saved clones; auto-start skipped.
+2026-11-13 21:39:29,553 - root - INFO - [CLONE] Startup auto-initialization disabled; saved clones will not be restored on restart.
+2026-11-13 21:39:29,555 - root - INFO - Starting Pyrogram Client...
+2026-11-13 21:39:30,926 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 21:39:31,027 - pyrogram.connection.connection - INFO - Connected! Production DC5 - IPv4
+2026-11-13 21:39:31,028 - pyrogram.session.session - INFO - NetworkTask started
+2026-11-13 21:39:31,325 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 21:39:31] "[35m[1mGET / HTTP/1.1[0m" 503 -
+2026-11-13 21:39:31,326 - root - WARNING - Keepalive request failed: HTTP Error 503: SERVICE UNAVAILABLE
+2026-11-13 21:39:31,602 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-11-13 21:39:31,603 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-11-13 21:39:31,603 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-11-13 21:39:31,604 - pyrogram.session.session - INFO - Session started
+2026-11-13 21:39:31,618 - pyrogram.session.session - INFO - PingTask started
+2026-11-13 21:39:32,763 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delchar_command") in group 0 from "plugins.admin"
+2026-11-13 21:39:32,764 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delseries_command") in group 0 from "plugins.admin"
+2026-11-13 21:39:32,765 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("deletion_confirmation_callback") in group 0 from "plugins.admin"
+2026-11-13 21:39:32,765 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("draft_add_approval_cb") in group 0 from "plugins.admin"
+2026-11-13 21:39:32,766 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("acast_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:39:32,766 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_char_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:39:32,766 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("addpoints_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:39:32,767 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("newyear_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:39:32,767 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comicimg_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:39:32,767 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_comic_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:39:32,767 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("characters_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:39:32,768 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sudo_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:39:32,768 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("mods_list_cmd") in group 0 from "plugins.admin"
+2026-11-13 21:39:32,772 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_command") in group 0 from "plugins.auction"
+2026-11-13 21:39:32,773 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("auction_callback") in group 0 from "plugins.auction"
+2026-11-13 21:39:32,773 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("custom_bid_command") in group 0 from "plugins.auction"
+2026-11-13 21:39:32,774 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("distribution_callback") in group 0 from "plugins.auction"
+2026-11-13 21:39:32,774 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("fighter_selection_callback") in group 0 from "plugins.auction"
+2026-11-13 21:39:32,775 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_cancel_command") in group 0 from "plugins.auction"
+2026-11-13 21:39:32,775 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_stats_command") in group 0 from "plugins.auction"
+2026-11-13 21:39:32,775 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_help_command") in group 0 from "plugins.auction"
+2026-11-13 21:39:32,776 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_add_character_command") in group 0 from "plugins.auction"
+2026-11-13 21:39:32,776 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_series_list_command") in group 0 from "plugins.auction"
+2026-11-13 21:39:32,776 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("auction_series_list_callback") in group 0 from "plugins.auction"
+2026-11-13 21:39:32,776 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("audit_command_invocation") in group -100 from "plugins.audit"
+2026-11-13 21:39:33,029 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bounty_command") in group 0 from "plugins.bounty"
+2026-11-13 21:39:33,029 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("poster_callback") in group 0 from "plugins.bounty"
+2026-11-13 21:39:33,030 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("fight_command") in group 0 from "plugins.bounty"
+2026-11-13 21:39:33,030 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("plunder_command") in group 0 from "plugins.bounty"
+2026-11-13 21:39:33,048 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("callbacks") in group 0 from "plugins.callbacks"
+2026-11-13 21:39:33,052 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("start_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,053 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("start_draft_hint_callback") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,053 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("guide_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,053 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("about_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,054 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("guide_cb") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,054 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("commands_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,054 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("commands_cb") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,054 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("list_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,055 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("profile_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,055 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("clone_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,056 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_sudo_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,056 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("status_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,057 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("leaderboard_switch_callback") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,058 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("leaderboard_entry_cmd") in group 0 from "plugins.commands"
+2026-11-13 21:39:33,060 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("createcrew_command") in group 0 from "plugins.crew"
+2026-11-13 21:39:33,065 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("joincrew_command") in group 0 from "plugins.crew"
+2026-11-13 21:39:33,066 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("disbandcrew_command") in group 0 from "plugins.crew"
+2026-11-13 21:39:33,066 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("crew_command") in group 0 from "plugins.crew"
+2026-11-13 21:39:33,069 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("draft_mode_picker_callback") in group 0 from "plugins.draft"
+2026-11-13 21:39:33,073 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("draft_cmd") in group 0 from "plugins.draft"
+2026-11-13 21:39:33,077 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("pokemon_draft_cmd") in group 0 from "plugins.draft"
+2026-11-13 21:39:33,078 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comic_draft_cmd") in group 0 from "plugins.draft"
+2026-11-13 21:39:33,080 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("duel_command") in group 0 from "plugins.duel"
+2026-11-13 21:39:33,080 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("duel_pick_a_callback") in group 0 from "plugins.duel"
+2026-11-13 21:39:33,080 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("duel_pick_b_callback") in group 0 from "plugins.duel"
+2026-11-13 21:39:33,083 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("balance_command") in group 0 from "plugins.economy"
+2026-11-13 21:39:33,084 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("daily_command") in group 0 from "plugins.economy"
+2026-11-13 21:39:33,085 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sell_command") in group 0 from "plugins.economy"
+2026-11-13 21:39:33,085 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("market_command") in group 0 from "plugins.economy"
+2026-11-13 21:39:33,086 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("market_page_callback") in group 0 from "plugins.economy"
+2026-11-13 21:39:33,086 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("buy_command") in group 0 from "plugins.economy"
+2026-11-13 21:39:33,086 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delist_command") in group 0 from "plugins.economy"
+2026-11-13 21:39:33,095 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("export_db_cmd") in group 0 from "plugins.export_db"
+2026-11-13 21:39:33,103 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("cb_guess_lobby") in group 0 from "plugins.games"
+2026-11-13 21:39:33,104 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_cancel_guess_game") in group 0 from "plugins.games"
+2026-11-13 21:39:33,104 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_shambles") in group 0 from "plugins.games"
+2026-11-13 21:39:33,104 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_whoswho") in group 0 from "plugins.games"
+2026-11-13 21:39:33,104 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_gol") in group 0 from "plugins.games"
+2026-11-13 21:39:33,105 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("cb_gol") in group 0 from "plugins.games"
+2026-11-13 21:39:33,105 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_punk") in group 0 from "plugins.games"
+2026-11-13 21:39:33,105 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_answer") in group 0 from "plugins.games"
+2026-11-13 21:39:33,122 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("track_group_activity") in group -1 from "plugins.groups"
+2026-11-13 21:39:33,124 - pyrogram.client - INFO - [anime_bot] [LOAD] ChatMemberUpdatedHandler("track_bot_membership") in group -1 from "plugins.groups"
+2026-11-13 21:39:33,125 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("groups_command") in group 0 from "plugins.groups"
+2026-11-13 21:39:33,125 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("groups_pagination_callback") in group 0 from "plugins.groups"
+2026-11-13 21:39:33,125 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("groups_stats_command") in group 0 from "plugins.groups"
+2026-11-13 21:39:33,126 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("groups_admin_refresh_callback") in group 0 from "plugins.groups"
+2026-11-13 21:39:33,127 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("docq_command") in group 0 from "plugins.minigames"
+2026-11-13 21:39:33,128 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("docq_callback") in group 0 from "plugins.minigames"
+2026-11-13 21:39:33,128 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("roulette_command") in group 0 from "plugins.minigames"
+2026-11-13 21:39:33,128 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("roulette_callback") in group 0 from "plugins.minigames"
+2026-11-13 21:39:33,128 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("rps_command") in group 0 from "plugins.minigames"
+2026-11-13 21:39:33,128 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("rps_callback") in group 0 from "plugins.minigames"
+2026-11-13 21:39:33,130 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("prediction_command") in group 0 from "plugins.prediction"
+2026-11-13 21:39:33,131 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bet_command") in group 0 from "plugins.prediction"
+2026-11-13 21:39:33,131 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("pred_bet_callback") in group 0 from "plugins.prediction"
+2026-11-13 21:39:33,134 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("resolveprediction_command") in group 0 from "plugins.prediction"
+2026-11-13 21:39:33,134 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cancelprediction_command") in group 0 from "plugins.prediction"
+2026-11-13 21:39:33,136 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("gift_command") in group 0 from "plugins.trade"
+2026-11-13 21:39:33,137 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("gift_callback") in group 0 from "plugins.trade"
+2026-11-13 21:39:33,141 - pyrogram.client - INFO - [anime_bot] Successfully loaded 90 plugins from "plugins"
+2026-11-13 21:39:33,141 - pyrogram.dispatcher - INFO - Started 24 HandlerTasks
+2026-11-13 21:39:33,143 - root - INFO - Telegram bot is online and polling updates.
+2026-11-13 21:43:51,900 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:43:51,901 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:43:51,956 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:43:55,954 - root - INFO - [CMD] /profile invoked by 6265981509
+2026-11-13 21:43:58,428 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:43:58,429 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:43:58,501 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:44:01,090 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:44:01,093 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:44:01,179 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:44:03,650 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:44:03,652 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:44:03,727 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:44:12,756 - root - WARNING - [GROUPS] Could not refresh cached membership for -1002454723830: 'Username not found: senpaiauction'
+2026-11-13 21:44:22,510 - root - WARNING - [GROUPS] Could not refresh cached membership for -1002216969649: Telegram says: [420 FLOOD_WAIT_X] - A wait of 46 seconds is required (caused by "contacts.ResolveUsername")
+2026-11-13 21:44:22,725 - root - WARNING - [GROUPS] Could not refresh cached membership for -1003967772389: Telegram says: [420 FLOOD_WAIT_X] - A wait of 46 seconds is required (caused by "contacts.ResolveUsername")
+2026-11-13 21:44:22,933 - root - WARNING - [GROUPS] Could not refresh cached membership for -1002946070634: Telegram says: [420 FLOOD_WAIT_X] - A wait of 46 seconds is required (caused by "contacts.ResolveUsername")
+2026-11-13 21:44:23,175 - root - WARNING - [GROUPS] Could not refresh cached membership for -1003907965646: Telegram says: [420 FLOOD_WAIT_X] - A wait of 45 seconds is required (caused by "contacts.ResolveUsername")
+2026-11-13 21:44:23,176 - root - INFO - [GROUPS] Refreshed 7 cached groups for weekly
+2026-11-13 21:44:33,387 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 21:44:33] "GET / HTTP/1.1" 200 -
+2026-11-13 21:47:11,940 - root - INFO - [ADMIN] /newyear invoked by 6265981509 with text: /newyear
+2026-11-13 21:47:18,522 - root - INFO - [ADMIN] /newyear invoked by 6265981509 with text: /newyear on
+2026-11-13 21:47:37,018 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 21:47:37,019 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 21:47:37,077 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 21:47:39,161 - root - INFO - [CMD] /guide invoked by 6265981509
+2026-11-13 21:47:40,302 - root - INFO - [CMD] /commands invoked by 6265981509
+2026-11-13 21:47:41,807 - root - INFO - [CMD] /commands invoked by 6265981509
+2026-11-13 21:47:48,507 - root - INFO - [CMD] /profile invoked by 6265981509
+2026-11-13 21:47:52,857 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 21:47:52,983 - pyrogram.connection.connection - INFO - Connected! Production DC5 (media) - IPv4
+2026-11-13 21:47:52,983 - pyrogram.session.session - INFO - NetworkTask started
+2026-11-13 21:47:53,530 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-11-13 21:47:53,531 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-11-13 21:47:53,531 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-11-13 21:47:53,532 - pyrogram.session.session - INFO - Session started
+2026-11-13 21:47:53,562 - pyrogram.session.session - INFO - PingTask started
+2026-11-13 21:47:54,047 - pyrogram.session.session - INFO - PingTask stopped
+2026-11-13 21:47:54,048 - pyrogram.connection.connection - INFO - Disconnected
+2026-11-13 21:47:54,049 - pyrogram.session.session - INFO - NetworkTask stopped
+2026-11-13 21:47:54,049 - pyrogram.session.session - INFO - Session stopped
+2026-11-13 21:47:54,259 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 21:47:54,386 - pyrogram.connection.connection - INFO - Connected! Production DC5 (media) - IPv4
+2026-11-13 21:47:54,386 - pyrogram.session.session - INFO - NetworkTask started
+2026-11-13 21:47:55,107 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-11-13 21:47:55,107 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-11-13 21:47:55,108 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-11-13 21:47:55,139 - pyrogram.session.session - INFO - Session started
+2026-11-13 21:47:55,148 - pyrogram.session.session - INFO - PingTask started
+2026-11-13 21:47:55,846 - pyrogram.session.session - INFO - PingTask stopped
+2026-11-13 21:47:55,876 - pyrogram.connection.connection - INFO - Disconnected
+2026-11-13 21:47:55,876 - pyrogram.session.session - INFO - NetworkTask stopped
+2026-11-13 21:47:55,877 - pyrogram.session.session - INFO - Session stopped
+2026-11-13 21:47:56,879 - root - WARNING - [DRAFT] 6265981509 must reply to a friend before choosing a draft mode
+2026-11-13 21:48:19,645 - root - WARNING - [DRAFT] 6265981509 must reply to a friend before choosing a draft mode

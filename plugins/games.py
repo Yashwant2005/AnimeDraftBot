@@ -6,6 +6,7 @@ import json
 import logging
 import string
 import re
+import threading
 import unicodedata
 import urllib.error
 import urllib.request
@@ -39,6 +40,10 @@ _DISABLED_FILTER = filters.create(lambda _, __, ___: False)
 _HINT_COUNT = 4
 _HINT_REVEAL_DELAY = 30
 _FINAL_GUESS_DELAY = 45
+_CHARACTER_CACHE_TTL_SECONDS = 300
+_character_cache = []
+_character_cache_expires_at = 0.0
+_character_cache_lock = threading.Lock()
 
 def _matches_anime_filter(char, anime_filter):
     if not anime_filter:
@@ -48,12 +53,38 @@ def _matches_anime_filter(char, anime_filter):
     return bool(filter_norm and filter_norm in anime_norm)
 
 def _get_random_character(anime_filter=None):
+    global _character_cache, _character_cache_expires_at
+
     if not database.USE_MONGO or database.COL_WAIFUS is None:
         return None
-    chars = list(database.COL_WAIFUS.find({
-        "img_url": {"$exists": True, "$ne": ""},
-        "archived": {"$ne": True},
-    }))
+
+    with _character_cache_lock:
+        if time.monotonic() >= _character_cache_expires_at:
+            projection = {
+                "id": 1,
+                "name": 1,
+                "anime": 1,
+                "series": 1,
+                "img_url": 1,
+                "game_hint_cache": 1,
+                "affiliation": 1,
+                "team": 1,
+                "crew": 1,
+                "clan": 1,
+                "group": 1,
+                "organization": 1,
+                "occupation": 1,
+            }
+            _character_cache = list(database.COL_WAIFUS.find(
+                {
+                    "img_url": {"$exists": True, "$ne": ""},
+                    "archived": {"$ne": True},
+                },
+                projection,
+            ))
+            _character_cache_expires_at = time.monotonic() + _CHARACTER_CACHE_TTL_SECONDS
+        chars = _character_cache
+
     if anime_filter:
         chars = [char for char in chars if _matches_anime_filter(char, anime_filter)]
     if not chars:

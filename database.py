@@ -772,7 +772,6 @@ def auction_expiry_worker(interval_seconds=60):
 def get_group_activity_candidates(mode='weekly', limit=50):
     if not USE_MONGO or COL_GROUP_ACTIVITY is None:
         return []
-    refresh_group_activity_rollups()
     fields = {
         'weekly': [('weekly_message_count', -1), ('daily_message_count', -1), ('last_activity_at', -1)],
         'today': [('daily_message_count', -1), ('weekly_message_count', -1), ('last_activity_at', -1)],

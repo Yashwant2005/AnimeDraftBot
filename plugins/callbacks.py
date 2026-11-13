@@ -317,6 +317,7 @@ async def callbacks(c, q: CallbackQuery):
         if action == "accept":
             if uid != game["p2"]["id"]: return await q.answer("Not for you!", show_alert=True)
             game['status'] = 'active'
+            await q.answer("Draft accepted.")
             await show_anime_draw(c, q.message, game, gid)
 
         elif action == "draw":
@@ -328,6 +329,7 @@ async def callbacks(c, q: CallbackQuery):
             
             char = random.choice(available)
             game["current_draw"] = char
+            await q.answer("Drawing character...")
             
             # Show Assign Menu
             kb = []
@@ -359,6 +361,7 @@ async def callbacks(c, q: CallbackQuery):
             game[pkey]["team"][role] = game["current_draw"]
             game["used_chars"].append(game["current_draw"])
             game["current_draw"] = None
+            await q.answer("Role assigned.")
 
             if len(game["p1"]["team"]) == 8 and len(game["p2"]["team"]) == 8:
                 # Ready Phase
@@ -382,10 +385,12 @@ async def callbacks(c, q: CallbackQuery):
                 elif (not is_p1 and uid == game["p2"]["id"]): game["ready"]["p2"] = True
                 else: return await q.answer("Wrong button!", show_alert=True)
 
-                if game["ready"]["p1"] and game["ready"]["p2"]:
-                    await game_engine.simulate_anime_battle(c, q.message, game)
-                else:
-                    await q.answer("✅ Checked in!")
+                both_ready = game["ready"]["p1"] and game["ready"]["p2"]
+            if both_ready:
+                await q.answer("Both players are ready. Starting the battle...")
+                await game_engine.simulate_anime_battle(c, q.message, game)
+            else:
+                await q.answer("✅ Checked in!")
 
         elif action == "skip":
              if uid != game["turn"]: return await q.answer("Not your turn!", show_alert=True)
@@ -395,6 +400,7 @@ async def callbacks(c, q: CallbackQuery):
                  if game.get("current_draw"): game["used_chars"].append(game["current_draw"])
                  game["current_draw"] = None
                  game_engine.switch_turn(game)
+                 await q.answer("Character skipped.")
                  await show_anime_draw(c, q.message, game, gid)
              else:
                  await q.answer("No skips left!", show_alert=True)
@@ -403,6 +409,7 @@ async def callbacks(c, q: CallbackQuery):
         elif action == "paccept":
             if uid != game["p2"]["id"]: return await q.answer("Not for you!", show_alert=True)
             game['status'] = 'active'
+            await q.answer("Draft accepted.")
             await show_pokemon_draw(c, q.message, game, gid)
 
         elif action == "pdraw":
@@ -440,6 +447,7 @@ async def callbacks(c, q: CallbackQuery):
             img_url = CHAR_IMAGES.get(f"{pokemon} | Pokemon")
             image_preview = f"<a href='{html.escape(img_url, quote=True)}'>&#160;</a>" if img_url else ""
             txt = f"{image_preview}{ui.pokemon_get_team_display(game)}\n✨ <b>{html.escape(p_name)}</b> Pulled: <b>{html.escape(pokemon)}</b>"
+            await q.answer("Drawing Pokémon...")
             await ui.ensure_display_message(c, q.message.chat.id, game, txt, kb, preview=True)
 
         elif action == "pset":
@@ -457,6 +465,7 @@ async def callbacks(c, q: CallbackQuery):
 
             game["used_players"].append(pokemon)
             game["current_draw"] = None
+            await q.answer("Selection saved.")
 
             if len(game["p1"]["team"]) == 7 and len(game["p2"]["team"]) == 7:
                  kb = [[InlineKeyboardButton("💥 Start Battle", callback_data=f"pbattle_{gid}")]]
@@ -473,10 +482,12 @@ async def callbacks(c, q: CallbackQuery):
                  if game.get("current_draw"): game["used_players"].append(game["current_draw"])
                  game["current_draw"] = None
                  game_engine.pokemon_switch_turn(game)
+                 await q.answer("Pokémon skipped.")
                  await show_pokemon_draw(c, q.message, game, gid)
              else:
                  await q.answer("No skips left!", show_alert=True)
 
         elif action == "pbattle":
              if uid not in [game['p1']['id'], game['p2']['id']]: return await q.answer("Spectator mode only.")
+             await q.answer("Starting the battle...")
              await game_engine.simulate_pokemon_battle(c, q.message, game)
