@@ -40,16 +40,11 @@ async def callbacks(c, q: CallbackQuery):
         # --- HANDLE LIST PAGINATION FIRST ---
         if data.startswith("list_"):
             if data == "list_home":
-                card = rich_ui.build_rich_card(
-                    title="📚 Available Series",
-                    badges=["Choose a catalog"],
-                    description="Select the game mode whose series you want to browse.",
+                await q.answer()
+                await rich_ui.rich_edit(
+                    c, q.message.chat.id, q.message.id,
+                    rich_ui.list_home_html(), rich_ui.list_home_rows()
                 )
-                keyboard = InlineKeyboardMarkup([[
-                    InlineKeyboardButton("🎭 Draft", callback_data="list_anime_1"),
-                    InlineKeyboardButton("🔥 Auction Draft", callback_data="alist:1"),
-                ]])
-                await q.edit_message_text(card, reply_markup=keyboard, parse_mode=ParseMode.HTML)
                 return
             try:
                 parts = data.split("_")
@@ -78,29 +73,11 @@ async def callbacks(c, q: CallbackQuery):
             end_idx = start_idx + per_page
             page_series = series[start_idx:end_idx]
             
-            if mode == "anime":
-                txt = f"📚 <b>Available Anime Series</b> (Page {page}/{total_pages})\n\n" + "\n".join(f"• {html.escape(s)}" for s in page_series)
-            else:
-                txt = f"🎬 <b>Available Comics</b> (Page {page}/{total_pages})\n\n" + "\n".join(f"• {html.escape(s)}" for s in page_series)
-            
-            kb = []
-            row = []
-            if page > 1:
-                row.append(InlineKeyboardButton("⬅️ Prev", callback_data=f"list_{mode}_{page-1}"))
-            if page < total_pages:
-                row.append(InlineKeyboardButton("Next ➡️", callback_data=f"list_{mode}_{page+1}"))
-            if row:
-                kb.append(row)
-            
-            # Add toggle button for Anime/Comics
-            toggle_btn = InlineKeyboardButton("🎬 Comics", callback_data="list_comics_1") if mode == "anime" else InlineKeyboardButton("🎭 Anime", callback_data="list_anime_1")
-            kb.append([toggle_btn])
-            kb.append([InlineKeyboardButton("⬅️ Back to catalog choice", callback_data="list_home")])
-            
-            await q.edit_message_text(
-                text=txt,
-                reply_markup=InlineKeyboardMarkup(kb) if kb else None,
-                parse_mode=ParseMode.HTML
+            txt = rich_ui.series_html(f"Available {mode.capitalize()} Series", page_series, page, total_pages)
+            await q.answer()
+            await rich_ui.rich_edit(
+                c, q.message.chat.id, q.message.id, txt,
+                rich_ui.list_rows(mode, page, total_pages)
             )
             return
 

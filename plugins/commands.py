@@ -18,6 +18,10 @@ from pyrogram.enums import ParseMode
 from config import DATA_DIR, API_ID, API_HASH
 import os
 
+SUPPORT_URL = os.getenv("SUPPORT_URL", "https://t.me/DRaft_wars")
+UPDATES_URL = os.getenv("UPDATES_URL", "https://t.me/DRaft_wars")
+
+
 @Client.on_message(filters.command("start"))
 async def start_cmd(c, m):
     user = m.from_user
@@ -28,65 +32,110 @@ async def start_cmd(c, m):
     if str(chat_type).lower() == 'private':
         database.mark_private_user(user.id)
 
-    card = rich_ui.build_rich_card(
-        title="👋 Welcome to Anime Draft Wars!",
-        subtitle="Join Community :- @DRaft_wars",
-        badges=["Anime", "Draft Wars",],
-        description="Draft a team of 8 characters and battle friends!\nUse /draft to play.",
-        expandable_quote="Quick Start:\n• Reply with /draft to challenge an opponent\n• Use /guide for a short guide\n• Use /commands for full command list"
+    bot = await c.get_me()
+    sc, esc, ru = rich_ui.sc, rich_ui.esc, rich_ui
+    body = (
+        ru.r_heading("\u00bb " + sc("Hey,") + " " + esc(user.first_name or "there") + "!", 2, raw=True)
+        + ru.r_p(sc("Draft your dream team. Challenge your friends. Battle!"))
+        + ru.r_heading("\u300c " + sc("features") + " \u300d", 3, raw=True)
+        + ru.r_list([
+            sc("Anime, Pokemon and Comics drafts"),
+            sc("$20 Blind Auction battles"),
+            sc("Leaderboards, bounty and mini games"),
+        ])
+        + ru.r_heading("\u300c " + sc("quick start") + " \u300d", 3, raw=True)
+        + ru.r_list([
+            sc("In a group, reply to your friend with") + " <code>/draft</code>",
+            sc("Both players must send /start to me in DM first"),
+        ])
+        + ru.r_heading("\u300c " + sc("need help ?") + " \u300d", 3, raw=True)
+        + ru.r_p(sc("Questions, suggestions or issues? We are here to help!"))
     )
-    await rich_ui.send_rich_message(
-        c, m.chat.id, card,
-        reply_markup=[[("🎮 Play Draft", "start_draft_hint"), ("📚 View Guide", "guide_0")]]
+    rows = [
+        [ru.Btn("HELP", cb="guide_0", style="primary"),
+         ru.Btn("ADD ME TO GROUP", url=f"https://t.me/{bot.username}?startgroup=true", style="success")],
+        [ru.Btn("SUPPORT", url=SUPPORT_URL), ru.Btn("UPDATES", url=UPDATES_URL)],
+    ]
+
+    photo_id = None
+    try:
+        async for photo in c.get_chat_photos(bot.id, limit=1):
+            photo_id = photo.file_id
+            break
+    except Exception as exc:
+        logging.info(f"[CMD] /start could not load bot photo: {exc}")
+
+    await ru.rich_send(c, m.chat.id, body, rows, photo_id=photo_id)
+
+
+@Client.on_callback_query(filters.regex(r"^start_draft_hint$"))
+async def start_draft_hint_callback(client, callback_query):
+    await callback_query.answer(
+        "In a group, reply to your friend's message with /draft and choose a mode. "
+        "Both players must first send /start to me in DM."
     )
 
-def _guide_card(page):
+
+def _guide_html(page):
     section, body = _COMMANDS_PAGES[page]
     _, _, description = body.partition("\n\n")
-    return rich_ui.build_rich_card(
-        title=f"📚 Bot Guide - {section}",
-        badges=["Guide", f"Page {page + 1}/{len(_COMMANDS_PAGES)}"],
-        description=description,
+    return (
+        rich_ui.r_heading("\u00bb " + rich_ui.sc("Bot Guide - " + section), 2, raw=True)
+        + rich_ui.legacy_to_rich(description)
+        + rich_ui.r_p(rich_ui.sc("Page") + " " + str(page + 1) + "/" + str(len(_COMMANDS_PAGES)))
     )
+
+
+def _guide_rows(page):
+    return [rich_ui.nav_row(
+        f"guide_{page - 1}" if page > 0 else None,
+        f"guide_{page + 1}" if page < len(_COMMANDS_PAGES) - 1 else None,
+    )]
+
 
 @Client.on_message(filters.command("guide"))
 async def guide_cmd(c, m):
     logging.info(f"[CMD] /guide invoked by {m.from_user.id}")
-
-    kb = [[InlineKeyboardButton("Next ➡️", callback_data="guide_1")]]
-    card = _guide_card(0)
-    await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=kb)
+    await rich_ui.rich_send(c, m.chat.id, _guide_html(0), _guide_rows(0))
 
 
 @Client.on_message(filters.command("about"))
 async def about_cmd(c, m):
     """One shareable overview of the bot's active systems."""
-    overview = (
-        '🤖 <b>ANIME DRAFT BOT — COMPLETE GUIDE</b>\n\n'
-        '⚔️ <b>Draft Battles</b>\n'
-        'Reply to a player with <code>/draft</code> to choose a head-to-head draft mode and start an 8-role anime draft. '
-        'Use <code>/draft Naruto</code> to restrict the pool to one series, <code>/draft_v2</code> for V2, '
-        '<code>/pdraft</code> for Pokémon, or <code>/cdraft</code> for comics. Players take turns choosing characters, then their teams battle.\n\n'
-        '🔥 <b>$20 Blind Auction</b>\n'
-        'Use <code>/auction</code> without replying to open a public lobby, or reply to a player to challenge them directly. Both players must first send <code>/start</code> in bot DM. '
-        'Ten hidden characters are auctioned; each player has $20 and builds a five-character team. Bid with buttons or <code>/bid 7</code>. '
-        'Use <code>/list</code> to browse the Draft and Auction rosters, and <code>/auction_help</code> for rules.\n\n'
-        '🎮 <b>Minigames & Combat</b>\n'
-        '<code>/shambles</code>, <code>/whoswho</code>, <code>/punk</code>, <code>/docq</code>, <code>/roulette</code>, and <code>/rps</code> provide quick games. '
-        'Use <code>/duel</code>, <code>/fight</code>, <code>/plunder</code>, and <code>/bounty</code> for competitive modes.\n\n'
-        '💰 <b>Profile, Economy & Rankings</b>\n'
-        '<code>/profile</code> shows your progress. <code>/daily</code> claims 200 coins (plus 100 if your bio includes @anime_draft_bot), <code>/balance</code> shows your coins, and <code>/gift</code> lets you share eligible items. '
-        'Use <code>/leaderboard</code>, <code>/topglobal</code>, and <code>/topgroup</code> for rankings.\n\n'
-        '👥 <b>Groups</b>\n'
-        '<code>/groups</code> shows active verified public groups. <code>/groups today</code> and <code>/groups all</code> change the ranking period. '
-        'Only aggregate activity is stored—never message contents—and private groups are never listed.\n\n'
-        '🛡️ <b>Admin Tools</b>\n'
-        'Admins can manage characters, run <code>/acast</code>, inspect <code>/groups_stats</code>, and add auction-only characters with:\n'
-        '<code>/aucadd Name\nImage URL\nSeries\nTotal Power</code>\n'
-        'Catalog deletion requests via <code>/delchar</code> or <code>/delseries</code> require the configured owner’s private confirmation.\n\n'
-        '📚 Use <code>/commands</code> for the complete command-by-command reference.'
+    ru = rich_ui
+    sc = ru.sc
+
+    def section(title, items):
+        return ru.r_heading("\u300c " + sc(title) + " \u300d", 3, raw=True) + ru.r_list(items)
+
+    body = (
+        ru.r_heading("\u00bb " + sc("Anime Draft Bot - Complete Guide"), 2, raw=True)
+        + section("draft battles", [
+            sc("Reply to a player with") + " <code>/draft</code> " + sc("to start an 8 role draft."),
+            sc("Use") + " <code>/draft Naruto</code> " + sc("for one series,") + " <code>/draft_v2</code>, <code>/pdraft</code>, <code>/cdraft</code>.",
+        ])
+        + section("$20 blind auction", [
+            sc("Use") + " <code>/auction</code> " + sc("to open a lobby or reply to challenge a player."),
+            sc("Both players must send /start in bot DM first."),
+            sc("Bid with buttons or") + " <code>/bid 7</code>. " + sc("Browse rosters with") + " <code>/list</code>.",
+        ])
+        + section("minigames and combat", [
+            "<code>/shambles</code> <code>/whoswho</code> <code>/punk</code> <code>/docq</code> <code>/roulette</code> <code>/rps</code>",
+            "<code>/duel</code> <code>/fight</code> <code>/plunder</code> <code>/bounty</code>",
+        ])
+        + section("profile, economy and rankings", [
+            "<code>/profile</code> " + sc("shows your progress,") + " <code>/daily</code> " + sc("claims coins,") + " <code>/balance</code> " + sc("shows your wallet."),
+            "<code>/leaderboard</code> <code>/topglobal</code> <code>/topgroup</code>",
+        ])
+        + section("groups", [
+            "<code>/groups</code> " + sc("lists active verified public groups. Only aggregate activity is stored, never message contents."),
+        ])
+        + section("admin tools", [
+            sc("Admins manage characters, broadcasts, group stats and auction characters."),
+        ])
+        + ru.r_p(sc("Use") + " /commands " + sc("for the complete command reference."))
     )
-    await m.reply(overview, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
+    await ru.rich_send(c, m.chat.id, body)
 
 @Client.on_callback_query(filters.regex(r"^guide_(\d+)$"))
 async def guide_cb(client, callback_query):
@@ -95,20 +144,13 @@ async def guide_cb(client, callback_query):
     if page < 0 or page >= len(_COMMANDS_PAGES):
         return await callback_query.answer("Invalid page.", show_alert=True)
 
-    kb = []
-    row = []
-    if page > 0:
-        row.append(InlineKeyboardButton("⬅️ Prev", callback_data=f"guide_{page-1}"))
-    if page < len(_COMMANDS_PAGES) - 1:
-        row.append(InlineKeyboardButton("Next ➡️", callback_data=f"guide_{page+1}"))
-    if row:
-        kb.append(row)
+    card = _guide_html(page)
+    rows = _guide_rows(page)
+    await callback_query.answer()
+    if callback_query.message.photo:
+        return await rich_ui.rich_send(client, callback_query.message.chat.id, card, rows)
 
-    card = _guide_card(page)
-    await rich_ui.edit_rich_message(
-        client, callback_query.message.chat.id, callback_query.message.id,
-        card, reply_markup=InlineKeyboardMarkup(kb) if kb else None
-    )
+    await rich_ui.rich_edit(client, callback_query.message.chat.id, callback_query.message.id, card, rows)
 
 _COMMANDS_PAGES = [
     (
@@ -233,30 +275,32 @@ _COMMANDS_PAGES = [
     ),
 ]
 
-def _commands_markup(page):
-    rows = []
-    nav = []
-    if page > 0:
-        nav.append(InlineKeyboardButton("Prev", callback_data=f"cmds:{page - 1}"))
-    nav.append(InlineKeyboardButton(f"{page + 1}/{len(_COMMANDS_PAGES)}", callback_data="cmds:noop"))
-    if page < len(_COMMANDS_PAGES) - 1:
-        nav.append(InlineKeyboardButton("Next", callback_data=f"cmds:{page + 1}"))
-    rows.append(nav)
-
+def _commands_rows(page):
+    rows = [rich_ui.nav_row(
+        f"cmds:{page - 1}" if page > 0 else None,
+        f"cmds:{page + 1}" if page < len(_COMMANDS_PAGES) - 1 else None,
+    )]
     shortcut_rows = [
-        [("Info", 0), ("Top", 1), ("Draft", 2)],
-        [("Games", 3), ("Admin", 4)],
+        [("INFO", 0), ("TOP", 1), ("DRAFT", 2)],
+        [("GAMES", 3), ("ADMIN", 4)],
     ]
     for shortcut_row in shortcut_rows:
         rows.append([
-            InlineKeyboardButton(label, callback_data="cmds:noop" if idx == page else f"cmds:{idx}")
+            rich_ui.Btn(("\u2022 " + label + " \u2022") if idx == page else label,
+                        cb="cmds:noop" if idx == page else f"cmds:{idx}",
+                        style="primary" if idx == page else None)
             for label, idx in shortcut_row
         ])
-    return InlineKeyboardMarkup(rows)
+    return rows
 
-def _commands_text(page):
+def _commands_html(page):
     title, body = _COMMANDS_PAGES[page]
-    return f"{body}\n\n<b>Page:</b> {page + 1}/{len(_COMMANDS_PAGES)} - {title}"
+    _, _, description = body.partition("\n\n")
+    return (
+        rich_ui.r_heading("\u00bb " + rich_ui.sc("Commands Guide - " + title), 2, raw=True)
+        + rich_ui.legacy_to_rich(description)
+        + rich_ui.r_p(rich_ui.sc("Page") + " " + str(page + 1) + "/" + str(len(_COMMANDS_PAGES)))
+    )
 
 def _commands_page_from_message(message):
     try:
@@ -269,15 +313,7 @@ def _commands_page_from_message(message):
 async def commands_cmd(c, m):
     logging.info(f"[CMD] /commands invoked by {m.from_user.id}")
     page = _commands_page_from_message(m)
-    title, body = _COMMANDS_PAGES[page]
-    card = rich_ui.build_rich_card(
-        title=f"📘 Commands Guide - {title}",
-        badges=["Commands", f"Page {page + 1}/{len(_COMMANDS_PAGES)}"],
-        description=body
-    )
-    await rich_ui.send_rich_message(
-        c, m.chat.id, card, reply_markup=_commands_markup(page)
-    )
+    await rich_ui.rich_send(c, m.chat.id, _commands_html(page), _commands_rows(page))
 
 @Client.on_callback_query(filters.regex(r"^cmds:(noop|\d+)$"))
 async def commands_cb(client, callback_query):
@@ -287,83 +323,45 @@ async def commands_cb(client, callback_query):
 
     page = max(0, min(len(_COMMANDS_PAGES) - 1, int(page_raw)))
     await callback_query.answer()
-    title, body = _COMMANDS_PAGES[page]
-    card = rich_ui.build_rich_card(
-        title=f"📘 Commands Guide - {title}",
-        badges=["Commands", f"Page {page + 1}/{len(_COMMANDS_PAGES)}"],
-        description=body
-    )
-    await rich_ui.edit_rich_message(
+    await rich_ui.rich_edit(
         client, callback_query.message.chat.id, callback_query.message.id,
-        card, reply_markup=_commands_markup(page)
+        _commands_html(page), _commands_rows(page)
     )
 
 @Client.on_message(filters.command("list"))
 async def list_cmd(c, m):
     logging.info(f"[CMD] /list invoked by {m.from_user.id} with text: {m.text}")
-    # Keep the catalog choice out of the command list. Explicit arguments
-    # (for example /list comics or /list 2) retain the old direct behaviour.
+    # Explicit arguments (for example /list comics or /list 2) keep the direct behaviour.
     if len(m.command or []) == 1:
-        card = rich_ui.build_rich_card(
-            title="📚 Available Series",
-            badges=["Choose a catalog"],
-            expandable_quote="Select the game mode whose series you want to browse.",
-        )
-        keyboard = InlineKeyboardMarkup([[
-            InlineKeyboardButton("🎭 Draft", callback_data="list_anime_1"),
-            InlineKeyboardButton("🔥 Auction Draft", callback_data="alist:1"),
-        ]])
-        return await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=keyboard)
+        return await rich_ui.rich_send(c, m.chat.id, rich_ui.list_home_html(), rich_ui.list_home_rows())
 
     mode = "anime"
     if len(m.text.split()) > 1 and m.text.split()[1].lower() == "comics":
         mode = "comics"
-    
+
     if mode == "anime":
         if not global_state.SERIES_DISPLAY:
-            return await m.reply_text("📚 No anime series found.")
+            return await m.reply_text("\U0001f4da No anime series found.")
         series = sorted(set(global_state.SERIES_DISPLAY.values()))
     else:
         if not global_state.MARVEL_SERIES_DISPLAY:
-            return await m.reply_text("🎬 No comics found.")
+            return await m.reply_text("\U0001f3ac No comics found.")
         series = sorted(set(global_state.MARVEL_SERIES_DISPLAY.values()))
-    
+
     page = 1
     if len(m.text.split()) > 1:
         try:
             page = max(1, int(m.text.split()[1]))
         except ValueError:
             page = 1
-    
+
     per_page = 25
-    total_pages = (len(series) + per_page - 1) // per_page
+    total_pages = max(1, (len(series) + per_page - 1) // per_page)
     page = min(page, total_pages)
-    
-    start_idx = (page - 1) * per_page
-    end_idx = start_idx + per_page
-    page_series = series[start_idx:end_idx]
-    
-    series_list_str = "\n".join(f"• {html.escape(s)}" for s in page_series)
-    card = rich_ui.build_rich_card(
-        title=f"📚 Available {mode.capitalize()} Series",
-        badges=[mode.capitalize(), f"Page {page}/{total_pages}"],
-        description=series_list_str
-    )
-    
-    kb = []
-    row = []
-    if page > 1:
-        row.append(InlineKeyboardButton("⬅️ Prev", callback_data=f"list_{mode}_{page-1}"))
-    if page < total_pages:
-        row.append(InlineKeyboardButton("Next ➡️", callback_data=f"list_{mode}_{page+1}"))
-    if row:
-        kb.append(row)
-    
-    toggle_btn = InlineKeyboardButton("🎬 Comics", callback_data="list_comics_1") if mode == "anime" else InlineKeyboardButton("🎭 Anime", callback_data="list_anime_1")
-    kb.append([toggle_btn])
-    kb.append([InlineKeyboardButton("⬅️ Back to catalog choice", callback_data="list_home")])
-    
-    await rich_ui.send_rich_message(c, m.chat.id, card, reply_markup=InlineKeyboardMarkup(kb) if kb else None)
+    page_series = series[(page - 1) * per_page:page * per_page]
+
+    card = rich_ui.series_html(f"Available {mode.capitalize()} Series", page_series, page, total_pages)
+    await rich_ui.rich_send(c, m.chat.id, card, rich_ui.list_rows(mode, page, total_pages))
 
 @Client.on_message(filters.command("profile"))
 async def profile_cmd(c, m):
@@ -388,20 +386,23 @@ async def profile_cmd(c, m):
     else: rank = "⭐ Legendary"
 
     user_achis = global_state.USER_ACHIEVEMENTS.get(str(user.id), [])
-    achievements_txt = "\n".join([f"• {global_state.AVAILABLE_ACHIEVEMENTS.get(k, k)}" for k in user_achis]) if user_achis else "No achievements unlocked yet."
+    ru = rich_ui
+    sc = ru.sc
+    ach_items = [ru.esc(global_state.AVAILABLE_ACHIEVEMENTS.get(k, k)) for k in user_achis]
+    ach_html = ru.r_list(ach_items) if ach_items else ru.r_p(sc("No achievements unlocked yet."))
 
-    card = rich_ui.build_rich_card(
-        title=f"👤 Profile: {user.first_name}",
-        badges=[f"Rank: {rank}", f"Rating: {rating}"],
-        table_data=[
-            ("Points", f"{rating:,}"),
-            ("Matches", f"{matches:,}"),
-            ("Wins", f"{wins:,}"),
-            ("Win Rate", f"{wr}%")
-        ],
-        expandable_quote=f"🎖 Achievements:\n{achievements_txt}"
+    body = (
+        ru.r_heading("\u00bb " + sc("Profile") + " " + ru.esc(user.first_name or "User"), 2, raw=True)
+        + ru.r_kv([
+            (sc("Rank"), ru.esc(rank)),
+            (sc("Points"), "<b>" + format(rating, ",") + "</b>"),
+            (sc("Matches"), format(matches, ",")),
+            (sc("Wins"), format(wins, ",")),
+            (sc("Win rate"), str(wr) + "%"),
+        ])
+        + ru.r_details(sc("Achievements"), ach_html)
     )
-    await rich_ui.send_rich_message(c, m.chat.id, card)
+    await ru.rich_send(c, m.chat.id, body)
 
 
 @Client.on_message(filters.command("clone"))
@@ -534,18 +535,18 @@ async def status_cmd(c, m):
     u_count = len(database.load_id_set(database.USERS_FILE, client=c))
     logging.info(f"[STATUS] Sending stats: {u_count} users, {c_count} chats (from user {user_id})")
 
-    card = rich_ui.build_rich_card(
-        title="📊 Bot Runtime Statistics",
-        badges=["Admin Only", "Status"],
-        table_data=[
-            ("Active Users", f"{u_count:,}"),
-            ("Active Chats", f"{c_count:,}")
-        ]
+    ru = rich_ui
+    body = (
+        ru.r_heading("\u00bb " + ru.sc("Bot Runtime Statistics"), 2, raw=True)
+        + ru.r_kv([
+            (ru.sc("Active users"), "<b>" + format(u_count, ",") + "</b>"),
+            (ru.sc("Active chats"), "<b>" + format(c_count, ",") + "</b>"),
+        ])
     )
-    await rich_ui.send_rich_message(c, m.chat.id, card)
+    await ru.rich_send(c, m.chat.id, body)
 
 
-_LB_PAGE_SIZE = 20
+_LB_PAGE_SIZE = 15
 _LB_BOARDS = {
     "draft": "Draft",
     "bounty": "Bounty",
@@ -706,37 +707,37 @@ def _lb_entries(board, scope, chat_id, metric, page):
         return _lb_bounty_entries(scope, chat_id, page)
     return [], 0
 
-def _lb_markup(board, scope, metric, page, total_pages):
+def _lb_rows(board, scope, metric, page, total_pages):
     options = [
-        ("draft", "points", "Points"),
-        ("draft", "wins", "Wins"),
-        ("bounty", "value", "Bounty"),
+        ("draft", "points", "POINTS"),
+        ("draft", "wins", "WINS"),
+        ("bounty", "value", "BOUNTY"),
     ]
     current = ("draft", metric) if board == "draft" else ("bounty", "value")
     switches = [
-        InlineKeyboardButton(label, callback_data=f"lb:{target_board}:{scope}:{target_metric}:1")
+        rich_ui.Btn(label, cb=f"lb:{target_board}:{scope}:{target_metric}:1", style="primary")
         for target_board, target_metric, label in options
         if (target_board, target_metric) != current
     ]
-    rows = [switches]
-    nav = []
-    if page > 1:
-        nav.append(InlineKeyboardButton("Prev", callback_data=f"lb:{board}:{scope}:{metric}:{page - 1}"))
-    if page < total_pages:
-        nav.append(InlineKeyboardButton("Next", callback_data=f"lb:{board}:{scope}:{metric}:{page + 1}"))
-    if nav:
-        rows.append(nav)
-    return InlineKeyboardMarkup(rows)
+    return [
+        switches,
+        rich_ui.nav_row(
+            f"lb:{board}:{scope}:{metric}:{page - 1}" if page > 1 else None,
+            f"lb:{board}:{scope}:{metric}:{page + 1}" if page < total_pages else None,
+        ),
+    ]
 
 def _lb_text_and_markup(chat, board, scope, metric, page):
+    """Returns (rich html, button rows)."""
+    ru = rich_ui
     if scope == "group" and not _lb_is_group_chat(chat):
-        return "Group leaderboard only works inside a group chat.", None
+        return ru.r_p(ru.sc("Group leaderboard only works inside a group chat.")), None
 
     metric = metric if board == "draft" and metric in ("points", "wins") else _lb_default_metric(board)
     page = max(1, page)
     entries, total = _lb_entries(board, scope, chat.id, metric, page)
     if entries is None:
-        return "❌ Database not ready.", None
+        return ru.r_p("\u274c " + ru.sc("Database not ready.")), None
 
     total_pages = max(1, (total + _LB_PAGE_SIZE - 1) // _LB_PAGE_SIZE)
     if page > total_pages:
@@ -746,41 +747,34 @@ def _lb_text_and_markup(chat, board, scope, metric, page):
     board_title = _LB_BOARDS.get(board, "Leaderboard")
     if board == "draft":
         board_title = "Draft Wins" if metric == "wins" else "Draft Points"
-    scope_title = "Global" if scope == "global" else html.escape(getattr(chat, "title", None) or "This Group")
-    lines = [f"<b>Top {scope_title} {board_title} - Page {page}/{total_pages}</b>", ""]
+    unit = ("Wins" if metric == "wins" else "Points") if board == "draft" else "Bounty"
+    scope_label = "Global" if scope == "global" else "Group"
+
+    body = ru.r_heading("\u00bb " + ru.sc("Top " + scope_label + " " + board_title), 2, raw=True)
+    if scope != "global":
+        body += ru.r_p("<b>" + ru.esc(getattr(chat, "title", None) or "This Group") + "</b>")
 
     if not entries:
-        lines.append("No entries yet.")
+        body += ru.r_p(ru.sc("No entries yet."))
     else:
+        medals = {1: "\U0001f947", 2: "\U0001f948", 3: "\U0001f949"}
         start_rank = (page - 1) * _LB_PAGE_SIZE + 1
+        table_rows = []
         for offset, entry in enumerate(entries):
             rank = start_rank + offset
-            name = str(entry.get("name") or entry.get("id") or "Unknown")
-            prefix = f"{rank}. "
-            safe_name = html.escape(name)
+            name = ru.esc_name(entry.get("name") or entry.get("id") or "Unknown")
             if board == "draft":
-                if metric == "wins":
-                    wins = int(entry.get("wins") or 0)
-                    score = f"{wins:,}"
-                    lines.append(f"{prefix}{safe_name} - <b>{score}</b> wins")
-                else:
-                    rating = int(entry.get("rating") or 0)
-                    score = f"{rating:,}"
-                    lines.append(f"{prefix}{safe_name} - <b>{score}</b> pts")
-            elif board == "bounty":
-                score = int(entry.get("score") or 0)
-                score = f"{score:,}"
-                lines.append(f"{prefix}{safe_name} - <b>{score}</b> bounty")
+                value = int(entry.get("wins") or 0) if metric == "wins" else int(entry.get("rating") or 0)
             else:
-                score = int(entry.get("score") or 0)
-                score = f"{score:,}"
-                lines.append(f"{prefix}{safe_name} - <b>{score}</b>")
+                value = int(entry.get("score") or 0)
+            table_rows.append([medals.get(rank, str(rank)), name, "<b>" + format(value, ",") + "</b>"])
+        body += ru.r_table(table_rows, header=["#", ru.sc("Player"), ru.sc(unit)])
+    body += ru.r_p(ru.sc("Page") + " " + str(page) + "/" + str(total_pages))
+    return body, _lb_rows(board, scope, metric, page, total_pages)
 
-    return "\n".join(lines), _lb_markup(board, scope, metric, page, total_pages)
-
-async def _lb_send(message, board, scope, metric, page):
-    text, markup = _lb_text_and_markup(message.chat, board, scope, metric, page)
-    await message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
+async def _lb_send(client, message, board, scope, metric, page):
+    body, rows = _lb_text_and_markup(message.chat, board, scope, metric, page)
+    await rich_ui.rich_send(client, message.chat.id, body, rows)
 
 @Client.on_callback_query(filters.regex(r"^lb:(draft|bounty):(global|group):(points|wins|value):(\d+)$"))
 async def leaderboard_switch_callback(client, callback_query):
@@ -788,9 +782,9 @@ async def leaderboard_switch_callback(client, callback_query):
     scope = callback_query.matches[0].group(2)
     metric = callback_query.matches[0].group(3)
     page = int(callback_query.matches[0].group(4))
-    text, markup = _lb_text_and_markup(callback_query.message.chat, board, scope, metric, page)
+    body, rows = _lb_text_and_markup(callback_query.message.chat, board, scope, metric, page)
     await callback_query.answer()
-    await callback_query.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
+    await rich_ui.rich_edit(client, callback_query.message.chat.id, callback_query.message.id, body, rows)
 
 @Client.on_message(filters.command(["leaderboard", "top", "topglobal", "topgroup", "grouptop"]))
 async def leaderboard_entry_cmd(c, m):
@@ -800,7 +794,7 @@ async def leaderboard_entry_cmd(c, m):
     board = _lb_board_from_command(command_parts) or "draft"
     metric = _lb_metric_from_command(board, command_parts)
     page = _lb_page_from_command(command_parts)
-    await _lb_send(m, board, scope, metric, page)
+    await _lb_send(c, m, board, scope, metric, page)
 
 
 _TOP_PAGE_SIZE = 10

@@ -1,0 +1,285 @@
+2026-11-13 19:37:00,618 - root - INFO - Initializing Database and Data...
+2026-11-13 19:37:04,962 - root - INFO - Loaded 228 auction roster characters from MongoDB.
+2026-11-13 19:37:04,964 - root - INFO - ✅ Connected to game MongoDB (anime_draft_game); image catalog is read-only (anime_bot).
+2026-11-13 19:37:05,710 - root - INFO - ✅ Loaded 5847 characters.
+2026-11-13 19:37:05,721 - root - INFO - ✅ Loaded 727 Pokémon.
+2026-11-13 19:37:06,396 - root - INFO - ✅ Loaded 505 Marvel characters with 11 series.
+2026-11-13 19:37:06,398 - root - INFO - Starting Web Server...
+2026-11-13 19:37:06,409 - root - INFO - Starting Background Threads...
+2026-11-13 19:37:06,640 - root - INFO - [CLONE] Cleared runtime stats for saved clone 7074080974
+2026-11-13 19:37:06,641 - root - INFO - [CLONE] Startup cleared runtime stats for 1/1 saved clones; auto-start skipped.
+2026-11-13 19:37:06,643 - root - INFO - [CLONE] Startup auto-initialization disabled; saved clones will not be restored on restart.
+2026-11-13 19:37:06,645 - root - INFO - Starting Pyrogram Client...
+2026-11-13 19:37:06,662 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.29.224:8000
+2026-11-13 19:37:06,662 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-11-13 19:37:08,464 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 19:37:08] "[35m[1mGET / HTTP/1.1[0m" 503 -
+2026-11-13 19:37:08,465 - root - WARNING - Keepalive request failed: HTTP Error 503: SERVICE UNAVAILABLE
+2026-11-13 19:37:10,873 - pyrogram.session.auth - INFO - Start creating a new auth key on DC2
+2026-11-13 19:37:10,874 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 19:37:11,097 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2026-11-13 19:37:13,166 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2026-11-13 19:37:13,167 - pyrogram.connection.connection - INFO - Disconnected
+2026-11-13 19:37:13,272 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 19:37:13,444 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2026-11-13 19:37:13,449 - pyrogram.session.session - INFO - NetworkTask started
+2026-11-13 19:37:14,442 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-11-13 19:37:14,443 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-11-13 19:37:14,443 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-11-13 19:37:14,444 - pyrogram.session.session - INFO - Session started
+2026-11-13 19:37:14,467 - pyrogram.session.session - INFO - PingTask started
+2026-11-13 19:37:14,657 - pyrogram.session.session - INFO - PingTask stopped
+2026-11-13 19:37:14,658 - pyrogram.connection.connection - INFO - Disconnected
+2026-11-13 19:37:14,658 - pyrogram.session.session - INFO - NetworkTask stopped
+2026-11-13 19:37:14,659 - pyrogram.session.session - INFO - Session stopped
+2026-11-13 19:37:14,760 - pyrogram.session.auth - INFO - Start creating a new auth key on DC5
+2026-11-13 19:37:14,761 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 19:37:14,889 - pyrogram.connection.connection - INFO - Connected! Production DC5 - IPv4
+2026-11-13 19:37:16,388 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2026-11-13 19:37:16,389 - pyrogram.connection.connection - INFO - Disconnected
+2026-11-13 19:37:16,469 - pyrogram.connection.connection - INFO - Connecting...
+2026-11-13 19:37:16,567 - pyrogram.connection.connection - INFO - Connected! Production DC5 - IPv4
+2026-11-13 19:37:16,568 - pyrogram.session.session - INFO - NetworkTask started
+2026-11-13 19:37:17,100 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2026-11-13 19:37:17,100 - pyrogram.session.session - INFO - Device: CPython 3.11.9 - Pyrogram 2.0.106
+2026-11-13 19:37:17,101 - pyrogram.session.session - INFO - System: Windows 10 (en)
+2026-11-13 19:37:17,102 - pyrogram.session.session - INFO - Session started
+2026-11-13 19:37:17,102 - pyrogram.session.session - INFO - PingTask started
+2026-11-13 19:37:17,715 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delchar_command") in group 0 from "plugins.admin"
+2026-11-13 19:37:17,715 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delseries_command") in group 0 from "plugins.admin"
+2026-11-13 19:37:17,716 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("deletion_confirmation_callback") in group 0 from "plugins.admin"
+2026-11-13 19:37:17,716 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("draft_add_approval_cb") in group 0 from "plugins.admin"
+2026-11-13 19:37:17,717 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("acast_cmd") in group 0 from "plugins.admin"
+2026-11-13 19:37:17,717 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_char_cmd") in group 0 from "plugins.admin"
+2026-11-13 19:37:17,721 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("addpoints_cmd") in group 0 from "plugins.admin"
+2026-11-13 19:37:17,725 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("newyear_cmd") in group 0 from "plugins.admin"
+2026-11-13 19:37:17,725 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comicimg_cmd") in group 0 from "plugins.admin"
+2026-11-13 19:37:17,725 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_comic_cmd") in group 0 from "plugins.admin"
+2026-11-13 19:37:17,726 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("characters_cmd") in group 0 from "plugins.admin"
+2026-11-13 19:37:17,727 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sudo_cmd") in group 0 from "plugins.admin"
+2026-11-13 19:37:17,729 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("mods_list_cmd") in group 0 from "plugins.admin"
+2026-11-13 19:37:17,769 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_command") in group 0 from "plugins.auction"
+2026-11-13 19:37:17,770 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("auction_callback") in group 0 from "plugins.auction"
+2026-11-13 19:37:17,771 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("custom_bid_command") in group 0 from "plugins.auction"
+2026-11-13 19:37:17,771 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("distribution_callback") in group 0 from "plugins.auction"
+2026-11-13 19:37:17,771 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("fighter_selection_callback") in group 0 from "plugins.auction"
+2026-11-13 19:37:17,772 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_cancel_command") in group 0 from "plugins.auction"
+2026-11-13 19:37:17,772 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_stats_command") in group 0 from "plugins.auction"
+2026-11-13 19:37:17,772 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_help_command") in group 0 from "plugins.auction"
+2026-11-13 19:37:17,773 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_add_character_command") in group 0 from "plugins.auction"
+2026-11-13 19:37:17,773 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("auction_series_list_command") in group 0 from "plugins.auction"
+2026-11-13 19:37:17,773 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("auction_series_list_callback") in group 0 from "plugins.auction"
+2026-11-13 19:37:17,774 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("audit_command_invocation") in group -100 from "plugins.audit"
+2026-11-13 19:37:21,499 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bounty_command") in group 0 from "plugins.bounty"
+2026-11-13 19:37:21,500 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("poster_callback") in group 0 from "plugins.bounty"
+2026-11-13 19:37:21,501 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("fight_command") in group 0 from "plugins.bounty"
+2026-11-13 19:37:21,501 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("plunder_command") in group 0 from "plugins.bounty"
+2026-11-13 19:37:21,531 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("callbacks") in group 0 from "plugins.callbacks"
+2026-11-13 19:37:21,597 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("start_cmd") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,599 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("start_draft_hint_callback") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,600 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("guide_cmd") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,601 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("about_cmd") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,601 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("guide_cb") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,601 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("commands_cmd") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,602 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("commands_cb") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,602 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("list_cmd") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,603 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("profile_cmd") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,605 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("clone_cmd") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,606 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("add_sudo_cmd") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,608 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("status_cmd") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,622 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("leaderboard_switch_callback") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,627 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("leaderboard_entry_cmd") in group 0 from "plugins.commands"
+2026-11-13 19:37:21,696 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("createcrew_command") in group 0 from "plugins.crew"
+2026-11-13 19:37:21,721 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("joincrew_command") in group 0 from "plugins.crew"
+2026-11-13 19:37:21,728 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("disbandcrew_command") in group 0 from "plugins.crew"
+2026-11-13 19:37:21,738 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("crew_command") in group 0 from "plugins.crew"
+2026-11-13 19:37:21,785 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("draft_mode_picker_callback") in group 0 from "plugins.draft"
+2026-11-13 19:37:21,785 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("draft_cmd") in group 0 from "plugins.draft"
+2026-11-13 19:37:21,785 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("pokemon_draft_cmd") in group 0 from "plugins.draft"
+2026-11-13 19:37:21,786 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("comic_draft_cmd") in group 0 from "plugins.draft"
+2026-11-13 19:37:21,797 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("duel_command") in group 0 from "plugins.duel"
+2026-11-13 19:37:21,798 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("duel_pick_a_callback") in group 0 from "plugins.duel"
+2026-11-13 19:37:21,799 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("duel_pick_b_callback") in group 0 from "plugins.duel"
+2026-11-13 19:37:21,813 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("balance_command") in group 0 from "plugins.economy"
+2026-11-13 19:37:21,813 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("daily_command") in group 0 from "plugins.economy"
+2026-11-13 19:37:21,814 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("sell_command") in group 0 from "plugins.economy"
+2026-11-13 19:37:21,814 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("market_command") in group 0 from "plugins.economy"
+2026-11-13 19:37:21,815 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("market_page_callback") in group 0 from "plugins.economy"
+2026-11-13 19:37:21,815 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("buy_command") in group 0 from "plugins.economy"
+2026-11-13 19:37:21,815 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("delist_command") in group 0 from "plugins.economy"
+2026-11-13 19:37:21,881 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("export_db_cmd") in group 0 from "plugins.export_db"
+2026-11-13 19:37:21,934 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("cb_guess_lobby") in group 0 from "plugins.games"
+2026-11-13 19:37:21,934 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_cancel_guess_game") in group 0 from "plugins.games"
+2026-11-13 19:37:21,935 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_shambles") in group 0 from "plugins.games"
+2026-11-13 19:37:21,936 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_whoswho") in group 0 from "plugins.games"
+2026-11-13 19:37:21,936 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_gol") in group 0 from "plugins.games"
+2026-11-13 19:37:21,937 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("cb_gol") in group 0 from "plugins.games"
+2026-11-13 19:37:21,937 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_punk") in group 0 from "plugins.games"
+2026-11-13 19:37:21,938 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cmd_answer") in group 0 from "plugins.games"
+2026-11-13 19:37:21,954 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("track_group_activity") in group -1 from "plugins.groups"
+2026-11-13 19:37:21,955 - pyrogram.client - INFO - [anime_bot] [LOAD] ChatMemberUpdatedHandler("track_bot_membership") in group -1 from "plugins.groups"
+2026-11-13 19:37:21,955 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("groups_command") in group 0 from "plugins.groups"
+2026-11-13 19:37:21,956 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("groups_pagination_callback") in group 0 from "plugins.groups"
+2026-11-13 19:37:21,956 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("groups_stats_command") in group 0 from "plugins.groups"
+2026-11-13 19:37:21,957 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("groups_admin_refresh_callback") in group 0 from "plugins.groups"
+2026-11-13 19:37:21,974 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("docq_command") in group 0 from "plugins.minigames"
+2026-11-13 19:37:21,979 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("docq_callback") in group 0 from "plugins.minigames"
+2026-11-13 19:37:21,980 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("roulette_command") in group 0 from "plugins.minigames"
+2026-11-13 19:37:21,981 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("roulette_callback") in group 0 from "plugins.minigames"
+2026-11-13 19:37:21,981 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("rps_command") in group 0 from "plugins.minigames"
+2026-11-13 19:37:21,982 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("rps_callback") in group 0 from "plugins.minigames"
+2026-11-13 19:37:21,996 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("prediction_command") in group 0 from "plugins.prediction"
+2026-11-13 19:37:21,997 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("bet_command") in group 0 from "plugins.prediction"
+2026-11-13 19:37:21,997 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("pred_bet_callback") in group 0 from "plugins.prediction"
+2026-11-13 19:37:21,998 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("resolveprediction_command") in group 0 from "plugins.prediction"
+2026-11-13 19:37:21,999 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("cancelprediction_command") in group 0 from "plugins.prediction"
+2026-11-13 19:37:22,014 - pyrogram.client - INFO - [anime_bot] [LOAD] MessageHandler("gift_command") in group 0 from "plugins.trade"
+2026-11-13 19:37:22,017 - pyrogram.client - INFO - [anime_bot] [LOAD] CallbackQueryHandler("gift_callback") in group 0 from "plugins.trade"
+2026-11-13 19:37:22,017 - pyrogram.client - INFO - [anime_bot] Successfully loaded 90 plugins from "plugins"
+2026-11-13 19:37:22,019 - pyrogram.dispatcher - INFO - Started 24 HandlerTasks
+2026-11-13 19:37:22,022 - root - INFO - Telegram bot is online and polling updates.
+2026-11-13 19:42:10,496 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 19:42:10] "GET / HTTP/1.1" 200 -
+2026-11-13 19:47:06,798 - root - INFO - [CMD] /start invoked by 6265981509 (𝙵𝙻𝙸𝚁𝚃𝙴𝚁 α)
+2026-11-13 19:47:06,799 - root - INFO - [DB] (main) saving to collection active_chats
+2026-11-13 19:47:06,888 - root - INFO - [DB] (main) saving to collection active_users
+2026-11-13 19:47:12,561 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 19:47:12] "GET / HTTP/1.1" 200 -
+2026-11-13 19:47:48,424 - root - INFO - [CMD] /profile invoked by 6265981509
+2026-11-13 19:50:40,113 - root - INFO - [GROUPS] Membership verification failed for -1003843106392: Peer id invalid: -1003843106392
+2026-11-13 19:50:40,175 - root - INFO - [GROUPS] Membership verification failed for -1002735367151: Peer id invalid: -1002735367151
+2026-11-13 19:50:40,236 - root - INFO - [GROUPS] Membership verification failed for -1003291474024: Peer id invalid: -1003291474024
+2026-11-13 19:50:40,313 - root - INFO - [GROUPS] Membership verification failed for -1003857697527: Peer id invalid: -1003857697527
+2026-11-13 19:50:40,394 - root - INFO - [GROUPS] Membership verification failed for -1003905162051: Peer id invalid: -1003905162051
+2026-11-13 19:50:40,470 - root - INFO - [GROUPS] Membership verification failed for -1004376328195: Peer id invalid: -1004376328195
+2026-11-13 19:50:40,560 - root - INFO - [GROUPS] Membership verification failed for -1002671504579: Peer id invalid: -1002671504579
+2026-11-13 19:50:40,656 - root - INFO - [GROUPS] Membership verification failed for -1002855458451: Peer id invalid: -1002855458451
+2026-11-13 19:50:40,750 - root - INFO - [GROUPS] Membership verification failed for -1003380967549: Peer id invalid: -1003380967549
+2026-11-13 19:50:40,846 - root - INFO - [GROUPS] Membership verification failed for -1003873399030: Peer id invalid: -1003873399030
+2026-11-13 19:50:40,936 - root - INFO - [GROUPS] Membership verification failed for -1003875553143: Peer id invalid: -1003875553143
+2026-11-13 19:50:40,997 - root - INFO - [GROUPS] Membership verification failed for -1003974767688: Peer id invalid: -1003974767688
+2026-11-13 19:50:41,232 - root - INFO - [GROUPS] Membership verification failed for -1001931294223: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:50:41,750 - root - INFO - [GROUPS] Membership verification failed for -1002454723830: Peer id invalid: -1002454723830
+2026-11-13 19:50:41,904 - root - INFO - [GROUPS] Membership verification failed for -1002896799089: Peer id invalid: -1002896799089
+2026-11-13 19:50:41,978 - root - INFO - [GROUPS] Membership verification failed for -1003272982853: Peer id invalid: -1003272982853
+2026-11-13 19:50:42,072 - root - INFO - [GROUPS] Membership verification failed for -1003888609175: Peer id invalid: -1003888609175
+2026-11-13 19:50:42,136 - root - INFO - [GROUPS] Membership verification failed for -1003426754164: Peer id invalid: -1003426754164
+2026-11-13 19:50:42,199 - root - INFO - [GROUPS] Membership verification failed for -1003704089947: Peer id invalid: -1003704089947
+2026-11-13 19:50:42,259 - root - INFO - [GROUPS] Membership verification failed for -1003603092187: Peer id invalid: -1003603092187
+2026-11-13 19:50:42,323 - root - INFO - [GROUPS] Membership verification failed for -1004452059368: Peer id invalid: -1004452059368
+2026-11-13 19:50:42,384 - root - INFO - [GROUPS] Membership verification failed for -1002704602367: Peer id invalid: -1002704602367
+2026-11-13 19:50:42,445 - root - INFO - [GROUPS] Membership verification failed for -1004404874271: Peer id invalid: -1004404874271
+2026-11-13 19:50:42,508 - root - INFO - [GROUPS] Membership verification failed for -1003647635479: Peer id invalid: -1003647635479
+2026-11-13 19:50:42,587 - root - INFO - [GROUPS] Membership verification failed for -1002470250083: Peer id invalid: -1002470250083
+2026-11-13 19:50:42,651 - root - INFO - [GROUPS] Membership verification failed for -1004292633463: Peer id invalid: -1004292633463
+2026-11-13 19:50:42,713 - root - INFO - [GROUPS] Membership verification failed for -1004295666009: Peer id invalid: -1004295666009
+2026-11-13 19:50:42,775 - root - INFO - [GROUPS] Membership verification failed for -1003848047264: Peer id invalid: -1003848047264
+2026-11-13 19:50:42,868 - root - INFO - [GROUPS] Membership verification failed for -1003812876377: Peer id invalid: -1003812876377
+2026-11-13 19:50:42,949 - root - INFO - [GROUPS] Membership verification failed for -1003966063116: Peer id invalid: -1003966063116
+2026-11-13 19:50:43,042 - root - INFO - [GROUPS] Membership verification failed for -1002458230405: Peer id invalid: -1002458230405
+2026-11-13 19:50:43,135 - root - INFO - [GROUPS] Membership verification failed for -1004413803900: Peer id invalid: -1004413803900
+2026-11-13 19:50:43,373 - root - INFO - [GROUPS] Membership verification failed for -1002083037099: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:50:43,466 - root - INFO - [GROUPS] Membership verification failed for -1003902127755: Peer id invalid: -1003902127755
+2026-11-13 19:50:43,560 - root - INFO - [GROUPS] Membership verification failed for -1004301440415: Peer id invalid: -1004301440415
+2026-11-13 19:50:43,653 - root - INFO - [GROUPS] Membership verification failed for -1003863751691: Peer id invalid: -1003863751691
+2026-11-13 19:50:43,748 - root - INFO - [GROUPS] Membership verification failed for -1002297320695: Peer id invalid: -1002297320695
+2026-11-13 19:50:43,841 - root - INFO - [GROUPS] Membership verification failed for -1003632091391: Peer id invalid: -1003632091391
+2026-11-13 19:50:43,923 - root - INFO - [GROUPS] Membership verification failed for -1004353701674: Peer id invalid: -1004353701674
+2026-11-13 19:50:44,017 - root - INFO - [GROUPS] Membership verification failed for -1003564266726: Peer id invalid: -1003564266726
+2026-11-13 19:50:44,111 - root - INFO - [GROUPS] Membership verification failed for -1002244888825: Peer id invalid: -1002244888825
+2026-11-13 19:50:44,184 - root - INFO - [GROUPS] Membership verification failed for -1004407552445: Peer id invalid: -1004407552445
+2026-11-13 19:50:45,369 - root - INFO - [GROUPS] Membership verification failed for -1003721776381: Peer id invalid: -1003721776381
+2026-11-13 19:50:45,469 - root - INFO - [GROUPS] Membership verification failed for -1004394855995: Peer id invalid: -1004394855995
+2026-11-13 19:50:45,542 - root - INFO - [GROUPS] Membership verification failed for -1003770034326: Peer id invalid: -1003770034326
+2026-11-13 19:50:45,604 - root - INFO - [GROUPS] Membership verification failed for -1003934988679: Peer id invalid: -1003934988679
+2026-11-13 19:50:45,666 - root - INFO - [GROUPS] Membership verification failed for -1003953915901: Peer id invalid: -1003953915901
+2026-11-13 19:50:45,731 - root - INFO - [GROUPS] Membership verification failed for -1003772644566: Peer id invalid: -1003772644566
+2026-11-13 19:50:45,823 - root - INFO - [GROUPS] Membership verification failed for -1002565463707: Peer id invalid: -1002565463707
+2026-11-13 19:50:45,940 - root - INFO - [GROUPS] Membership verification failed for -1002820271674: Peer id invalid: -1002820271674
+2026-11-13 19:50:46,025 - root - INFO - [GROUPS] Membership verification failed for -1003832476661: Peer id invalid: -1003832476661
+2026-11-13 19:50:46,106 - root - INFO - [GROUPS] Membership verification failed for -1003425470367: Peer id invalid: -1003425470367
+2026-11-13 19:50:46,188 - root - INFO - [GROUPS] Membership verification failed for -1004470975421: Peer id invalid: -1004470975421
+2026-11-13 19:50:46,245 - root - INFO - [GROUPS] Membership verification failed for -1003906875047: Peer id invalid: -1003906875047
+2026-11-13 19:50:46,307 - root - INFO - [GROUPS] Membership verification failed for -1002805087046: Peer id invalid: -1002805087046
+2026-11-13 19:50:46,402 - root - INFO - [GROUPS] Membership verification failed for -1004368613491: Peer id invalid: -1004368613491
+2026-11-13 19:50:46,469 - root - INFO - [GROUPS] Membership verification failed for -1003878179200: Peer id invalid: -1003878179200
+2026-11-13 19:50:46,668 - root - INFO - [GROUPS] Membership verification failed for -1001693032196: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:50:46,783 - root - INFO - [GROUPS] Membership verification failed for -1002435776339: Peer id invalid: -1002435776339
+2026-11-13 19:50:57,689 - root - INFO - [GROUPS] Membership verification failed for -1003843106392: Peer id invalid: -1003843106392
+2026-11-13 19:50:58,506 - root - INFO - [GROUPS] Membership verification failed for -1003291474024: Peer id invalid: -1003291474024
+2026-11-13 19:50:58,601 - root - INFO - [GROUPS] Membership verification failed for -1003873399030: Peer id invalid: -1003873399030
+2026-11-13 19:50:58,693 - root - INFO - [GROUPS] Membership verification failed for -1003974767688: Peer id invalid: -1003974767688
+2026-11-13 19:50:58,787 - root - INFO - [GROUPS] Membership verification failed for -1004404874271: Peer id invalid: -1004404874271
+2026-11-13 19:50:59,630 - root - INFO - [GROUPS] Membership verification failed for -1003540339902: Peer id invalid: -1003540339902
+2026-11-13 19:50:59,717 - root - INFO - [GROUPS] Membership verification failed for -1003583328363: Peer id invalid: -1003583328363
+2026-11-13 19:50:59,809 - root - INFO - [GROUPS] Membership verification failed for -1002216969649: Peer id invalid: -1002216969649
+2026-11-13 19:50:59,902 - root - INFO - [GROUPS] Membership verification failed for -1004408240337: Peer id invalid: -1004408240337
+2026-11-13 19:50:59,995 - root - INFO - [GROUPS] Membership verification failed for -1003278632399: Peer id invalid: -1003278632399
+2026-11-13 19:51:00,057 - root - INFO - [GROUPS] Membership verification failed for -1003873266548: Peer id invalid: -1003873266548
+2026-11-13 19:51:00,265 - root - INFO - [GROUPS] Membership verification failed for -1001915788665: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:51:00,326 - root - INFO - [GROUPS] Membership verification failed for -1003300199360: Peer id invalid: -1003300199360
+2026-11-13 19:51:00,481 - root - INFO - [GROUPS] Membership verification failed for -1002395285684: Peer id invalid: -1002395285684
+2026-11-13 19:51:01,475 - root - INFO - [GROUPS] Membership verification failed for -1002584947597: Peer id invalid: -1002584947597
+2026-11-13 19:51:01,581 - root - INFO - [GROUPS] Membership verification failed for -1003633960079: Peer id invalid: -1003633960079
+2026-11-13 19:51:01,673 - root - INFO - [GROUPS] Membership verification failed for -1002911121894: Peer id invalid: -1002911121894
+2026-11-13 19:51:01,875 - root - INFO - [GROUPS] Membership verification failed for -1001800918110: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:51:01,965 - root - INFO - [GROUPS] Membership verification failed for -1003687712548: Peer id invalid: -1003687712548
+2026-11-13 19:51:02,061 - root - INFO - [GROUPS] Membership verification failed for -1003757850874: Peer id invalid: -1003757850874
+2026-11-13 19:51:02,153 - root - INFO - [GROUPS] Membership verification failed for -1003849953651: Peer id invalid: -1003849953651
+2026-11-13 19:51:02,246 - root - INFO - [GROUPS] Membership verification failed for -1002858471081: Peer id invalid: -1002858471081
+2026-11-13 19:51:02,339 - root - INFO - [GROUPS] Membership verification failed for -1003418025328: Peer id invalid: -1003418025328
+2026-11-13 19:51:02,431 - root - INFO - [GROUPS] Membership verification failed for -1003172943196: Peer id invalid: -1003172943196
+2026-11-13 19:51:02,662 - root - INFO - [GROUPS] Membership verification failed for -1001920943495: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:51:02,802 - root - INFO - [GROUPS] Membership verification failed for -1002946070634: Peer id invalid: -1002946070634
+2026-11-13 19:51:02,849 - root - INFO - [GROUPS] Membership verification failed for -1003945157560: Peer id invalid: -1003945157560
+2026-11-13 19:51:03,505 - root - INFO - [GROUPS] Membership verification failed for -1003023135446: Peer id invalid: -1003023135446
+2026-11-13 19:51:03,599 - root - INFO - [GROUPS] Membership verification failed for -1004238626917: Peer id invalid: -1004238626917
+2026-11-13 19:51:03,679 - root - INFO - [GROUPS] Membership verification failed for -1003411295228: Peer id invalid: -1003411295228
+2026-11-13 19:51:03,759 - root - INFO - [GROUPS] Membership verification failed for -1002246934952: Peer id invalid: -1002246934952
+2026-11-13 19:51:03,974 - root - INFO - [GROUPS] Membership verification failed for -1002134547228: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:51:04,147 - root - INFO - [GROUPS] Membership verification failed for -1001344736324: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:51:04,223 - root - INFO - [GROUPS] Membership verification failed for -1002994223750: Peer id invalid: -1002994223750
+2026-11-13 19:51:23,571 - root - INFO - [GROUPS] Membership verification failed for -1003843106392: Peer id invalid: -1003843106392
+2026-11-13 19:51:23,659 - root - INFO - [GROUPS] Membership verification failed for -1003291474024: Peer id invalid: -1003291474024
+2026-11-13 19:51:23,752 - root - INFO - [GROUPS] Membership verification failed for -1003380967549: Peer id invalid: -1003380967549
+2026-11-13 19:51:24,391 - root - INFO - [GROUPS] Membership verification failed for -1002470250083: Peer id invalid: -1002470250083
+2026-11-13 19:51:25,236 - root - INFO - [GROUPS] Membership verification failed for -1002911121894: Peer id invalid: -1002911121894
+2026-11-13 19:51:26,423 - root - INFO - [GROUPS] Membership verification failed for -1001800918110: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:51:27,250 - root - INFO - [GROUPS] Membership verification failed for -1003687712548: Peer id invalid: -1003687712548
+2026-11-13 19:51:27,430 - root - INFO - [GROUPS] Membership verification failed for -1001920943495: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:51:27,509 - root - INFO - [GROUPS] Membership verification failed for -1002946070634: Peer id invalid: -1002946070634
+2026-11-13 19:51:27,703 - root - INFO - [GROUPS] Membership verification failed for -1002134547228: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:51:27,937 - root - INFO - [GROUPS] Membership verification failed for -1001344736324: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:52:14,605 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 19:52:14] "GET / HTTP/1.1" 200 -
+2026-11-13 19:52:26,755 - root - INFO - [GROUPS] Membership verification failed for -1003843106392: Peer id invalid: -1003843106392
+2026-11-13 19:52:26,813 - root - INFO - [GROUPS] Membership verification failed for -1003291474024: Peer id invalid: -1003291474024
+2026-11-13 19:52:26,906 - root - INFO - [GROUPS] Membership verification failed for -1003875553143: Peer id invalid: -1003875553143
+2026-11-13 19:52:27,486 - root - INFO - [GROUPS] Membership verification failed for -1004452059368: Peer id invalid: -1004452059368
+2026-11-13 19:52:27,578 - root - INFO - [GROUPS] Membership verification failed for -1004404874271: Peer id invalid: -1004404874271
+2026-11-13 19:52:28,556 - root - INFO - [GROUPS] Membership verification failed for -1001800918110: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:52:28,643 - root - INFO - [GROUPS] Membership verification failed for -1003687712548: Peer id invalid: -1003687712548
+2026-11-13 19:52:28,861 - root - INFO - [GROUPS] Membership verification failed for -1001920943495: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:52:28,939 - root - INFO - [GROUPS] Membership verification failed for -1002946070634: Peer id invalid: -1002946070634
+2026-11-13 19:52:29,314 - root - INFO - [GROUPS] Membership verification failed for -1002134547228: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:52:29,518 - root - INFO - [GROUPS] Membership verification failed for -1001344736324: Telegram says: [400 CHANNEL_INVALID] - The channel parameter is invalid (caused by "channels.GetChannels")
+2026-11-13 19:53:57,681 - root - INFO - [CMD] /profile invoked by 6265981509
+2026-11-13 19:54:12,833 - root - INFO - [CMD] /profile invoked by 8645657888
+2026-11-13 19:55:03,633 - root - INFO - [CMD] /commands invoked by 6265981509
+2026-11-13 19:57:16,649 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 19:57:16] "GET / HTTP/1.1" 200 -
+2026-11-13 19:59:35,775 - root - INFO - [CMD] /commands invoked by 8645657888
+2026-11-13 20:02:18,704 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 20:02:18] "GET / HTTP/1.1" 200 -
+2026-11-13 20:02:41,414 - root - INFO - [PDRAFT] 6265981509 initiated Pokemon Draft (main)
+2026-11-13 20:02:41,667 - root - INFO - [PDRAFT] Draft initialized - 6265981509 vs 8645657888, waiting for acceptance
+2026-11-13 20:02:46,259 - root - INFO - [HANDLER] callbacks called
+2026-11-13 20:02:47,403 - root - INFO - [HANDLER] callbacks completed in 1.14s
+2026-11-13 20:02:50,734 - root - INFO - [HANDLER] callbacks called
+2026-11-13 20:02:51,884 - root - INFO - [HANDLER] callbacks completed in 1.15s
+2026-11-13 20:03:16,542 - root - INFO - [HANDLER] callbacks called
+2026-11-13 20:03:17,665 - root - INFO - [HANDLER] callbacks completed in 1.12s
+2026-11-13 20:03:19,494 - root - INFO - [HANDLER] callbacks called
+2026-11-13 20:03:20,681 - root - INFO - [HANDLER] callbacks completed in 1.19s
+2026-11-13 20:03:25,611 - root - INFO - [HANDLER] callbacks called
+2026-11-13 20:03:26,791 - root - INFO - [HANDLER] callbacks completed in 1.18s
+2026-11-13 20:05:17,759 - root - INFO - [HANDLER] callbacks called
+2026-11-13 20:05:17,867 - root - INFO - [HANDLER] callbacks completed in 0.11s
+2026-11-13 20:07:20,758 - werkzeug - INFO - 127.0.0.1 - - [13/Nov/2026 20:07:20] "GET / HTTP/1.1" 200 -

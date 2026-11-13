@@ -594,19 +594,23 @@ async def _place_bid(client, game, user_id, amount, query=None):
             message = f'Your remaining budget is only ${player["budget"]}.'
         else:
             game['current_bid'] = {'user_id': user_id, 'amount': amount}
+            # Anti-sniping: the countdown restarts from THIS bid, so a last-second bid
+            # always leaves the opponent a full window to counter-bid or pass.
+            game['round_ends_at'] = time.time() + config.AUCTION_BID_RESET_SECONDS
             database.COL_AUCTION_BIDS.insert_one({'auction_id': game['auction_id'], 'round_index': game['queue_index'], 'bidder_id': user_id, 'amount': amount, 'created_at': _now()})
             _save(game)
             char = game['queue'][game['queue_index']]
             body = (
                 f'Highest bid: <b>${amount}</b> by <b>{html.escape(player["name"])}</b>\n'
-                f'⏳ Bidding closes at the end of this round.\n\n'
+                f'⏳ Timer reset: <b>{config.AUCTION_BID_RESET_SECONDS}s</b> from this bid to counter-bid or pass.\n\n'
                 f'{_team_text(game["players"][0])}\n{_team_text(game["players"][1])}'
             )
             await _upsert_auction_display(
                 client, game, _public_card(char, game, body), _bid_markup(game), preview=bool(char.get('image_url')),
             )
+            _schedule_bid_timeout(client, game)
             if query:
-                return await query.answer('Bid accepted.')
+                return await query.answer('Bid accepted. Timer reset.')
             return True
     if query:
         return await query.answer(message, show_alert=True)
@@ -710,18 +714,37 @@ async def auction_cancel_command(client, message):
 
 
 @Client.on_message(filters.command('auction_stats'))
-async def auction_stats_command(_, message):
+async def auction_stats_command(client, message):
     if not database.USE_MONGO:
         return await message.reply('Auction database unavailable.')
     uid = message.from_user.id
     matches = list(database.COL_AUCTIONS.find({'status': 'completed', 'players.id': uid}, {'winner_id': 1}))
     wins = sum(1 for match in matches if match.get('winner_id') == uid)
-    await message.reply(f'📊 <b>Auction Stats</b>\nMatches: <b>{len(matches)}</b>\nWins: <b>{wins}</b>', parse_mode=ParseMode.HTML)
+    ru = rich_ui
+    body = (
+        ru.r_heading('\u00bb ' + ru.sc('Auction Stats'), 2, raw=True)
+        + ru.r_kv([(ru.sc('Matches'), '<b>' + str(len(matches)) + '</b>'), (ru.sc('Wins'), '<b>' + str(wins) + '</b>')])
+    )
+    await ru.rich_send(client, message.chat.id, body)
 
 
 @Client.on_message(filters.command('auction_help'))
-async def auction_help_command(_, message):
-    await message.reply('🔥 <b>$20 Blind Auction</b>\n\nBefore joining, both players must open the bot in private DM and send <code>/start</code>. Use <code>/auction</code> in a group to open a lobby, or reply with it to challenge one player directly. Each player has $20 and builds a five-character team from ten shuffled cards. Bid with buttons or <code>/bid AMOUNT</code>. Fighter selection happens one at a time in the group; only the current player’s button tap is accepted.', parse_mode=ParseMode.HTML)
+async def auction_help_command(client, message):
+    ru = rich_ui
+    sc = ru.sc
+    body = (
+        ru.r_heading('\u00bb ' + sc('$20 Blind Auction'), 2, raw=True)
+        + ru.r_heading('\u300c ' + sc('before you start') + ' \u300d', 3, raw=True)
+        + ru.r_list([sc('Both players must open the bot in DM and send /start.')])
+        + ru.r_heading('\u300c ' + sc('how it works') + ' \u300d', 3, raw=True)
+        + ru.r_list([
+            sc('Use /auction in a group to open a lobby, or reply to challenge one player.'),
+            sc('Each player has $20 and builds a five character team from ten shuffled cards.'),
+            sc('Bid with buttons or /bid AMOUNT.'),
+            sc('Fighter selection happens one at a time; only the current player can tap.'),
+        ])
+    )
+    await ru.rich_send(client, message.chat.id, body)
 
 
 def _auction_tier(total_power):
@@ -811,21 +834,12 @@ def _auction_series_card(series, page):
     page = min(max(1, page), total_pages)
     start = (page - 1) * _AUCTION_SERIES_PER_PAGE
     page_series = series[start:start + _AUCTION_SERIES_PER_PAGE]
-    card = rich_ui.build_rich_card(
-        title='📚 Available Auction Series',
-        badges=['Auction', f'Page {page}/{total_pages}'],
-        description='\n'.join(f'• {html.escape(name)}' for name in page_series),
-    )
-    buttons = []
-    navigation = []
-    if page > 1:
-        navigation.append(InlineKeyboardButton('⬅️ Prev', callback_data=f'alist:{page - 1}'))
-    if page < total_pages:
-        navigation.append(InlineKeyboardButton('Next ➡️', callback_data=f'alist:{page + 1}'))
-    if navigation:
-        buttons.append(navigation)
-    buttons.append([InlineKeyboardButton('⬅️ Back to catalog choice', callback_data='list_home')])
-    return card, InlineKeyboardMarkup(buttons)
+    card = rich_ui.series_html('Available Auction Series', page_series, page, total_pages)
+    rows = [
+        rich_ui.nav_row(f'alist:{page - 1}' if page > 1 else None, f'alist:{page + 1}' if page < total_pages else None),
+        [rich_ui.Btn('\u25c2 BACK', cb='list_home')],
+    ]
+    return card, rows
 
 
 @Client.on_message(filters.command('alist'))
@@ -840,8 +854,8 @@ async def auction_series_list_command(client, message):
         page = max(1, int((message.command or [])[1]))
     except (IndexError, ValueError):
         page = 1
-    card, markup = _auction_series_card(series, page)
-    await rich_ui.send_rich_message(client, message.chat.id, card, reply_markup=markup)
+    card, rows = _auction_series_card(series, page)
+    await rich_ui.rich_send(client, message.chat.id, card, rows)
 
 
 @Client.on_callback_query(filters.regex(r'^alist:(\d+)$'))
@@ -852,8 +866,6 @@ async def auction_series_list_callback(client, callback_query):
     if not series:
         return await callback_query.answer('No auction series are available.', show_alert=True)
     page = int(callback_query.matches[0].group(1))
-    card, markup = _auction_series_card(series, page)
+    card, rows = _auction_series_card(series, page)
     await callback_query.answer()
-    await rich_ui.edit_rich_message(
-        client, callback_query.message.chat.id, callback_query.message.id, card, reply_markup=markup,
-    )
+    await rich_ui.rich_edit(client, callback_query.message.chat.id, callback_query.message.id, card, rows)

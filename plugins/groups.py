@@ -8,6 +8,7 @@ from pyrogram.enums import ParseMode
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 import database
+import rich_ui
 from utils import is_admin
 
 
@@ -75,49 +76,53 @@ def _ranking_count(group, mode):
     return group.get('weekly_message_count', 0)
 
 
-def _listing_text(groups, mode, page):
-    label = {'weekly': 'WEEKLY', 'today': "TODAY'S", 'all': 'ALL-TIME'}[mode]
+def _listing_html(groups, mode, page):
+    ru = rich_ui
+    label = {'weekly': 'weekly', 'today': "today's", 'all': 'all-time'}[mode]
+    body = ru.r_heading('\U0001f525 ' + ru.sc('Top 15 Active AnimeDraft Groups'), 2, raw=True)
     if not groups:
-        return f'🔥 <b>TOP ACTIVE ANIMEDRAFT GROUPS</b>\n\nNo verified public groups have activity yet.'
+        return body + ru.r_p(ru.sc('No verified public groups have activity yet.'))
+    body += ru.r_p('<i>' + ru.sc('Sorted by ' + label + ' activity') + '</i>')
     start = page * PAGE_SIZE
-    entries = []
+    table_rows = []
     for index, group in enumerate(groups[start:start + PAGE_SIZE], start + 1):
-        entries.append(
-            f'<b>{index}. {html.escape(group.get("title") or "Untitled group")}</b>\n'
-            f'💬 {label.title()} messages: {int(_ranking_count(group, mode)):,}\n'
-            f'👥 Active users: {int(group.get("unique_active_users", 0)):,}'
-        )
-    return '🔥 <b>TOP 15 ACTIVE ANIMEDRAFT GROUPS</b>\n' + f'<i>Sorted by {label.lower()} activity</i>\n\n' + '\n\n'.join(entries)
+        username = group.get('public_username')
+        link = '<a href="https://t.me/' + ru.esc(username) + '">@' + ru.esc(username) + '</a>' if username else '-'
+        name = ru.esc_name(group.get('title') or 'Untitled group', 40)
+        messages = int(_ranking_count(group, mode))
+        users = int(group.get('unique_active_users', 0))
+        body += ru.r_heading(str(index) + '. ' + name, 4, raw=True)
+        body += ru.r_kv([
+            (ru.sc(label.title() + ' messages'), format(messages, ',')),
+            (ru.sc('Active users'), format(users, ',')),
+            (ru.sc('Link'), link),
+        ])
+    total_pages = max(1, (len(groups) + PAGE_SIZE - 1) // PAGE_SIZE)
+    return body + ru.r_p(ru.sc('Page') + ' ' + str(page + 1) + '/' + str(total_pages))
 
 
-def _listing_markup(groups, mode, page):
-    start = page * PAGE_SIZE
-    keyboard = []
-    for group in groups[start:start + PAGE_SIZE]:
-        link = group.get('public_link')
-        if link:
-            keyboard.append([InlineKeyboardButton('🔗 Join Group', url=link)])
-    nav = []
-    if page > 0:
-        nav.append(InlineKeyboardButton('◀ Previous', callback_data=f'groups:{mode}:{page - 1}'))
-    if (page + 1) * PAGE_SIZE < len(groups):
-        nav.append(InlineKeyboardButton('Next ▶', callback_data=f'groups:{mode}:{page + 1}'))
-    if nav:
-        keyboard.append(nav)
-    keyboard.append([InlineKeyboardButton('🔄 Refresh', callback_data=f'groups:{mode}:{page}')])
-    return InlineKeyboardMarkup(keyboard)
+def _listing_rows(groups, mode, page):
+    # No per-group "Join" buttons: every group's @username link is inside the text.
+    return [
+        rich_ui.nav_row(
+            f'groups:{mode}:{page - 1}' if page > 0 else None,
+            f'groups:{mode}:{page + 1}' if (page + 1) * PAGE_SIZE < len(groups) else None,
+        ),
+        [rich_ui.Btn('\u21bb REFRESH', cb=f'groups:{mode}:{page}')],
+    ]
 
 
 async def _send_or_edit_listing(client, target, mode, page, *, edit=False):
     groups = await _verified_groups(client, mode)
     max_page = max(0, (len(groups) - 1) // PAGE_SIZE)
     page = max(0, min(page, max_page))
-    text = _listing_text(groups, mode, page)
-    markup = _listing_markup(groups, mode, page)
+    body = _listing_html(groups, mode, page)
+    rows = _listing_rows(groups, mode, page)
     if edit:
-        await target.edit_message_text(text, parse_mode=ParseMode.HTML, reply_markup=markup, disable_web_page_preview=True)
+        message = target.message
+        await rich_ui.rich_edit(client, message.chat.id, message.id, body, rows)
     else:
-        await target.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup, disable_web_page_preview=True)
+        await rich_ui.rich_send(client, target.chat.id, body, rows)
 
 
 @Client.on_message(filters.group & ~filters.bot, group=-1)
@@ -193,17 +198,20 @@ async def groups_stats_command(client, message):
                 f'<code>{group["chat_id"]}</code> — {state}, {visibility}, {int(group.get("total_messages", 0)):,} msgs'
             )
         return await message.reply_text('\n'.join(lines), parse_mode=ParseMode.HTML)
-    text = (
-        '📊 <b>GROUP TRACKING STATISTICS</b>\n\n'
-        f'All tracked groups: <b>{stats["tracked_groups"]:,}</b>\n'
-        f'Current bot-member groups: <b>{stats["member_groups"]:,}</b>\n'
-        f'Publicly eligible groups: <b>{stats["public_groups"]:,}</b>\n'
-        f'Aggregate messages: <b>{stats["messages"]:,}</b>\n'
-        f'Aggregate active users: <b>{stats["active_users"]:,}</b>\n\n'
-        '<i>Only aggregate counts are retained; message content and public user IDs are never stored.</i>'
+    ru = rich_ui
+    sc = ru.sc
+    body = (
+        ru.r_heading('\u00bb ' + sc('Group Tracking Statistics'), 2, raw=True)
+        + ru.r_kv([
+            (sc('All tracked groups'), format(stats['tracked_groups'], ',')),
+            (sc('Current bot-member groups'), format(stats['member_groups'], ',')),
+            (sc('Publicly eligible groups'), format(stats['public_groups'], ',')),
+            (sc('Aggregate messages'), format(stats['messages'], ',')),
+            (sc('Aggregate active users'), format(stats['active_users'], ',')),
+        ])
+        + ru.r_p('<i>' + sc('Only aggregate counts are retained; message content and public user IDs are never stored.') + '</i>')
     )
-    markup = InlineKeyboardMarkup([[InlineKeyboardButton('🔄 Refresh membership', callback_data='grpadmin:refresh')]])
-    await message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=markup)
+    await ru.rich_send(client, message.chat.id, body, [[ru.Btn('\u21bb REFRESH MEMBERSHIP', cb='grpadmin:refresh', style='primary')]])
 
 
 @Client.on_callback_query(filters.regex(r'^grpadmin:refresh$'))

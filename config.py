@@ -23,6 +23,9 @@ AUCTION_STARTING_BUDGET = 20
 AUCTION_TEAM_SIZE = 5
 AUCTION_POOL_SIZE = 10
 AUCTION_BID_TIMEOUT_SECONDS = int(os.getenv("AUCTION_BID_TIMEOUT_SECONDS", "30"))
+# Anti-sniping: every accepted bid restarts the countdown from that bid, so the other
+# player always gets this many seconds to answer. Defaults to the normal round timer.
+AUCTION_BID_RESET_SECONDS = int(os.getenv("AUCTION_BID_RESET_SECONDS", str(AUCTION_BID_TIMEOUT_SECONDS)))
 AUCTION_SELECTION_TIMEOUT_SECONDS = int(os.getenv("AUCTION_SELECTION_TIMEOUT_SECONDS", "60"))
 # A lobby cannot reserve users forever, and a game whose timer jobs disappeared
 # after a restart is released automatically after this much inactivity.

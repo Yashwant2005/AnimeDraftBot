@@ -82,6 +82,95 @@ def _find_character_matches(term, *, series=False):
     return matches
 
 
+def _norm(value):
+    """Spelling-insensitive key: 'Jujutsu  Kaisen' == 'jujutsukaisen' == 'Jujutsu-Kaisen'."""
+    return re.sub(r'[^a-z0-9]', '', str(value or '').casefold())
+
+
+def _local_catalog():
+    """Characters that live only in data/character.json / data/marvel.json (not in Mongo)."""
+    items = []
+    for fname, kind in (('character.json', 'anime'), ('marvel.json', 'comic')):
+        path = os.path.join(DATA_DIR, fname)
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path, 'r', encoding='utf-8') as handle:
+                data = json.load(handle)
+        except Exception as exc:
+            logging.warning('[DELETE] Could not read %s: %s', path, exc)
+            continue
+        if isinstance(data, list):
+            for item in data:
+                if isinstance(item, dict) and item.get('name'):
+                    items.append({**item, 'kind': item.get('kind') or kind, '_source_collection': 'local_json'})
+    return items
+
+
+def _find_series_matches(term):
+    """Find EVERY active record of one series, in Mongo AND in the local JSON catalog.
+
+    Returns (documents, suggestions). Matching ignores case, spaces and punctuation,
+    has no 25-record cap, and an ID resolves to its whole series.
+    The bot merges Mongo + character.json at startup, so a series may exist in only one.
+    """
+    wanted = _norm(term)
+    if not wanted:
+        return [], []
+    exact_id = _safe_object_id(term)
+    id_options = [{'id': term}]
+    if str(term).isdigit():
+        id_options.append({'id': int(term)})
+    if exact_id:
+        id_options.append({'_id': exact_id})
+
+    documents, suggestions = [], {}
+
+    def consider(name):
+        key = _norm(name)
+        if key and len(wanted) >= 4 and key != wanted and (wanted in key or (len(key) >= 4 and key in wanted)):
+            suggestions[name] = suggestions.get(name, 0) + 1
+
+    if database.USE_MONGO:
+        for source, collection in _character_collections():
+            if collection is None:
+                continue
+            active = {'archived': {'$ne': True}}
+            exact = set()
+            targets = {wanted}
+            seed = collection.find_one({**active, '$or': id_options})
+            if seed is not None:
+                targets.add(_norm(_character_series(seed)))
+            for field in ('series', 'anime'):
+                for name in collection.distinct(field, active):
+                    if not isinstance(name, str) or not name.strip():
+                        continue
+                    if _norm(name) in targets:
+                        exact.add((field, name))
+                    else:
+                        consider(name)
+            if exact:
+                query = {**active, '$or': [{field: name} for field, name in exact]}
+                for document in collection.find(query).limit(5000):
+                    document['_source_collection'] = source
+                    documents.append(document)
+
+    already = {(d.get('name'), _character_series(d)) for d in documents}
+    local = _local_catalog()
+    targets = {wanted}
+    for item in local:
+        if str(item.get('id', '')) == str(term):
+            targets.add(_norm(_character_series(item)))
+    for item in local:
+        series = _character_series(item)
+        if _norm(series) in targets:
+            if (item.get('name'), series) not in already:
+                documents.append(item)
+        else:
+            consider(series)
+    return documents, sorted(suggestions)[:10]
+
+
 def _character_reference_count(document):
     """Count known persisted and in-memory references before a hard delete."""
     char_id, name = document.get('id'), document.get('name')
@@ -127,6 +216,31 @@ def _remove_document_from_local_source(document):
         logging.warning('[DELETE] Could not update local catalog source: %s', exc)
 
 
+def _remove_documents_from_local_source(documents):
+    """Single pass over character.json / marvel.json for a whole batch."""
+    wanted = {}
+    for document in documents:
+        if document.get('_source_collection') != 'characters':
+            continue
+        fname = 'marvel.json' if document.get('kind') == 'comic' else 'character.json'
+        wanted.setdefault(fname, set()).add((document.get('name'), _character_series(document)))
+    for fname, pairs in wanted.items():
+        path = os.path.join(DATA_DIR, fname)
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path, 'r', encoding='utf-8') as handle:
+                data = json.load(handle)
+            if not isinstance(data, list):
+                continue
+            retained = [item for item in data if (item.get('name'), _character_series(item)) not in pairs]
+            if len(retained) != len(data):
+                with open(path, 'w', encoding='utf-8') as handle:
+                    json.dump(retained, handle, ensure_ascii=False, indent=2)
+        except Exception as exc:
+            logging.warning('[DELETE] Could not update local catalog source %s: %s', fname, exc)
+
+
 def _purge_character_from_runtime(document):
     name, series = document.get('name'), _character_series(document)
     keys = {f'{name} | {series}', f'{name} | Marvel'}
@@ -147,45 +261,62 @@ def _purge_character_from_runtime(document):
 
 def _write_delete_action(request):
     source = request['source_collection']
-    collection = dict(_character_collections()).get(source)
-    if collection is None:
-        raise RuntimeError('The source collection is unavailable.')
-    ids = [_safe_object_id(value) for value in request['document_ids']]
-    if not all(ids):
-        raise RuntimeError('Invalid stored character identifier.')
-    documents = list(collection.find({'_id': {'$in': ids}, 'archived': {'$ne': True}}))
-    if len(documents) != len(ids):
-        raise RuntimeError('One or more records no longer exist or were already archived.')
-    for document in documents:
-        document['_source_collection'] = source
-    references = sum(_character_reference_count(document) for document in documents)
-    now = datetime.now(timezone.utc)
+    local_items = request.get('local_items') or []
+    result, mongo_count, references = 'deleted', 0, 0
+    mongo_docs = []
 
-    def write(session=None):
-        if references:
-            collection.update_many(
-                {'_id': {'$in': ids}},
-                {'$set': {'archived': True, 'archived_at': now, 'archived_reason': 'owner_delete_with_references'}},
-                session=session,
-            )
-            return 'archived'
-        collection.delete_many({'_id': {'$in': ids}}, session=session)
-        return 'deleted'
+    if request.get('document_ids'):
+        collection = dict(_character_collections()).get(source)
+        if collection is None:
+            raise RuntimeError('The source collection is unavailable.')
+        ids = [_safe_object_id(value) for value in request['document_ids']]
+        if not all(ids):
+            raise RuntimeError('Invalid stored character identifier.')
+        mongo_docs = list(collection.find({'_id': {'$in': ids}, 'archived': {'$ne': True}}))
+        if len(mongo_docs) != len(ids):
+            raise RuntimeError('One or more records no longer exist or were already archived.')
+        for document in mongo_docs:
+            document['_source_collection'] = source
+        references = sum(_character_reference_count(document) for document in mongo_docs)
+        now = datetime.now(timezone.utc)
 
-    # Atlas/repl-set deployments support transactions; standalone MongoDB
-    # deployments use the same guarded writes without pretending atomics exist.
-    try:
-        with database.MONGO_CLIENT.start_session() as session:
-            with session.start_transaction():
-                result = write(session)
-    except Exception as exc:
-        if 'Transaction numbers are only allowed' not in str(exc) and 'replica set' not in str(exc).lower():
-            raise
-        result = write()
-    for document in documents:
-        _remove_document_from_local_source(document)
+        def write(session=None):
+            if references:
+                collection.update_many(
+                    {'_id': {'$in': ids}},
+                    {'$set': {'archived': True, 'archived_at': now, 'archived_reason': 'owner_delete_with_references'}},
+                    session=session,
+                )
+                return 'archived'
+            collection.delete_many({'_id': {'$in': ids}}, session=session)
+            return 'deleted'
+
+        # Atlas/repl-set deployments support transactions; standalone MongoDB
+        # deployments use the same guarded writes without pretending atomics exist.
+        try:
+            with database.MONGO_CLIENT.start_session() as session:
+                with session.start_transaction():
+                    result = write(session)
+        except Exception as exc:
+            if 'Transaction numbers are only allowed' not in str(exc) and 'replica set' not in str(exc).lower():
+                raise
+            result = write()
+        mongo_count = len(mongo_docs)
+
+    # Records that exist only in the local JSON catalog (plus the JSON copy of Mongo records).
+    local_docs = [
+        {'name': item['name'], 'series': item['series'], 'kind': item.get('kind', 'anime'),
+         '_source_collection': 'local_json'}
+        for item in local_items
+    ]
+    _remove_documents_from_local_source(
+        [dict(d, _source_collection='characters') for d in mongo_docs] + [dict(d, _source_collection='characters') for d in local_docs]
+    )
+    for document in mongo_docs + local_docs:
         _purge_character_from_runtime(document)
-    return result, len(documents), references
+    if local_docs and not mongo_docs:
+        result = 'deleted'
+    return result, mongo_count + len(local_docs), references
 
 
 def _deletion_message(request):
@@ -194,7 +325,7 @@ def _deletion_message(request):
     if request['action'] == 'series':
         subject = (
             f"<b>Series:</b> {html.escape(request['series'])}\n"
-            f"<b>Associated characters:</b> {len(request['document_ids'])}"
+            f"<b>Associated characters:</b> {request.get('total', len(request['document_ids']))}"
         )
     else:
         subject = (
@@ -211,12 +342,16 @@ def _deletion_message(request):
 
 async def _request_owner_confirmation(client, message, action, documents):
     now = datetime.now(timezone.utc)
-    source = documents[0]['_source_collection']
+    mongo_docs = [d for d in documents if d.get('_source_collection') != 'local_json']
+    local_docs = [d for d in documents if d.get('_source_collection') == 'local_json']
+    source = 'characters' if mongo_docs else 'local_json'
     request = {
         'request_id': uuid.uuid4().hex[:16],
         'action': action,
         'source_collection': source,
-        'document_ids': [_document_id(document) for document in documents],
+        'document_ids': [_document_id(document) for document in mongo_docs],
+        'local_items': [{'name': d['name'], 'series': _character_series(d), 'kind': d.get('kind', 'anime')} for d in local_docs],
+        'total': len(documents),
         'character_name': documents[0].get('name', 'Unknown'),
         'series': _character_series(documents[0]),
         'requester': {'id': message.from_user.id, 'name': message.from_user.first_name or str(message.from_user.id)},
@@ -271,19 +406,24 @@ async def _delete_command(client, message, action):
         noun = 'series name or ID' if action == 'series' else 'character name or ID'
         return await message.reply(f'Usage: <code>/del{action} &lt;{noun}&gt;</code>', parse_mode=ParseMode.HTML)
     term = message.text.split(maxsplit=1)[1].strip()
-    matches = _find_character_matches(term, series=(action == 'series'))
-    if not matches:
-        return await message.reply('❌ No active matching record was found.')
-    if action == 'character':
-        if len(matches) != 1:
-            return await message.reply(_show_match_list(matches, action), parse_mode=ParseMode.HTML)
+    if action == 'series':
+        matches, suggestions = _find_series_matches(term)
+        if not matches:
+            if suggestions:
+                listing = '\n'.join(f'\u2022 <code>{html.escape(name)}</code>' for name in suggestions)
+                return await message.reply(
+                    '\u274c No series with that exact name.\n\nDid you mean:\n' + listing +
+                    '\n\nRun <code>/delseries &lt;exact name&gt;</code> with one of these.',
+                    parse_mode=ParseMode.HTML,
+                )
+            return await message.reply('\u274c No active matching series was found.')
+        # Spelling variants and Mongo + local JSON copies of one series are handled together.
         return await _request_owner_confirmation(client, message, action, matches)
 
-    # A series is represented by its characters in this project (there is no
-    # separate series table). Only a single exact source/series group is safe.
-    sources = {document['_source_collection'] for document in matches}
-    series_names = {_character_series(document).casefold() for document in matches}
-    if len(sources) != 1 or len(series_names) != 1:
+    matches = _find_character_matches(term, series=False)
+    if not matches:
+        return await message.reply('\u274c No active matching record was found.')
+    if len(matches) != 1:
         return await message.reply(_show_match_list(matches, action), parse_mode=ParseMode.HTML)
     return await _request_owner_confirmation(client, message, action, matches)
 

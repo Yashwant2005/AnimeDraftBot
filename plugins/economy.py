@@ -46,13 +46,18 @@ async def balance_command(client, message):
     doc = _ensure_user(user.id, user)
     coins = doc.get("coins", 0)
 
-    card = rich_ui.build_rich_card(
-        title=f"💰 Wallet Balance: {user.first_name}",
-        badges=[f"Coins: {coins:,} 🪙"],
-        table_data=[("Balance", f"{coins:,} coins")],
-        footer="Use /daily to claim free coins daily!"
+    ru = rich_ui
+    sc = ru.sc
+    coin = "\U0001fa99"
+    body = (
+        ru.r_heading("\u00bb " + sc("Wallet Balance"), 2, raw=True)
+        + ru.r_kv([
+            (sc("User"), ru.esc(user.first_name or "User")),
+            (sc("Balance"), "<b>" + format(coins, ",") + "</b> " + coin),
+        ])
+        + ru.r_p(sc("Use") + " /daily " + sc("to claim free coins every day!"))
     )
-    await rich_ui.send_rich_message(client, message.chat.id, card)
+    await ru.rich_send(client, message.chat.id, body)
 
 @Client.on_message(filters.command("daily"))
 async def daily_command(client, message):
@@ -88,22 +93,24 @@ async def daily_command(client, message):
         {"id": user.id},
         {"$inc": {"coins": reward}, "$set": {"last_daily": now, "bounty": new_coins}},
     )
-    reward_rows = [("Daily reward", f"{config.DAILY_COINS:,} 🪙")]
+    ru = rich_ui
+    sc = ru.sc
+    coin = "\U0001fa99"
+    pairs = [(sc("Daily reward"), "<b>" + format(config.DAILY_COINS, ",") + "</b> " + coin)]
     if bio_bonus:
-        reward_rows.append(("Bio bonus", f"+{bio_bonus:,} 🪙"))
-    card = rich_ui.build_rich_card(
-        title="🎁 Daily Reward Claimed!",
-        badges=[f"+{reward:,} Coins"],
-        table_data=reward_rows + [
-            ("New Balance", f"{new_coins:,} 🪙")
-        ],
-        footer=(
-            "Bio bonus added for @anime_draft_bot! Come back in 24 hours."
-            if bio_bonus
-            else "Add @anime_draft_bot to your bio for a +100 coin daily bonus. Come back in 24 hours."
-        )
+        pairs.append((sc("Bio bonus"), "<b>+" + format(bio_bonus, ",") + "</b> " + coin))
+    pairs.append((sc("New balance"), "<b>" + format(new_coins, ",") + "</b> " + coin))
+    note = (
+        sc("Bio bonus added for") + " @anime_draft_bot! " + sc("Come back in 24 hours.")
+        if bio_bonus
+        else sc("Add") + " @anime_draft_bot " + sc("to your bio for a +100 coin daily bonus. Come back in 24 hours.")
     )
-    await rich_ui.send_rich_message(client, message.chat.id, card)
+    body = (
+        ru.r_heading("\u00bb " + sc("Daily Reward Claimed!") + " +" + format(reward, ","), 2, raw=True)
+        + ru.r_kv(pairs)
+        + ru.r_p(note)
+    )
+    await ru.rich_send(client, message.chat.id, body)
 
 @Client.on_message(_DISABLED_FILTER & filters.command("sell"))
 async def sell_command(client, message):
