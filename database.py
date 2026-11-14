@@ -298,38 +298,54 @@ def load_id_set(filename, client=None):
             return set()
     return set()
 
+# IDs already upserted by this process, per storage target. Chats/users are
+# saved on every /draft; once an id is persisted it never needs another write.
+_SAVED_IDS = set()
+_SAVED_IDS_LOCK = threading.Lock()
+_SAVED_IDS_MAX = 200000
+
+
 def save_id_set(filename, id_set, client=None):
     """Save a set of IDs, routing to main or clone storage as needed.
 
     ``client`` may be provided to guarantee correct clone detection as above.
+    Already-saved ids are skipped via an in-memory cache, so after warm-up this
+    makes zero database calls.
     """
-    # unify clone detection using our new helper which accepts a client
     clone_owner = get_clone_owner_id(client)
+    scope = f"{clone_owner or 'main'}:{os.path.basename(filename)}"
+    if not id_set:
+        return
+    with _SAVED_IDS_LOCK:
+        new_ids = [i for i in id_set if (scope, i) not in _SAVED_IDS]
+    if not new_ids:
+        return
+
     if USE_MONGO:
         if clone_owner:
             clone_db = get_clone_db(owner_id=clone_owner, client=client)
             if clone_db is not None:
                 col = clone_db['active_chats'] if filename == CHATS_FILE else clone_db['active_users']
-                logging.info(f"[DB] (clone) owner={clone_owner} saving to collection {col.name}")
             else:
                 col = COL_ACTIVE_CHATS if filename == CHATS_FILE else COL_ACTIVE_USERS
                 logging.warning(f"[DB] Clone DB None for owner {clone_owner}; saving to main collection")
         else:
             col = COL_ACTIVE_CHATS if filename == CHATS_FILE else COL_ACTIVE_USERS
-            logging.info(f"[DB] (main) saving to collection {col.name}")
         key = "chat_id" if filename == CHATS_FILE else "user_id"
-        try:
-            if not id_set:
-                return
-            for i in id_set:
-                try:
-                    col.update_one({key: i}, {"$set": {key: i}}, upsert=True)
-                except Exception:
-                    pass
-        except Exception as e:
-            logging.error(f"[DB] save_id_set mongo error: {e}")
+        saved = []
+        for i in new_ids:
+            try:
+                col.update_one({key: i}, {"$set": {key: i}}, upsert=True)
+                saved.append(i)
+            except Exception:
+                pass
+        with _SAVED_IDS_LOCK:
+            if len(_SAVED_IDS) > _SAVED_IDS_MAX:
+                _SAVED_IDS.clear()
+            _SAVED_IDS.update((scope, i) for i in saved)
         return
-    # JSON fallback
+
+    # JSON fallback (unchanged behaviour)
     if clone_owner:
         base, ext = os.path.splitext(filename)
         filename = f"{base}.clone_{clone_owner}{ext}"
@@ -337,6 +353,8 @@ def save_id_set(filename, id_set, client=None):
     try:
         with open(filename, "w") as f:
             json.dump(list(id_set), f)
+        with _SAVED_IDS_LOCK:
+            _SAVED_IDS.update((scope, i) for i in new_ids)
     except Exception as e:
         logging.error(f"[DB] save_id_set file error: {e}")
 

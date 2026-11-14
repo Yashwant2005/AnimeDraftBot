@@ -7,17 +7,40 @@ import global_state
 import rich_ui
 from config import ROLES, POKEMON_ROLES, DEFAULT_POWER
 
+# Render cache: (chat_id, msg_id) -> signature of the last text+keyboard that was
+# successfully shown. If a screen is identical to what Telegram already has we
+# skip the API call completely (saves a round-trip and avoids "not modified").
+_RENDER_CACHE = {}
+_RENDER_CACHE_MAX = 2000
+
+
+def _signature(text, markup, preview):
+    return hash((text, str(markup), bool(preview)))
+
+
 async def ensure_display_message(client, chat_id, game, text, reply_markup=None, preview=False):
     disp = game.get('display_message')
     markup = rich_ui.format_rich_keyboard(reply_markup)
-    
+
     if disp:
-        ok = await rich_ui.edit_rich_message(
-            client, chat_id=disp['chat_id'], message_id=disp['msg_id'],
-            text=text, reply_markup=markup, preview=preview
-        )
-        if ok:
+        key = (disp['chat_id'], disp['msg_id'])
+        sig = _signature(text, markup, preview)
+        if _RENDER_CACHE.get(key) == sig:
             return
+        # Two attempts: a transient Telegram/network hiccup must NOT leave the
+        # old keyboard on screen or spawn a duplicate message.
+        for attempt in range(2):
+            ok = await rich_ui.edit_rich_message(
+                client, chat_id=disp['chat_id'], message_id=disp['msg_id'],
+                text=text, reply_markup=markup, preview=preview
+            )
+            if ok:
+                if len(_RENDER_CACHE) > _RENDER_CACHE_MAX:
+                    _RENDER_CACHE.clear()
+                _RENDER_CACHE[key] = sig
+                return
+            await asyncio.sleep(0.5)
+        _RENDER_CACHE.pop(key, None)
 
     msg_id = await rich_ui.send_rich_message(
         client, chat_id=chat_id, text=text,

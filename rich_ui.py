@@ -6,6 +6,7 @@ import urllib.request
 import urllib.error
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.enums import ParseMode
+from pyrogram.errors import FloodWait
 
 def build_rich_card(title, subtitle=None, badges=None, description=None, table_data=None, expandable_quote=None, footer=None):
     """Builds a styled Rich Message card string using HTML markup and Bot API 10.3 block formatting.
@@ -674,21 +675,30 @@ async def edit_rich_message(client, chat_id, message_id, text, reply_markup=None
     markup = format_rich_keyboard(reply_markup)
     token = getattr(client, "bot_token", None)
 
-    try:
-        await client.edit_message_text(
-            chat_id=chat_id,
-            message_id=message_id,
-            text=text,
-            reply_markup=markup,
-            parse_mode=parse_mode,
-            disable_web_page_preview=not preview
-        )
-        return True
-    except Exception as e:
-        err_str = str(e).lower()
-        if "not modified" in err_str or "message_not_modified" in err_str:
+    for _attempt in range(2):
+        try:
+            await client.edit_message_text(
+                chat_id=chat_id,
+                message_id=message_id,
+                text=text,
+                reply_markup=markup,
+                parse_mode=parse_mode,
+                disable_web_page_preview=not preview
+            )
             return True
-        logging.debug(f"[RICH_UI] Pyrogram edit_message_text failed: {e}")
+        except FloodWait as fw:
+            # Telegram asked us to slow down: wait, then retry the SAME edit
+            # (previously this fell through and a duplicate message was sent).
+            wait = min(int(getattr(fw, "value", 1) or 1), 5)
+            logging.warning(f"[RICH_UI] edit FloodWait {wait}s (chat={chat_id} msg={message_id})")
+            await asyncio.sleep(wait)
+            continue
+        except Exception as e:
+            err_str = str(e).lower()
+            if "not modified" in err_str or "message_not_modified" in err_str:
+                return True
+            logging.debug(f"[RICH_UI] Pyrogram edit_message_text failed: {e}")
+            break
 
     if token:
         try:
@@ -720,7 +730,7 @@ async def edit_rich_message(client, chat_id, message_id, text, reply_markup=None
                     data=json.dumps(payload).encode("utf-8"),
                     headers={"Content-Type": "application/json"}
                 )
-                with urllib.request.urlopen(req, timeout=3) as response:
+                with urllib.request.urlopen(req, timeout=8) as response:
                     if response.status == 200:
                         return json.loads(response.read().decode("utf-8"))
                 return None

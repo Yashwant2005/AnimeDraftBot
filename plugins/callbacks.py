@@ -3,6 +3,8 @@ from utils import log_exceptions
 from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.enums import ParseMode
 import asyncio
+import os
+import json
 import time
 import random
 import html
@@ -29,6 +31,95 @@ async def show_pokemon_draw(c, m, game, gid):
     text = f"🏁 <b>Drafting</b>\n{ui.pokemon_get_team_display(game)}\n🎮 Turn: {p_name}"
     kb = [[InlineKeyboardButton("🎲 Draw Pokémon", callback_data=f"pdraw_{gid}")]]
     await ui.ensure_display_message(c, m.chat.id, game, text, kb)
+
+def _turn_key(game):
+    return "p1" if game["turn"] == game["p1"]["id"] else "p2"
+
+
+def _anime_pulled_view(game, gid):
+    """Screen shown after a draw: pulled character + free role buttons (+ skip)."""
+    char = game["current_draw"]
+    pkey = _turn_key(game)
+    kb, row = [], []
+    for role in (game.get("roles") or []):
+        if role not in game[pkey]["team"]:
+            safe_role = role.replace(" ", "-")
+            row.append(InlineKeyboardButton(f"🟢 {role}", callback_data=f"set_{gid}_{safe_role}"))
+            if len(row) == 2:
+                kb.append(row); row = []
+    if row:
+        kb.append(row)
+    if game[pkey]["skips"] > 0:
+        kb.append([InlineKeyboardButton(f"🗑 Skip ({game[pkey]['skips']})", callback_data=f"skip_{gid}")])
+    img = global_state.CHAR_IMAGES.get(char, "https://files.catbox.moe/knsy3i.jpg")
+    char_name = char.split("|")[0].strip()
+    txt = (f"<a href='{img}'>&#160;</a>{ui.get_team_display(game)}\n"
+           f"✨ <b>{html.escape(game[pkey]['name'])}</b> Pulled: <b>{html.escape(char_name)}</b>")
+    return txt, kb
+
+
+def _anime_ready_view(game, gid):
+    p1_status = "✅ READY" if game.get("ready", {}).get("p1") else "⏳ WAITING"
+    p2_status = "✅ READY" if game.get("ready", {}).get("p2") else "⏳ WAITING"
+    p1n, p2n = game["p1"]["name"], game["p2"]["name"]
+    kb = [
+        [InlineKeyboardButton(f"🔵 {p1n} {p1_status}", callback_data=f"startrpg_{gid}_p1")],
+        [InlineKeyboardButton(f"🔴 {p2n} {p2_status}", callback_data=f"startrpg_{gid}_p2")],
+    ]
+    return f"🏁 <b>Ready?</b>\n{ui.get_team_display(game)}", kb
+
+
+async def render_anime_state(c, chat_id, game, gid):
+    """Redraw the correct screen from the game's *current state*.
+
+    Used after every action and to heal stale screens (double taps, old
+    buttons), so the message on Telegram always matches the server state.
+    """
+    if len(game["p1"]["team"]) >= 8 and len(game["p2"]["team"]) >= 8:
+        txt, kb = _anime_ready_view(game, gid)
+        return await ui.ensure_display_message(c, chat_id, game, txt, kb)
+    if game.get("current_draw"):
+        txt, kb = _anime_pulled_view(game, gid)
+        return await ui.ensure_display_message(c, chat_id, game, txt, kb, preview=True)
+    p_name = game["p1"]["name"] if game["turn"] == game["p1"]["id"] else game["p2"]["name"]
+    text = f"🏁 <b>Drafting</b>\n{ui.get_team_display(game)}\n🎮 Turn: {p_name}"
+    kb = [[InlineKeyboardButton("🎲 Draw", callback_data=f"draw_{gid}")]]
+    await ui.ensure_display_message(c, chat_id, game, text, kb)
+
+
+def _pokemon_pulled_view(game, gid):
+    pokemon = game["current_draw"]
+    pkey = _turn_key(game)
+    kb, row = [], []
+    for role in POKEMON_ROLES:
+        if role not in game[pkey]["team"]:
+            row.append(InlineKeyboardButton(f"🟢 {role}", callback_data=f"pset_{gid}_{role}"))
+            if len(row) == 2:
+                kb.append(row); row = []
+    if row:
+        kb.append(row)
+    if game[pkey]["skips"] > 0:
+        kb.append([InlineKeyboardButton(f"🗑 Skip ({game[pkey]['skips']})", callback_data=f"pskip_{gid}")])
+    img_url = CHAR_IMAGES.get(f"{pokemon} | Pokemon")
+    image_preview = f"<a href='{html.escape(img_url, quote=True)}'>&#160;</a>" if img_url else ""
+    txt = (f"{image_preview}{ui.pokemon_get_team_display(game)}\n"
+           f"✨ <b>{html.escape(game[pkey]['name'])}</b> Pulled: <b>{html.escape(pokemon)}</b>")
+    return txt, kb
+
+
+async def render_pokemon_state(c, chat_id, game, gid):
+    if len(game["p1"]["team"]) >= 7 and len(game["p2"]["team"]) >= 7:
+        kb = [[InlineKeyboardButton("💥 Start Battle", callback_data=f"pbattle_{gid}")]]
+        return await ui.ensure_display_message(
+            c, chat_id, game, f"🏁 <b>Ready!</b>\n{ui.pokemon_get_team_display(game)}", kb)
+    if game.get("current_draw"):
+        txt, kb = _pokemon_pulled_view(game, gid)
+        return await ui.ensure_display_message(c, chat_id, game, txt, kb, preview=True)
+    p_name = game["p1"]["name"] if game["turn"] == game["p1"]["id"] else game["p2"]["name"]
+    text = f"🏁 <b>Drafting</b>\n{ui.pokemon_get_team_display(game)}\n🎮 Turn: {p_name}"
+    kb = [[InlineKeyboardButton("🎲 Draw Pokémon", callback_data=f"pdraw_{gid}")]]
+    await ui.ensure_display_message(c, chat_id, game, text, kb)
+
 
 @Client.on_callback_query(filters.regex(r"^(list_|leader_|lb_toggle_wins|char_(?!approve_|reject_)|accept_|draw_|set_|startrpg_|skip_|paccept_|pdraw_|pset_|pskip_|pbattle_)"))
 @log_exceptions
@@ -299,195 +390,203 @@ async def callbacks(c, q: CallbackQuery):
         # Robust ID Parsing for game callbacks
         action, payload = data.split('_', 1)
         # Payload usually contains gid which looks like chatid_timestamp_rand
-        parts = payload.split('_') 
-        
+        parts = payload.split('_')
+
         # We need at least 3 parts for a valid game ID (chatid, timestamp, rand)
         if len(parts) < 3: return await q.answer("Invalid Data")
-        
+
         gid = f"{parts[0]}_{parts[1]}_{parts[2]}"
-        
-        # Find game
-        game = global_state.GAMES.get(q.message.chat.id, {}).get(gid)
-        if not game: return await q.answer("❌ Game expired.", show_alert=True)
+        chat_id = q.message.chat.id
 
-        game['last_activity'] = time.time()
-        uid = q.from_user.id
+        if not global_state.GAMES.get(chat_id, {}).get(gid):
+            return await q.answer("❌ Game expired.", show_alert=True)
 
-        # --- ANIME DRAFT ---
-        if action == "accept":
-            if uid != game["p2"]["id"]: return await q.answer("Not for you!", show_alert=True)
-            game['status'] = 'active'
-            await q.answer("Draft accepted.")
-            await show_anime_draw(c, q.message, game, gid)
+        # All presses for one game are handled strictly one after another.
+        async with global_state.get_game_lock(gid):
+            # Re-read after waiting: the game may have ended while we queued.
+            game = global_state.GAMES.get(chat_id, {}).get(gid)
+            if not game: return await q.answer("❌ Game expired.", show_alert=True)
 
-        elif action == "draw":
-            if uid != game["turn"]: return await q.answer("Not your turn!", show_alert=True)
-            # Use Marvel pool if available (cdraft), otherwise use anime SERIES_MAP
-            pool = game.get("pool") or SERIES_MAP.get(game.get("filter"), ANIME_CHARACTERS)
-            available = [x for x in pool if x not in game["used_chars"]]
-            if not available: return await q.answer("Pool empty!", show_alert=True)
-            
-            char = random.choice(available)
-            game["current_draw"] = char
-            await q.answer("Drawing character...")
-            
-            # Show Assign Menu
-            kb = []
-            row = []
-            pkey = "p1" if uid == game["p1"]["id"] else "p2"
-            roles_iter = game.get('roles') or []
-            for role in roles_iter:
-                if role not in game[pkey]["team"]:
-                    safe_role = role.replace(' ', '-')
-                    row.append(InlineKeyboardButton(f"🟢 {role}", callback_data=f"set_{gid}_{safe_role}"))
-                    if len(row) == 2: kb.append(row); row = []
-            if row: kb.append(row)
-            if game[pkey]["skips"] > 0:
-                kb.append([InlineKeyboardButton(f"🗑 Skip ({game[pkey]['skips']})", callback_data=f"skip_{gid}")])
+            game['last_activity'] = time.time()
+            # Always edit the message the player actually pressed a button on.
+            # (Before, edits went to a remembered id; if that ever differed from
+            # the visible message the player kept seeing the old buttons.)
+            game['display_message'] = {'chat_id': chat_id, 'msg_id': q.message.id}
+            await _handle_game_action(c, q, action, parts, gid, game)
 
-            img = global_state.CHAR_IMAGES.get(char, "https://files.catbox.moe/knsy3i.jpg")
-            p_name = game[pkey]["name"]
-            char_name = char.split('|')[0].strip()
-            txt = f"<a href='{img}'>&#160;</a>{ui.get_team_display(game)}\n✨ <b>{p_name}</b> Pulled: <b>{char_name}</b>"
-            await ui.ensure_display_message(c, q.message.chat.id, game, txt, kb, preview=True)
 
-        elif action == "set":
-            if uid != game["turn"]: return await q.answer("Not your turn!", show_alert=True)
-            if not game.get("current_draw"): return await q.answer("Draw first!", show_alert=True)
-            
-            role = parts[3].replace('-', ' ') # Recover role from safe string
-            pkey = "p1" if uid == game["p1"]["id"] else "p2"
-            
-            game[pkey]["team"][role] = game["current_draw"]
+async def _not_your_turn(q, game):
+    """Players who tapped a now-stale button get a quiet toast; outsiders get the alert."""
+    is_player = q.from_user.id in (game["p1"]["id"], game["p2"]["id"])
+    await q.answer("⏳ Not your turn right now." if is_player else "Not your turn!", show_alert=not is_player)
+
+
+async def _handle_game_action(c, q, action, parts, gid, game):
+    uid = q.from_user.id
+    chat_id = q.message.chat.id
+
+    # --- ANIME / COMIC DRAFT ---
+    if action == "accept":
+        if uid != game["p2"]["id"]: return await q.answer("Not for you!", show_alert=True)
+        if game.get('status') == 'active':          # double tap on Accept
+            await q.answer("Already accepted.")
+            return await render_anime_state(c, chat_id, game, gid)
+        game['status'] = 'active'
+        await q.answer("Draft accepted.")
+        await render_anime_state(c, chat_id, game, gid)
+
+    elif action == "draw":
+        if uid != game["turn"]: return await _not_your_turn(q, game)
+        if game.get("current_draw"):
+            # Already drawn (double tap / stale "Draw" button). Do NOT re-roll:
+            # just repaint the role-picking screen for the same character.
+            await q.answer("You already drew — pick a role!")
+            return await render_anime_state(c, chat_id, game, gid)
+
+        # Marvel pool if available (cdraft), otherwise anime SERIES_MAP
+        pool = game.get("pool") or SERIES_MAP.get(game.get("filter"), ANIME_CHARACTERS)
+        used = set(game["used_chars"])
+        available = [x for x in pool if x not in used]
+        if not available: return await q.answer("Pool empty!", show_alert=True)
+
+        game["current_draw"] = random.choice(available)
+        await q.answer("🎲 Drawn!")
+        await render_anime_state(c, chat_id, game, gid)
+
+    elif action == "set":
+        if uid != game["turn"]: return await _not_your_turn(q, game)
+        if len(parts) < 4: return await q.answer("Invalid Data")
+
+        role = parts[3].replace('-', ' ')  # Recover role from safe string
+        pkey = "p1" if uid == game["p1"]["id"] else "p2"
+
+        if not game.get("current_draw"):
+            # Nothing to assign: the role was already taken by an earlier tap and
+            # this is a stale button. Quietly resync instead of an error popup.
+            await q.answer("✅ Already assigned.")
+            return await render_anime_state(c, chat_id, game, gid)
+        if role not in (game.get("roles") or []) or role in game[pkey]["team"]:
+            await q.answer("That role is already filled — pick another.")
+            return await render_anime_state(c, chat_id, game, gid)
+
+        game[pkey]["team"][role] = game["current_draw"]
+        game["used_chars"].append(game["current_draw"])
+        game["current_draw"] = None
+        await q.answer("Role assigned.")
+
+        if not (len(game["p1"]["team"]) == 8 and len(game["p2"]["team"]) == 8):
+            game_engine.switch_turn(game)
+        await render_anime_state(c, chat_id, game, gid)
+
+    elif action == "startrpg":
+        if len(parts) < 4: return await q.answer("Invalid Data")
+        pkey = parts[3]
+        if game.get("battle_started"):
+            return await q.answer("⚔️ Battle already started!")
+        if pkey == "p1" and uid == game["p1"]["id"]: game["ready"]["p1"] = True
+        elif pkey == "p2" and uid == game["p2"]["id"]: game["ready"]["p2"] = True
+        else: return await q.answer("Wrong button!", show_alert=True)
+
+        if game["ready"]["p1"] and game["ready"]["p2"]:
+            game["battle_started"] = True
+            await q.answer("Both players are ready. Starting the battle...")
+            await game_engine.simulate_anime_battle(c, q.message, game)
+        else:
+            await q.answer("✅ Checked in!")
+            await render_anime_state(c, chat_id, game, gid)   # shows the new READY status
+
+    elif action == "skip":
+        if uid != game["turn"]: return await _not_your_turn(q, game)
+        pkey = "p1" if uid == game["p1"]["id"] else "p2"
+        if not game.get("current_draw"):
+            await q.answer("Draw first!")
+            return await render_anime_state(c, chat_id, game, gid)
+        if game[pkey]["skips"] > 0:
+            game[pkey]["skips"] -= 1
             game["used_chars"].append(game["current_draw"])
             game["current_draw"] = None
-            await q.answer("Role assigned.")
+            game_engine.switch_turn(game)
+            await q.answer("Character skipped.")
+            await render_anime_state(c, chat_id, game, gid)
+        else:
+            await q.answer("No skips left!", show_alert=True)
 
-            if len(game["p1"]["team"]) == 8 and len(game["p2"]["team"]) == 8:
-                # Ready Phase
-                p1_status = "✅ READY" if game.get('ready', {}).get('p1') else "⏳ WAITING"
-                p2_status = "✅ READY" if game.get('ready', {}).get('p2') else "⏳ WAITING"
-                p1n, p2n = game['p1']['name'], game['p2']['name']
-                kb = [
-                    [InlineKeyboardButton(f"🔵 {p1n} {p1_status}", callback_data=f"startrpg_{gid}_p1")],
-                    [InlineKeyboardButton(f"🔴 {p2n} {p2_status}", callback_data=f"startrpg_{gid}_p2")]
-                ]
-                await ui.ensure_display_message(c, q.message.chat.id, game, f"🏁 <b>Ready?</b>\n{ui.get_team_display(game)}", kb)
-            else:
-                game_engine.switch_turn(game)
-                await show_anime_draw(c, q.message, game, gid)
-                
-        elif action == "startrpg":
-            pkey = parts[3]
-            is_p1 = (pkey == "p1")
-            with global_state.GAMES_LOCK:
-                if (is_p1 and uid == game["p1"]["id"]): game["ready"]["p1"] = True
-                elif (not is_p1 and uid == game["p2"]["id"]): game["ready"]["p2"] = True
-                else: return await q.answer("Wrong button!", show_alert=True)
+    # --- POKEMON ---
+    elif action == "paccept":
+        if uid != game["p2"]["id"]: return await q.answer("Not for you!", show_alert=True)
+        if game.get('status') == 'active':
+            await q.answer("Already accepted.")
+            return await render_pokemon_state(c, chat_id, game, gid)
+        game['status'] = 'active'
+        await q.answer("Draft accepted.")
+        await render_pokemon_state(c, chat_id, game, gid)
 
-                both_ready = game["ready"]["p1"] and game["ready"]["p2"]
-            if both_ready:
-                await q.answer("Both players are ready. Starting the battle...")
-                await game_engine.simulate_anime_battle(c, q.message, game)
-            else:
-                await q.answer("✅ Checked in!")
+    elif action == "pdraw":
+        if uid != game["turn"]: return await _not_your_turn(q, game)
+        if game.get("current_draw"):
+            await q.answer("You already drew — pick a stat!")
+            return await render_pokemon_state(c, chat_id, game, gid)
 
-        elif action == "skip":
-             if uid != game["turn"]: return await q.answer("Not your turn!", show_alert=True)
-             pkey = "p1" if uid == game["p1"]["id"] else "p2"
-             if game[pkey]["skips"] > 0:
-                 game[pkey]["skips"] -= 1
-                 if game.get("current_draw"): game["used_chars"].append(game["current_draw"])
-                 game["current_draw"] = None
-                 game_engine.switch_turn(game)
-                 await q.answer("Character skipped.")
-                 await show_anime_draw(c, q.message, game, gid)
-             else:
-                 await q.answer("No skips left!", show_alert=True)
+        used = set(game["used_players"])
+        available = [p for p in POKEMON_LIST if p not in used]
+        flt = game.get("filters", {})
+        if flt.get("regions"):
+            available = [p for p in available if POKEMON_DATA[p]["region"] in flt["regions"]]
+        if flt.get("legendary_status") is not None:
+            available = [p for p in available if POKEMON_DATA[p]["is_legendary"] == flt["legendary_status"]]
+        if not available: return await q.answer("None left!", show_alert=True)
 
-        # --- POKEMON CALLBACKS ---
-        elif action == "paccept":
-            if uid != game["p2"]["id"]: return await q.answer("Not for you!", show_alert=True)
-            game['status'] = 'active'
-            await q.answer("Draft accepted.")
-            await show_pokemon_draw(c, q.message, game, gid)
+        game["current_draw"] = random.choice(available)
+        await q.answer("🎲 Drawn!")
+        await render_pokemon_state(c, chat_id, game, gid)
 
-        elif action == "pdraw":
-            if uid != game["turn"]: return await q.answer("Not your turn!", show_alert=True)
-            if game.get("current_draw"): return await q.answer("Already drawn!", show_alert=True)
+    elif action == "pset":
+        if uid != game["turn"]: return await _not_your_turn(q, game)
+        if len(parts) < 4: return await q.answer("Invalid Data")
+        role = parts[3]
+        pkey = "p1" if uid == game["p1"]["id"] else "p2"
+        pokemon = game.get("current_draw")
+        if not pokemon:
+            await q.answer("✅ Already assigned.")
+            return await render_pokemon_state(c, chat_id, game, gid)
+        if role not in POKEMON_ROLES or role in game[pkey]["team"]:
+            await q.answer("That slot is already filled — pick another.")
+            return await render_pokemon_state(c, chat_id, game, gid)
 
-            # Filter logic - apply region and legendary status filters
-            available = [p for p in POKEMON_LIST if p not in game["used_players"]]
-            
-            # Apply region filter
-            if game.get("filters", {}).get("regions"):
-                available = [p for p in available if POKEMON_DATA[p]["region"] in game["filters"]["regions"]]
-            
-            # Apply legendary status filter
-            if game.get("filters", {}).get("legendary_status") is not None:
-                legendary_filter = game["filters"]["legendary_status"]
-                available = [p for p in available if POKEMON_DATA[p]["is_legendary"] == legendary_filter]
-            
-            if not available: return await q.answer("None left!", show_alert=True)
-            pokemon = random.choice(available)
-            game["current_draw"] = pokemon
+        p_data = POKEMON_DATA[pokemon]
+        if role == "Type":
+            game[pkey]["team"][role] = {"pokemon": pokemon, "types": p_data["types"]}
+        else:
+            game[pkey]["team"][role] = {"pokemon": pokemon, "value": p_data["stats"][STAT_MAP[role]]}
 
-            kb = []
-            row = []
-            pkey = "p1" if uid == game["p1"]["id"] else "p2"
-            for role in POKEMON_ROLES:
-                if role not in game[pkey]["team"]:
-                    row.append(InlineKeyboardButton(f"🟢 {role}", callback_data=f"pset_{gid}_{role}"))
-                    if len(row) == 2: kb.append(row); row = []
-            if row: kb.append(row)
-            if game[pkey]["skips"] > 0:
-                kb.append([InlineKeyboardButton(f"🗑 Skip ({game[pkey]['skips']})", callback_data=f"pskip_{gid}")])
-            
-            p_name = game[pkey]["name"]
-            img_url = CHAR_IMAGES.get(f"{pokemon} | Pokemon")
-            image_preview = f"<a href='{html.escape(img_url, quote=True)}'>&#160;</a>" if img_url else ""
-            txt = f"{image_preview}{ui.pokemon_get_team_display(game)}\n✨ <b>{html.escape(p_name)}</b> Pulled: <b>{html.escape(pokemon)}</b>"
-            await q.answer("Drawing Pokémon...")
-            await ui.ensure_display_message(c, q.message.chat.id, game, txt, kb, preview=True)
+        game["used_players"].append(pokemon)
+        game["current_draw"] = None
+        await q.answer("Selection saved.")
 
-        elif action == "pset":
-            if uid != game["turn"]: return await q.answer("Not your turn!", show_alert=True)
-            role = parts[3]
-            pokemon = game["current_draw"]
-            p_data = POKEMON_DATA[pokemon]
-            pkey = "p1" if uid == game["p1"]["id"] else "p2"
+        if not (len(game["p1"]["team"]) == 7 and len(game["p2"]["team"]) == 7):
+            game_engine.pokemon_switch_turn(game)
+        await render_pokemon_state(c, chat_id, game, gid)
 
-            if role == "Type":
-                game[pkey]["team"][role] = {"pokemon": pokemon, "types": p_data["types"]}
-            else:
-                val = p_data["stats"][STAT_MAP[role]]
-                game[pkey]["team"][role] = {"pokemon": pokemon, "value": val}
-
-            game["used_players"].append(pokemon)
+    elif action == "pskip":
+        if uid != game["turn"]: return await _not_your_turn(q, game)
+        pkey = "p1" if uid == game["p1"]["id"] else "p2"
+        if not game.get("current_draw"):
+            await q.answer("Draw first!")
+            return await render_pokemon_state(c, chat_id, game, gid)
+        if game[pkey]["skips"] > 0:
+            game[pkey]["skips"] -= 1
+            game["used_players"].append(game["current_draw"])
             game["current_draw"] = None
-            await q.answer("Selection saved.")
+            game_engine.pokemon_switch_turn(game)
+            await q.answer("Pokémon skipped.")
+            await render_pokemon_state(c, chat_id, game, gid)
+        else:
+            await q.answer("No skips left!", show_alert=True)
 
-            if len(game["p1"]["team"]) == 7 and len(game["p2"]["team"]) == 7:
-                 kb = [[InlineKeyboardButton("💥 Start Battle", callback_data=f"pbattle_{gid}")]]
-                 await ui.ensure_display_message(c, q.message.chat.id, game, f"🏁 <b>Ready!</b>\n{ui.pokemon_get_team_display(game)}", kb)
-            else:
-                game_engine.pokemon_switch_turn(game)
-                await show_pokemon_draw(c, q.message, game, gid)
-
-        elif action == "pskip":
-             if uid != game["turn"]: return await q.answer("Not your turn!", show_alert=True)
-             pkey = "p1" if uid == game["p1"]["id"] else "p2"
-             if game[pkey]["skips"] > 0:
-                 game[pkey]["skips"] -= 1
-                 if game.get("current_draw"): game["used_players"].append(game["current_draw"])
-                 game["current_draw"] = None
-                 game_engine.pokemon_switch_turn(game)
-                 await q.answer("Pokémon skipped.")
-                 await show_pokemon_draw(c, q.message, game, gid)
-             else:
-                 await q.answer("No skips left!", show_alert=True)
-
-        elif action == "pbattle":
-             if uid not in [game['p1']['id'], game['p2']['id']]: return await q.answer("Spectator mode only.")
-             await q.answer("Starting the battle...")
-             await game_engine.simulate_pokemon_battle(c, q.message, game)
+    elif action == "pbattle":
+        if uid not in [game['p1']['id'], game['p2']['id']]: return await q.answer("Spectator mode only.")
+        if game.get("battle_started"):
+            return await q.answer("⚔️ Battle already started!")
+        game["battle_started"] = True
+        await q.answer("Starting the battle...")
+        await game_engine.simulate_pokemon_battle(c, q.message, game)

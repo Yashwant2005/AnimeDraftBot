@@ -206,12 +206,27 @@ async def _send_or_edit_listing(client, target, mode, page, *, edit=False):
         await rich_ui.rich_send(client, target.chat.id, body, rows)
 
 
+_ACTIVITY_SEM = asyncio.Semaphore(8)
+_BG_TASKS = set()
+
+
+async def _record_activity_bg(chat, message_id, user_id, date):
+    async with _ACTIVITY_SEM:
+        try:
+            await asyncio.to_thread(database.record_group_message, chat, message_id, user_id, date)
+        except Exception as exc:
+            logging.warning('[GROUPS] background activity write failed: %s', exc)
+
+
 @Client.on_message(filters.group & ~filters.bot, group=-1)
 async def track_group_activity(_, message):
     """The early handler records every user group message before command handlers run."""
     if not message.from_user or message.sender_chat:
         return
-    database.record_group_message(message.chat, message.id, message.from_user.id, message.date)
+    # record_group_message does 4-5 *synchronous* MongoDB writes. Running them
+    # inline froze the whole bot (every button press waited behind them), so
+    # they now run in a worker thread, bounded so a busy group can't flood it.
+    asyncio.create_task(_record_activity_bg(message.chat, message.id, message.from_user.id, message.date))
 
 
 @Client.on_chat_member_updated(group=-1)

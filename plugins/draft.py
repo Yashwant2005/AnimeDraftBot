@@ -13,6 +13,7 @@ import html
 import os
 import json
 import uuid
+import asyncio
 from types import SimpleNamespace
 # --- FIX: Split imports correctly ---
 from config import MAX_ACTIVE_DRAFTS_PER_CHAT, MARVEL_ROLES, ROLES, DATA_DIR
@@ -20,6 +21,24 @@ from global_state import SERIES_MAP, SERIES_DISPLAY, POKEMON_LIST, POKEMON_DATA
 
 
 _DRAFT_MODE_PICKERS = {}
+_BG_TASKS = set()
+
+
+def _bg(coro):
+    """Fire-and-forget: the player must not wait for audit/logging network calls."""
+    task = asyncio.create_task(coro)
+    _BG_TASKS.add(task)
+    task.add_done_callback(_BG_TASKS.discard)
+    return task
+
+
+async def _save_active(c, chat_id, user_ids):
+    """Persist chat/users off the event loop (sync DB). Cached after first save."""
+    try:
+        await asyncio.to_thread(database.save_id_set, database.CHATS_FILE, {chat_id}, c)
+        await asyncio.to_thread(database.save_id_set, database.USERS_FILE, set(user_ids), c)
+    except Exception as exc:
+        logging.warning("[DRAFT] save_active failed: %s", exc)
 
 
 async def _send_draft_mode_picker(client, message):
@@ -128,8 +147,7 @@ async def draft_cmd(c, m):
             return await m.reply("❌ Series not found.")
 
     # Save Active Data
-    database.save_id_set(database.CHATS_FILE, {m.chat.id}, client=c)
-    database.save_id_set(database.USERS_FILE, {p1.id, p2.id}, client=c)
+    _bg(_save_active(c, m.chat.id, {p1.id, p2.id}))
 
     game_id = f"{m.chat.id}_{int(time.time())}_{random.randint(100,999)}"
     mode = "draft_v2" if is_v2 else "draft"
@@ -166,13 +184,13 @@ async def draft_cmd(c, m):
     if msg_id:
         game['display_message'] = {'chat_id': m.chat.id, 'msg_id': msg_id}
     logging.info(f"[DRAFT] Draft initialized - {p1.id} vs {p2.id}, waiting for acceptance")
-    await log_event(
+    _bg(log_event(
         c,
         'DRAFT INITIALIZED',
         actor=p1,
         chat=m.chat,
         details=f'{mode} • {p1.first_name} vs {p2.first_name} • series: {s_name}',
-    )
+    ))
 
 @Client.on_message(filters.command(["pokemondraft", "pdraft"]))
 async def pokemon_draft_cmd(c, m):
@@ -244,7 +262,7 @@ async def pokemon_draft_cmd(c, m):
     if msg_id:
         game['display_message'] = {'chat_id': m.chat.id, 'msg_id': msg_id}
     logging.info(f"[PDRAFT] Draft initialized - {p1.id} vs {p2.id}, waiting for acceptance")
-    await log_event(c, 'POKÉMON DRAFT INITIALIZED', actor=p1, chat=m.chat, details=f'{p1.first_name} vs {p2.first_name}')
+    _bg(log_event(c, 'POKÉMON DRAFT INITIALIZED', actor=p1, chat=m.chat, details=f'{p1.first_name} vs {p2.first_name}'))
 
 
 @Client.on_message(filters.command(["cdraft"]))
@@ -268,60 +286,29 @@ async def comic_draft_cmd(c, m):
             logging.warning(f"[CDRAFT] {p1.id} too many active drafts in chat {m.chat.id}")
             return await m.reply("⚠️ Too many active drafts here.")
 
-    # Load Marvel pool from data/marvel.json
-    marvel_file = os.path.join(DATA_DIR, "marvel.json")
-    if not os.path.exists(marvel_file):
-        logging.error(f"[CDRAFT] Marvel data file not found at {marvel_file}")
+    # Marvel data is loaded ONCE at startup (data_loader.load_marvel_data) into
+    # global_state, so read it from memory instead of re-parsing marvel.json
+    # (166 KB + building the pool) on every /cdraft.
+    if not global_state.MARVEL_CHARACTERS:
+        logging.error("[CDRAFT] Marvel data is not loaded in memory")
         return await m.reply("❌ Marvel data not found.")
-
-    try:
-        with open(marvel_file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        logging.debug(f"[CDRAFT] Loaded Marvel data with {len(data)} characters")
-    except Exception as e:
-        logging.error(f"[CDRAFT] Failed to load Marvel data: {e}")
-        return await m.reply("❌ Failed to load Marvel data.")
 
     # Series Filter (like draft)
     series_filter = None
     series_name = "All Marvel"
     if len(m.text.split()) > 1:
         raw = re.sub(r'[^a-z0-9]', '', m.text.split(maxsplit=1)[1].lower())
-        # Check if filter matches any series in marvel data
-        for entry in data:
-            if "series" in entry:
-                entry_series = re.sub(r'[^a-z0-9]', '', entry["series"].lower())
-                if entry_series == raw:
-                    series_filter = raw
-                    series_name = entry["series"]
-                    break
-        if not series_filter:
+        if raw in global_state.MARVEL_SERIES_MAP:
+            series_filter = raw
+            series_name = global_state.MARVEL_SERIES_DISPLAY.get(raw, raw)
+            logging.debug(f"[CDRAFT] Series filter applied: {series_name}")
+        else:
             logging.warning(f"[CDRAFT] {p1.id} invalid series filter: {raw}")
             return await m.reply("❌ Series not found in Marvel data.")
-        else:
-            logging.debug(f"[CDRAFT] Series filter applied: {series_name}")
 
-    pool = []
-    for entry in data:
-        name = entry.get('name')
-        stats = entry.get('stats')
-        img = entry.get('img')
-        series = entry.get('series', 'Marvel')
-        
-        # Filter by series if specified
-        if series_filter:
-            entry_series = re.sub(r'[^a-z0-9]', '', series.lower())
-            if entry_series != series_filter:
-                continue
-        
-        if not name or not stats: continue
-        uid = f"{name} | Marvel"
-        pool.append(uid)
-        # register stats/images into global cache so battle logic can find them
-        if uid not in global_state.CHAR_STATS:
-            global_state.CHAR_STATS[uid] = stats
-        if img:
-            global_state.CHAR_IMAGES[uid] = img
+    # Copy so one game can never mutate the shared startup list.
+    pool = list(global_state.MARVEL_SERIES_MAP[series_filter] if series_filter
+                else global_state.MARVEL_CHARACTERS)
 
     if not pool:
         logging.warning(f"[CDRAFT] {p1.id} no characters found for series filter")
@@ -330,8 +317,7 @@ async def comic_draft_cmd(c, m):
     logging.debug(f"[CDRAFT] Character pool created with {len(pool)} characters")
 
     # Save Active Data
-    database.save_id_set(database.CHATS_FILE, {m.chat.id}, client=c)
-    database.save_id_set(database.USERS_FILE, {p1.id, p2.id}, client=c)
+    _bg(_save_active(c, m.chat.id, {p1.id, p2.id}))
 
     game_id = f"{m.chat.id}_{int(time.time())}_{random.randint(100,999)}"
     logging.debug(f"[CDRAFT] Created game_id {game_id} for {p1.id} vs {p2.id}")
@@ -363,4 +349,4 @@ async def comic_draft_cmd(c, m):
     if msg_id:
         game['display_message'] = {'chat_id': m.chat.id, 'msg_id': msg_id}
     logging.info(f"[CDRAFT] Draft initialized - {p1.id} vs {p2.id}, waiting for acceptance")
-    await log_event(c, 'COMIC DRAFT INITIALIZED', actor=p1, chat=m.chat, details=f'{p1.first_name} vs {p2.first_name} • series: {series_name}')
+    _bg(log_event(c, 'COMIC DRAFT INITIALIZED', actor=p1, chat=m.chat, details=f'{p1.first_name} vs {p2.first_name} • series: {series_name}'))

@@ -9,6 +9,28 @@ GAMES = {}
 GAMES_LOCK = threading.RLock()
 CALLBACK_SEMAPHORE = asyncio.Semaphore(10)
 
+# One asyncio.Lock per game. Every draft button press for the same game is
+# processed one-at-a-time, so a double tap (or two quick taps while Telegram is
+# still editing the message) can never see half-updated state.
+_GAME_LOCKS = {}
+
+
+def get_game_lock(gid):
+    lock = _GAME_LOCKS.get(gid)
+    if lock is None:
+        if len(_GAME_LOCKS) > 500:
+            _prune_game_locks()
+        lock = _GAME_LOCKS.setdefault(gid, asyncio.Lock())
+    return lock
+
+
+def _prune_game_locks():
+    """Drop locks of games that no longer exist (called lazily, cheap)."""
+    with GAMES_LOCK:
+        alive = {gid for games in GAMES.values() for gid in games}
+    for gid in [g for g, l in _GAME_LOCKS.items() if g not in alive and not l.locked()]:
+        _GAME_LOCKS.pop(gid, None)
+
 # --- LOADED DATA ---
 CHAR_STATS = {}
 CHAR_IMAGES = {}
